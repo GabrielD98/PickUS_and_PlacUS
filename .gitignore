@@ -19,3 +19,8 @@ fp-info-cache
 *.kicad_prl
 _autosave-*
 ~*.kicad_sch.lck
+\#auto_saved_files#
+
+# Draw.io
+*.drawio.bkp
+.$*.drawio.bkp
