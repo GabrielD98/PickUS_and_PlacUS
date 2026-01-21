@@ -1,0 +1,22 @@
+# Python
+# Byte-code files
+*.pyc
+__pycache__/
+# Distribution / packaging
+.Python
+build/
+dist/
+wheels/
+*.egg-info/
+# Environments
+.venv/
+venv/
+env/
+# IDEs and editors
+.idea/  # popular for PyCharm projects
+.vscode/ # popular for VS Code projects
+# OS-specific files
+.DS_Store # macOS
+# Temporary and log files
+*.log
+.coverage
