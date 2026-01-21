@@ -1,13 +1,14 @@
 # PlatformIO
-.pio/
-.vscode/
-.pioenvs/
-.piolibdeps/
-.clang_complete
-.gcc-flags.json
+Firmware_esp32/.pio/
+Firmware_esp32/.vscode/
+Firmware_esp32/.pioenvs/
+Firmware_esp32/.piolibdeps/
+Firmware_esp32/.clang_complete
+Firmware_esp32/.gcc-flags.json
 
 # KiCad
 *-backups/
+*.pos
 *.bak
 *.bck
 *-save.pro
