@@ -5217,6 +5217,16 @@
 		)
 		(uuid "b38618a6-6b38-4a5d-9e82-9b715c1be38f")
 	)
+	(text "switch terminal for molex 396\nswitch drive connector for molex 396\n"
+		(exclude_from_sim no)
+		(at 222.504 170.18 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "bb26655e-8b23-4a8a-a1e6-338ca81f43af")
+	)
 	(junction
 		(at 66.04 102.87)
 		(diameter 0)
@@ -9207,6 +9217,16 @@
 		)
 		(uuid "75296165-78aa-438d-9f2a-78edc4b1d731")
 	)
+	(label "3V3"
+		(at 271.78 59.69 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7537a1d2-44a3-40e4-9256-4509ba83e60d")
+	)
 	(label "GPIO13"
 		(at 212.09 81.28 0)
 		(effects
@@ -12824,7 +12844,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "TerminalBlock:TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm"
+		(property "Footprint" "Connector_Molex:Molex_KK-396_A-41792-0002_1x02_P3.96mm_Horizontal"
 			(at 161.29 185.42 0)
 			(effects
 				(font
@@ -15371,7 +15391,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Molex:Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Molex:Molex_KK-396_A-41792-0004_1x04_P3.96mm_Horizontal"
 			(at 27.94 124.46 0)
 			(effects
 				(font
@@ -15577,7 +15597,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Molex:Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Molex:Molex_KK-396_A-41792-0004_1x04_P3.96mm_Horizontal"
 			(at 27.94 33.02 0)
 			(effects
 				(font
@@ -17210,7 +17230,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Molex:Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Molex:Molex_KK-396_A-41792-0004_1x04_P3.96mm_Horizontal"
 			(at 27.94 78.74 0)
 			(effects
 				(font
@@ -17897,72 +17917,6 @@
 			(project "circuitPNP"
 				(path "/cdf8736a-c168-4946-980b-ea20704015fc"
 					(reference "R12")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 271.78 59.69 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e0db2be1-6650-4f89-9653-5560f27a7038")
-		(property "Reference" "#PWR08"
-			(at 271.78 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 271.78 64.77 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 271.78 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 271.78 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 271.78 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "f3774389-cf6d-42fb-80bd-1004fc1319be")
-		)
-		(instances
-			(project "circuitPNP"
-				(path "/cdf8736a-c168-4946-980b-ea20704015fc"
-					(reference "#PWR08")
 					(unit 1)
 				)
 			)
@@ -18863,7 +18817,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Molex:Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical"
+		(property "Footprint" "Connector_Molex:Molex_KK-396_A-41792-0004_1x04_P3.96mm_Horizontal"
 			(at 29.21 168.91 0)
 			(effects
 				(font
@@ -18939,7 +18893,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "TerminalBlock:TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm"
+		(property "Footprint" "Connector_Molex:Molex_KK-396_A-41792-0002_1x02_P3.96mm_Horizontal"
 			(at 161.29 167.64 0)
 			(effects
 				(font
