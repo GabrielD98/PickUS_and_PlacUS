@@ -1,12 +1,19 @@
 from file_interpreter import FileInterpreter
+from storage import Storage
+from data import *
+from unit_test import *
+
+
+
 
 if __name__ == "__main__":
     print("Starting Program")
 
     try : 
-        file = "../data/PCB_test-top.pos"
-        interpreter = FileInterpreter()
-        interpreter.readPositionFile(file)
+        test_storage()
+
+        
+
     except Exception as e : 
         print(f"An error occured during the execution of the main program : {e}")
 

@@ -48,7 +48,7 @@ class FileInterpreter:
             if data[0][0] == "R":
                 type = Type.RESISTOR
             elif data[0][0] == "D":
-                type = Type.DEL
+                type = Type.LED
             else :
                 continue
             
