@@ -39,6 +39,15 @@ class Position:
         yaw = self.yaw + other.yaw
         return Position(x, y, z, yaw)
     
+    def __eq__(self, other):
+        if not isinstance(other, Position):
+            return NotImplemented
+        x = self.x == other.x
+        y = self.y == other.y
+        z = self.z == other.z
+        yaw = self.yaw == other.yaw
+        return x and y and x and yaw 
+    
     def toJSON(self):
         return [self.x, self.y, self.z, self.yaw]
 

@@ -20,7 +20,7 @@ class Slicer :
 
 
 
-    def slice(self, pieces:List[Piece], offset:Position):
+    def slice(self, pieces:List[Piece], offset:Position, pick_position:Position, z_offset:Position):
         available = self.storage.getValidComponents()
         storage_offset:dict[Piece, Position] = {}
         for piece in available:
@@ -36,19 +36,17 @@ class Slicer :
                 continue
             
             piece_pos:Position = piece.position + offset
-            z_offset = Position(0,0,-2,0) #TODO dealer ak ca
-            pick_pos = Position(0, 0, 0, 0) #TODO dealer ak la position du PICK
             pick_offset = Position(0,-1,0,0) #TODO dealer pick ofset
             commands[f"component{piece_id}"] = {
                 1 : {
                     "command" : Command.MOVE.value,
                     "speed" : self.speed,
-                    "position" : (pick_pos + offset + storage_offset[piece]).toJSON()
+                    "position" : (pick_position + offset + storage_offset[piece]).toJSON()
                 }, 
                 2 : {
                     "command" : Command.PICK.value, 
                     "speed" : Z_SPEED, 
-                    "position" : (pick_pos + pick_offset + offset).toJSON()
+                    "position" : (pick_position + pick_offset + offset).toJSON()
                 }, 
                 3 : {
                     "command" : Command.MOVE.value,
@@ -61,7 +59,7 @@ class Slicer :
                     "position" : (piece_pos + z_offset + offset).toJSON()
                 }
             }
-            storage_offset[piece] = storage_offset[piece] + pick_offset
+            storage_offset[piece] = storage_offset[piece] + self.storage.components[piece].deltaPos
             piece_id += 1
 
         commands["home"] = {
