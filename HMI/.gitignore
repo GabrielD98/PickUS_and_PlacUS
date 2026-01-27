@@ -20,3 +20,5 @@ env/
 # Temporary and log files
 *.log
 .coverage
+
+data/*.json

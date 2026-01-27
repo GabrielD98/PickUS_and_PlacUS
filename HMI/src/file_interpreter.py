@@ -56,7 +56,7 @@ class FileInterpreter:
             position = Position(x=float(data[POS_X_INDEX]), 
                                 y=float(data[POS_Y_INDEX]),
                                 z=0,
-                                rotation=float(data[ROTATION_INDEX]))
+                                yaw=float(data[ROTATION_INDEX]))
             
             #TODO add a way to interpret value in kicad
             piece = Piece(position=position, package=data[PACKAGE_INDEX], type=type, value="")

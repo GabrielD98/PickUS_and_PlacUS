@@ -2,6 +2,13 @@ from dataclasses import dataclass
 from enum import Enum
 
 
+class Command(Enum):
+    STOP = 0
+    MOVE = 1
+    PICK = 2
+    PLACE = 3
+
+
 class Type(Enum):
     RESISTOR = 0    
     LED = 1
@@ -21,7 +28,19 @@ class Position:
     x : float       
     y : float
     z : float 
-    rotation : float
+    yaw : float
+
+    def __add__(self, other):
+        if not isinstance(other, Position):
+            return NotImplemented
+        x = self.x + other.x
+        y = self.y + other.y
+        z = self.z + other.z
+        yaw = self.yaw + other.yaw
+        return Position(x, y, z, yaw)
+    
+    def toJSON(self):
+        return [self.x, self.y, self.z, self.yaw]
 
 
 
@@ -38,7 +57,7 @@ class Piece:
             return NotImplemented
         return self.package == other.package
     
-    #Allows the object to be the key of a dictionary in the storage unit
+    #Allows the object to be the key of a dictionary in the storage
     def __hash__(self):
         return hash(self.package)
 

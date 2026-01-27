@@ -84,6 +84,6 @@ class Storage :
         valid_components:List[Piece] = []
         for component in self.components.values():
             if component.state == StorageState.USING:
-                valid_components.append(component)
+                valid_components.append(component.piece)
         return valid_components
         
