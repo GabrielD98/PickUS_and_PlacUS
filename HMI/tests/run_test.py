@@ -1,11 +1,13 @@
-
+#from the HMI directory run - python tests/run_test.py
 
 import unittest
 from test_file_interpreter import TestFileInterpreter
+from test_storage import TestStorage
 
 
 if __name__ == '__main__':
-    test_classes_to_run = [TestFileInterpreter]
+    test_classes_to_run = [TestFileInterpreter,
+                           TestStorage]
     loader = unittest.TestLoader()
 
     suites_list = []
