@@ -9,9 +9,6 @@ from data import Position, Piece, Type
 
 class TestFileInterpreter(unittest.TestCase):
     def setUp(self):
-        print("\n\n///////////////////////////////")
-        print("//   TEST FILE INTERPRETER   //")
-        print("///////////////////////////////\n")
 
         self.fileInterpreter = FileInterpreter()
         self.file = "tests/data/testKicad.txt"

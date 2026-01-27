@@ -10,10 +10,6 @@ from data import Position, Piece, Type, StorageState, StorageUnit
 class TestStorage(unittest.TestCase):
 
     def setUp(self):
-        print("\n\n///////////////////////////")
-        print("//   TEST FILE STORAGE   //")
-        print("///////////////////////////\n")
-
         self.storage = Storage()
 
 
@@ -21,7 +17,7 @@ class TestStorage(unittest.TestCase):
 
     def test_add_component(self):
 
-        print("TEST ADD COMPONENT")
+        print("\nTEST STORAGE ADD COMPONENT")
         self.assertEqual(len(self.storage.components), 0)
 
         #one piece added
@@ -104,7 +100,7 @@ class TestStorage(unittest.TestCase):
 
 
     def test_remove_component(self):
-        print("TEST REMOVE COMPONENT")
+        print("\nTEST STORAGE REMOVE COMPONENT")
         piece1 =Piece(position=Position(1, 2, 0.0, -90.0000),
                   package="R_0805",
                   type=Type.RESISTOR,
@@ -140,7 +136,7 @@ class TestStorage(unittest.TestCase):
 
 
     def test_get_valid_components(self):
-        print("TEST VALID COMPONENT")
+        print("\nTEST STORAGE VALID COMPONENT")
         piece1 =Piece(position=Position(1, 2, 0.0, -90.0000),
                   package="P1",
                   type=Type.RESISTOR,

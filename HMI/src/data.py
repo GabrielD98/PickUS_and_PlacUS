@@ -48,6 +48,16 @@ class Position:
         yaw = self.yaw == other.yaw
         return x and y and x and yaw 
     
+    def __mul__(self, other):
+        x = self.x * other
+        y = self.y * other
+        z = self.z * other
+        yaw = self.yaw * other
+        return Position(x, y, z, yaw)
+    
+    def __rmul__(self, other):
+        return self.__mul__(other)
+    
     def toJSON(self):
         return [self.x, self.y, self.z, self.yaw]
 

@@ -3,11 +3,13 @@
 import unittest
 from test_file_interpreter import TestFileInterpreter
 from test_storage import TestStorage
+from test_slicer import TestSlicer
 
 
 if __name__ == '__main__':
     test_classes_to_run = [TestFileInterpreter,
-                           TestStorage]
+                           TestStorage, 
+                           TestSlicer]
     loader = unittest.TestLoader()
 
     suites_list = []
