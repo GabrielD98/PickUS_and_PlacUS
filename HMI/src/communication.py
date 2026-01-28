@@ -34,20 +34,21 @@ class Communication:
 		"""
 		if self.isPortOpen():
 			self.ser.close()
+		return
 
 
-	def sendRequest(self, request: bytes):
+	def sendData(self, data: bytes):
 		"""Send data through the serial port.
 
 		Parameters:
-			request (bytes):
+			data (bytes):
 				Data to send
         """
 		if self.isPortOpen():
-			self.ser.write(request)
+			self.ser.write(data)
 		return
 
-	def receiveRequest(self) -> bytes:
+	def receiveData(self) -> bytes:
 		"""Read a line from the serial port (blocking until '\\n').
 
 		Returns:
@@ -62,10 +63,13 @@ class Communication:
 	def isPortOpen(self) -> bool:
 		"""
         Tell if the port is open
+
+		Returns:
+			bool: True if the port is open, False if close or not init
         """
 		result = False
 
 		if self.ser is not None:
 			result = self.ser.is_open
-			
+
 		return result
