@@ -58,12 +58,11 @@ class TestSlicer(unittest.TestCase):
         }
 
         file_path = "tests/data/testslicer.json"
-        slicer = Slicer(file_path)
+        slicer = Slicer()
         slicer_speed = 2.0
-        slicer.speed = slicer_speed
         offset = Position(10, 20, 0, 0)
         z_offset = Position(0, 0, -2, 0)
-        slicer.slice(self.pieces, offset, z_offset)
+        slicer.slice(self.pieces, offset, z_offset, file_path, slicer_speed)
         
         data = {}
         try:
