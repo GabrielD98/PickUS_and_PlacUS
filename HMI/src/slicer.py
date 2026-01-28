@@ -72,7 +72,7 @@ class Slicer :
                 2 : {
                     "command" : Command.PICK.value, 
                     "speed" : Z_SPEED, 
-                    "position" : (pick_position + z_offset + offset).toJSON()
+                    "position" : (pick_position + z_offset + offset + storage_offset[piece]).toJSON()
                 }, 
                 3 : {
                     "command" : Command.MOVE.value,

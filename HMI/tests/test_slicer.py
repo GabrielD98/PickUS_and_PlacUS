@@ -105,18 +105,26 @@ class TestSlicer(unittest.TestCase):
         position = data["component1"]["4"]["position"]
         result = (self.pieces[0].position + offset + z_offset).toJSON()
         self.assertListEqual(position, result) 
+        position1 = data["component1"]["4"]["position"]
+        position2 = data["component1"]["3"]["position"]
+        self.assertListEqual([position1[0], position1[1]], [position2[0], position2[1]])     
 
 
         #2nd command (ensures that the deltaPos keeps going)
         position = data["component2"]["1"]["position"]
         result = (piece1.position + offset + storage.components[piece1].deltaPos).toJSON()
-        self.assertListEqual(position, result)     
+        self.assertListEqual(position, result)   
+        position1 = data["component2"]["1"]["position"]
+        position2 = data["component2"]["2"]["position"]
+        self.assertListEqual([position1[0], position1[1]], [position2[0], position2[1]])       
 
         #3nd command (ensures that the deltaPos keeps going)
         position = data["component3"]["1"]["position"]
         result = (piece1.position + offset + (2 * storage.components[piece1].deltaPos)).toJSON()
         self.assertListEqual(position, result)
-
+        position1 = data["component3"]["1"]["position"]
+        position2 = data["component3"]["2"]["position"]
+        self.assertListEqual([position1[0], position1[1]], [position2[0], position2[1]])  
 
         #PIECE 2
 
