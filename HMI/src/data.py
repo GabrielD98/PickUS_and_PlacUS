@@ -37,6 +37,12 @@ class ControllerState(Enum):
     PAUSE = 3
     DONE = 4
 
+class TransitionRequest(Enum):
+    TO_RUNNING = (1<<0)
+    TO_MANUAL = (1<<1)
+    TO_PAUSE = (1<<2)
+    TO_IDLE = (1<<3)
+
 @dataclass
 class Position:
     """
