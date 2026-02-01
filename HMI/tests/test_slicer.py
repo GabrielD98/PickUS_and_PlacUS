@@ -5,8 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 import unittest
 from slicer import Slicer
 from storage import Storage
-from data import Position, Piece, Type, StorageState, StorageUnit, Command
-import json
+from data import Position, Piece, Type, StorageState, StorageUnit, Command, CommandId
 
 
 class TestSlicer(unittest.TestCase):
@@ -57,126 +56,99 @@ class TestSlicer(unittest.TestCase):
                                  state=StorageState.USING, quantity=10, automatic=False)
         }
 
-        file_path = "tests/data/testslicer.json"
         slicer = Slicer()
+        slicer.storage = storage
         slicer_speed = 2.0
         offset = Position(10, 20, 0, 0)
         z_offset = Position(0, 0, -2, 0)
-        slicer.slice(self.pieces, offset, z_offset, file_path, slicer_speed)
+        commands = slicer.slice(self.pieces, offset, z_offset, slicer_speed)
         
-        data = {}
-        try:
-            with open(file_path, "r") as file:
-                data = json.load(file)
+        # Verify we got a list of Command objects
+        self.assertIsInstance(commands, list)
+        self.assertTrue(len(commands) > 0)
+        self.assertIsInstance(commands[0], Command)
 
-        except Exception:
-            self.assertTrue(False) #failed to open, fails the the test
+        #PIECE 1 (3 LEDs with package "1")
+        # Each piece has 4 commands: MOVE, PICK, MOVE, PLACE
+        # So piece 1 commands are at indices 0-3
 
-        #PIECE 1
+        #1st command - MOVE to storage
+        cmd = commands[0]
+        self.assertEqual(cmd.commandId, CommandId.MOVE)
+        self.assertEqual(cmd.velocity, slicer_speed)
+        self.assertEqual(cmd.position, piece1.position + offset)
+        self.assertEqual(cmd.piece, self.pieces[0])  # First LED piece
 
-        #1rst command
-        position = data["component1"]["1"]["position"]
-        result = (piece1.position + offset).toJSON()
-        self.assertListEqual(position, result)     
+        #2nd command - PICK
+        cmd = commands[1]
+        self.assertEqual(cmd.commandId, CommandId.PICK)
+        self.assertEqual(cmd.position, piece1.position + offset + z_offset)
 
-        command = data["component1"]["1"]["command"]   
-        self.assertEqual(command, Command.MOVE.value) 
+        #3rd command - MOVE to placement
+        cmd = commands[2]
+        self.assertEqual(cmd.commandId, CommandId.MOVE)
+        self.assertEqual(cmd.position, self.pieces[0].position + offset)
 
-        speed = data["component1"]["1"]["speed"]   
-        self.assertEqual(speed, slicer_speed) 
+        #4th command - PLACE
+        cmd = commands[3]
+        self.assertEqual(cmd.commandId, CommandId.PLACE)
+        self.assertEqual(cmd.position, self.pieces[0].position + offset + z_offset)
+        # Verify x,y match between MOVE and PLACE
+        self.assertEqual(commands[3].position.x, commands[2].position.x)
+        self.assertEqual(commands[3].position.y, commands[2].position.y)
 
-        command = data["component1"]["2"]["command"]   
-        self.assertEqual(command, Command.PICK.value) 
+        #2nd piece commands (indices 4-7) - ensures that the deltaPos keeps going
+        cmd = commands[4]
+        self.assertEqual(cmd.commandId, CommandId.MOVE)
+        self.assertEqual(cmd.position, piece1.position + offset + storage.components[piece1].deltaPos)
+        # Verify x,y match between MOVE and PICK
+        self.assertEqual(commands[4].position.x, commands[5].position.x)
+        self.assertEqual(commands[4].position.y, commands[5].position.y)
 
-        position = data["component1"]["2"]["position"]
-        result = (piece1.position + offset + z_offset).toJSON()
-        self.assertListEqual(position, result)  
+        #3rd piece commands (indices 8-11) - ensures that the deltaPos keeps going
+        cmd = commands[8]
+        self.assertEqual(cmd.commandId, CommandId.MOVE)
+        self.assertEqual(cmd.position, piece1.position + offset + (2 * storage.components[piece1].deltaPos))
+        # Verify x,y match between MOVE and PICK
+        self.assertEqual(commands[8].position.x, commands[9].position.x)
+        self.assertEqual(commands[8].position.y, commands[9].position.y)
 
-        command = data["component1"]["3"]["command"]   
-        self.assertEqual(command, Command.MOVE.value) 
+        #PIECE 2 (2 RESISTORs with package "2")
+        # 4th component commands (indices 12-15)
 
-        position = data["component1"]["3"]["position"]
-        result = (self.pieces[0].position + offset).toJSON()
-        self.assertListEqual(position, result) 
+        #1st command - MOVE to storage
+        cmd = commands[12]
+        self.assertEqual(cmd.commandId, CommandId.MOVE)
+        self.assertEqual(cmd.velocity, slicer_speed)
+        self.assertEqual(cmd.position, piece2.position + offset)
+        self.assertEqual(cmd.piece, self.pieces[3])  # First RESISTOR piece
 
-        command = data["component1"]["4"]["command"]   
-        self.assertEqual(command, Command.PLACE.value) 
+        #2nd command - PICK
+        cmd = commands[13]
+        self.assertEqual(cmd.commandId, CommandId.PICK)
+        self.assertEqual(cmd.position, piece2.position + offset + z_offset)
 
-        position = data["component1"]["4"]["position"]
-        result = (self.pieces[0].position + offset + z_offset).toJSON()
-        self.assertListEqual(position, result) 
-        position1 = data["component1"]["4"]["position"]
-        position2 = data["component1"]["3"]["position"]
-        self.assertListEqual([position1[0], position1[1]], [position2[0], position2[1]])     
+        #3rd command - MOVE to placement
+        cmd = commands[14]
+        self.assertEqual(cmd.commandId, CommandId.MOVE)
+        self.assertEqual(cmd.position, self.pieces[3].position + offset)
 
+        #4th command - PLACE
+        cmd = commands[15]
+        self.assertEqual(cmd.commandId, CommandId.PLACE)
+        self.assertEqual(cmd.position, self.pieces[3].position + offset + z_offset)
 
-        #2nd command (ensures that the deltaPos keeps going)
-        position = data["component2"]["1"]["position"]
-        result = (piece1.position + offset + storage.components[piece1].deltaPos).toJSON()
-        self.assertListEqual(position, result)   
-        position1 = data["component2"]["1"]["position"]
-        position2 = data["component2"]["2"]["position"]
-        self.assertListEqual([position1[0], position1[1]], [position2[0], position2[1]])       
+        #5th component commands (indices 16-19) - 2nd RESISTOR, ensures that the deltaPos keeps going
+        cmd = commands[16]
+        self.assertEqual(cmd.commandId, CommandId.MOVE)
+        self.assertEqual(cmd.position, piece2.position + offset + storage.components[piece2].deltaPos)
 
-        #3nd command (ensures that the deltaPos keeps going)
-        position = data["component3"]["1"]["position"]
-        result = (piece1.position + offset + (2 * storage.components[piece1].deltaPos)).toJSON()
-        self.assertListEqual(position, result)
-        position1 = data["component3"]["1"]["position"]
-        position2 = data["component3"]["2"]["position"]
-        self.assertListEqual([position1[0], position1[1]], [position2[0], position2[1]])  
-
-        #PIECE 2
-
-        #1rst command
-        position = data["component4"]["1"]["position"]
-        result = (piece2.position + offset).toJSON()
-        self.assertListEqual(position, result)     
-
-        command = data["component4"]["1"]["command"]   
-        self.assertEqual(command, Command.MOVE.value) 
-
-        speed = data["component4"]["1"]["speed"]   
-        self.assertEqual(speed, slicer_speed) 
-
-        command = data["component4"]["2"]["command"]   
-        self.assertEqual(command, Command.PICK.value) 
-
-        position = data["component4"]["2"]["position"]
-        result = (piece2.position + offset + z_offset).toJSON()
-        self.assertListEqual(position, result)  
-
-        command = data["component4"]["3"]["command"]   
-        self.assertEqual(command, Command.MOVE.value) 
-
-        position = data["component4"]["3"]["position"]
-        result = (self.pieces[3].position + offset).toJSON()
-        self.assertListEqual(position, result) 
-
-        command = data["component4"]["4"]["command"]   
-        self.assertEqual(command, Command.PLACE.value) 
-
-        position = data["component4"]["4"]["position"]
-        result = (self.pieces[3].position + offset + z_offset).toJSON()
-        self.assertListEqual(position, result) 
-
-
-        #2nd command (ensures that the deltaPos keeps going)
-        position = data["component5"]["1"]["position"]
-        result = (piece2.position + offset + storage.components[piece2].deltaPos).toJSON()
-        self.assertListEqual(position, result)     
-
-
-        #test for going home
-        position = data["home"]["1"]["position"]
-        result = offset.toJSON()
-        self.assertListEqual(position, result)     
-
-        command = data["home"]["1"]["command"]   
-        self.assertEqual(command, Command.MOVE.value) 
-
-        speed = data["home"]["1"]["speed"]   
-        self.assertEqual(speed, slicer_speed) 
+        #test for going home - should be the last command
+        cmd = commands[-1]
+        self.assertEqual(cmd.commandId, CommandId.HOME)
+        self.assertEqual(cmd.velocity, slicer_speed)
+        self.assertIsNone(cmd.position)  # HOME command uses None position (uses limit switches)
+        self.assertIsNone(cmd.piece)  # Home command has no associated piece 
 
 
 

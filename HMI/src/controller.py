@@ -13,14 +13,18 @@ class Controller:
 	def __init__(self):
 		self.storage = Storage() # mutex on Storage?
 		self.com = Communication()
-		self.commands = list() #probably need a mutex
+		self.commands = list()
 		self.lastCommand = Command(CommandId.EMPTY,0, None, None)
-		self.jogVelocity = 0 #mutex
-		self.controllerState = ControllerState.IDLE #mutex
-		self.latestMachineInfo = (MachineState.DISCONNECTED, Position(0,0,0,0)) #mutex
+		self.jogVelocity = 0
+		self.controllerState = ControllerState.IDLE
+		self.latestMachineInfo = (MachineState.DISCONNECTED, Position(0,0,0,0))
 		self.closeEvent = threading.Event()
 		self.comThread = None
 		self.controllerRequestTransitionField = 0
+		self.commands_mutex = threading.Lock()
+		self.state_mutex = threading.Lock()
+		self.machine_info_mutex = threading.Lock()
+		self.transition_mutex = threading.Lock()
 
 
 	def _sendCommand(self, command:Command):
@@ -48,8 +52,8 @@ class Controller:
 		size = struct.calcsize(format)
 
 		machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
-
-		self.latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
+		with self.machine_info_mutex:
+			self.latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
 
 	def _nextCommand(self) -> Command:
 		nextCommand = None
@@ -93,8 +97,8 @@ class Controller:
 		self._toggleRequestTransitionBit(TransitionRequest.TO_RUNNING,True)
 
 	def getLatestMachineInfo(self):
-		#probably require a mutex
-		return self.latestMachineInfo
+		with self.machine_info_mutex:
+			return self.latestMachineInfo
 	
 	def connectionToMachine(self,comPort:str):
 		self.com.open(comPort)

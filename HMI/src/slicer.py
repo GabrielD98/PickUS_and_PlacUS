@@ -1,6 +1,5 @@
 from typing import Any, List
 import os
-import json
 from file_interpreter import FileInterpreter
 from storage import Storage
 from data import *
@@ -26,10 +25,10 @@ class Slicer :
 
 
     #TODO revalider les units de la vitesse
-    def slice(self, pieces:List[Piece], offset:Position, z_offset:Position, JSON_path:str, speed:float):
+    def slice(self, pieces:List[Piece], offset:Position, z_offset:Position, speed:float) -> List[Command]:
         """
         Generates all of the commands and setpoints for the placement of components.
-        These commands are generated in a JSON file to be read by the controller class.
+        Returns a list of Command objects to be used by the controller class.
 
         Parameters:
             piece (Piece): The list of all the pieces to be placed.
@@ -40,8 +39,10 @@ class Slicer :
                                 fully retracted vs when z position of the PCB. Allows
                                 the machine to know the height of the placement.
                                 Has to be generated in the calibration step.
-            JSON_path (str): The path where the JSON file should be generated.
             speed (float): The speed of the movement of the pcb machine (cm/s)
+        
+        Returns:
+            List[Command]: The list of commands to execute for placing all components.
         """
 
 
@@ -51,9 +52,7 @@ class Slicer :
         for piece in available:
             storage_offset[piece] = Position(0, 0, 0, 0)
 
-        piece_id:int = 1
-        commands:dict[str, dict] = {}
-        home = Position(0,0,0,0)
+        commands:List[Command] = []
 
         for piece in pieces:
             
@@ -63,64 +62,49 @@ class Slicer :
             #for each piece, move towards its place in the storage, 
             #pick it, move towards the placement zone, and place it
             pick_position = self.storage.components[piece].piece.position
-            commands[f"component{piece_id}"] = {
-                1 : {
-                    "command" : Command.MOVE.value,
-                    "speed" : speed,
-                    "position" : (pick_position + offset + storage_offset[piece]).toJSON()
-                }, 
-                2 : {
-                    "command" : Command.PICK.value, 
-                    "speed" : Z_SPEED, 
-                    "position" : (pick_position + z_offset + offset + storage_offset[piece]).toJSON()
-                }, 
-                3 : {
-                    "command" : Command.MOVE.value,
-                    "speed" : speed,
-                    "position" : (piece.position + offset).toJSON()
-                },
-                4 : {
-                    "command" : Command.PLACE.value, 
-                    "speed" : Z_SPEED,
-                    "position" : (piece.position + z_offset + offset).toJSON()
-                }
-            }
+            
+            # Move to storage position
+            commands.append(Command(
+                commandId=CommandId.MOVE,
+                velocity=speed,
+                position=pick_position + offset + storage_offset[piece],
+                piece=piece
+            ))
+            
+            # Pick the piece
+            commands.append(Command(
+                commandId=CommandId.PICK,
+                velocity=Z_SPEED,
+                position=pick_position + z_offset + offset + storage_offset[piece],
+                piece=piece
+            ))
+            
+            # Move to placement position
+            commands.append(Command(
+                commandId=CommandId.MOVE,
+                velocity=speed,
+                position=piece.position + offset,
+                piece=piece
+            ))
+            
+            # Place the piece
+            commands.append(Command(
+                commandId=CommandId.PLACE,
+                velocity=Z_SPEED,
+                position=piece.position + z_offset + offset,
+                piece=piece
+            ))
 
             #updates the new position of the piece in the storage if the storage is not auto
             if not self.storage.components[piece].automatic :
                 storage_offset[piece] = storage_offset[piece] + self.storage.components[piece].deltaPos
-            piece_id += 1
 
         #when all is done, move to 'home' position
-        commands["home"] = {
-            1 : {
-                "command" : Command.MOVE.value, 
-                "speed" : speed,
-                "position" : (home + offset).toJSON()
-            }
-        }
-        self.writeToJSON(commands, JSON_path)
-            
-
+        commands.append(Command(
+            commandId=CommandId.HOME,
+            velocity=speed,
+            position=None,
+            piece=None
+        ))
         
-
-
-    def addPiece(self):
-        pass
-
-
-
-
-    def writeToJSON(self, data:dict[str, dict], file_path:str):
-        """
-        Writes the list of command in a JSON file. 
-        If the file does not exists, it creates it.
-        If the file exists, it overwrites it.
-
-        Parameters:
-            Data (dict[str, dict]): The dictionary of all the commands generated by the slicer
-                                    (action and setpoints) for the pick and place.
-            JSON_path (str): The path where the JSON file should be generated.
-        """
-        with open(file_path, 'w') as f:
-            json.dump(data, f, indent=4)
+        return commands
