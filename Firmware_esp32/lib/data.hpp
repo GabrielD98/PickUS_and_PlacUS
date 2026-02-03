@@ -1,11 +1,11 @@
 #include <stdint.h>
 
-typedef struct position
+typedef struct Position
 {
-	float x;
-	float y;
-	float z;
-	float yaw;
+	float x = 0;
+	float y = 0;
+	float z = 0;
+	float yaw = 0;
 
 }position_t;
 
@@ -29,7 +29,7 @@ enum class MachineState
 	DISCONNECTED = 5, 
 };
 
-typedef struct __attribute__((packed)) command
+typedef struct __attribute__((packed)) Command
 {
 	CommandId id;
 	float velocity;
