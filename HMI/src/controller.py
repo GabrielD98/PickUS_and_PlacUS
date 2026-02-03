@@ -118,6 +118,35 @@ class Controller:
 
 
 
+	def connectionToMachine(self,comPort:str):
+		"""
+		Open the serial port and start the controlLoop thread
+
+		Parameters:
+			comPort (str):
+				serial port to opne	
+		"""
+
+		self._com.open(comPort)
+		self._comThread = threading.Thread(target=self._controlLoop)
+		self._comThread.start()
+
+
+
+
+	def disconnectionFromMachine(self):
+		"""
+		Close the serial port and stop the controlLoop thread
+				
+		"""
+
+		self._com.close()
+		self._closeEvent.set()
+		self._comThread.join()
+
+
+
+
 	def _sendCommand(self, command:Command):
 		"""
 		Pack and send the given command on the serial port.
