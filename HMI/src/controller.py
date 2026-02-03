@@ -36,6 +36,9 @@ class Controller:
 			Used to ensure thread safety for all shared state
 	"""
 	
+	#TODO continue when pause
+
+
 	def __init__(self):
 		self._storage = Storage() # mutex on Storage?
 		self._com = Communication()
@@ -334,7 +337,7 @@ class Controller:
 	
 
 
-	
+
 	def _controlLoop(self):
 		"""Main control loop managing state machine and communication.
 		
