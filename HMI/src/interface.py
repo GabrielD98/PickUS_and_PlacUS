@@ -10,14 +10,37 @@ from PyQt5.QtWidgets import (
     QLineEdit,
 	QLabel,
 	QFrame,
+	QPlainTextEdit,
+	QInputDialog
 )
-
 from PyQt5 import QtWidgets
 from pathlib import Path
+
+from file_interpreter import FileInterpreter
+from slicer import Slicer
+from storage import Storage
+from data import *
+from typing import List
+from storage_window import StorageWindow
+import utils
+		
+		
+		
+
 
 class Interface(QMainWindow):
 	def __init__(self):
 		super().__init__()
+		self.storage_window:StorageWindow = None
+		self.storage = Storage()
+		self.pieces:List[Piece] = []
+		self.file_path = "No file selected"
+		self.initialize_gui()
+
+	
+
+	def initialize_gui(self) :
+		
 		self.setWindowTitle("PickUS & PlacUS")
 
 
@@ -36,23 +59,25 @@ class Interface(QMainWindow):
 
 
 
-
+		#FILE READING LAYOUT
 		explore_file = QPushButton("Open .pos file")
 		explore_file.clicked.connect(self.open_file_dialog)
 		self.file_label = QLabel('No File Selected', alignment=Qt.AlignLeft|Qt.AlignVCenter)
 		self.file_label.setStyleSheet("color: black; background-color: white")
+		self.analyse_button = QPushButton("Analyse")
+		self.analyse_button.clicked.connect(self.analyse_file)
+		self.analyse_button.setEnabled(False)
 		file_layout = QHBoxLayout()
 		file_layout.addWidget(explore_file, 1)
 		file_layout.addWidget(self.file_label, 5)
+		file_layout.addWidget(self.analyse_button, 1)
 		left_layout.addLayout(file_layout, 1)
 
 
 		#TODO delete label
-		white_label = QLabel(self)
-		white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
-		pieces_layout = QHBoxLayout()
-		pieces_layout.addWidget(white_label)
-		left_layout.addLayout(pieces_layout, 6)
+		#FILE READING LAYOUT
+		self.pieces_layout = QVBoxLayout()
+		left_layout.addLayout(self.pieces_layout, 6)
 
 		#TODO delete label
 		white_label = QLabel(self)
@@ -119,35 +144,10 @@ class Interface(QMainWindow):
 		self.setCentralWidget(global_widget)
 
 		self.showMaximized()
-		return
-
-		file_pos_layout = QHBoxLayout()
-		file_pos_layout.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-
-		file_position_widget = QWidget()
-		explore_file = QPushButton("Open .pos file")
-		explore_file.clicked.connect(self.open_file_dialog)
-		self.file_label = QLabel('No File Selected', alignment=Qt.AlignCenter)
-		self.file_label.setStyleSheet("color: black; background-color: white")
-		file_pos_layout.addWidget(explore_file)
-		file_pos_layout.addWidget(self.file_label)
-		file_position_widget.setLayout(file_pos_layout)
-		self.setCentralWidget(file_position_widget)
-		self.setStyleSheet(
-			"""
-			QMainWindow {{
-				border-image: url({image_path}) 0 0 0 0 stretch stretch;
-			}}
-			""".format(image_path="../data/a_joyful_Julius_C.png")
-		)
-
-
-		self.showMaximized()
 
 
 
-	def handleButton(self):
-		print('Hello World')
+
 
 	def open_file_dialog(self):
 		filename, _ = QFileDialog.getOpenFileName(
@@ -159,14 +159,56 @@ class Interface(QMainWindow):
 
 		if not filename:
 			return
-			# Display the selected file path
-		file_path = str(Path(filename))
-		self.file_label.setText(file_path)
 
-		with open(file_path, "r") as file:
-			# Perform file operations inside this block
-			content = file.read()
-			print(content)
+		self.file_path = str(Path(filename))
+		self.file_label.setText(self.file_path)
+		self.analyse_button.setEnabled(True)
 
+		
+
+
+	def analyse_file(self):
+		pieces = FileInterpreter().readPositionFile(self.file_path)
+		if pieces is None:
+			return
+		self.pieces = self.get_all_unique_piece(pieces)
+		self.update_piece_list()
+
+
+
+
+	def get_all_unique_piece(self, pieces:List[Piece]) -> List[Piece]:
+		unique_pieces:dict[Piece:Piece] = {}
+		for piece in pieces:
+			if piece not in unique_pieces:
+				unique_pieces[piece] = piece
+		return list(unique_pieces.values())
     
-    
+
+
+	def update_piece_list(self):
+
+		utils.clearLayout(self.pieces_layout)
+
+		for piece in self.pieces:
+			layout = QHBoxLayout()
+			addition_label = QLabel("(Not Added)")
+			addition_label.setStyleSheet("color: red;") 
+			button = QPushButton("Add to Storage")
+			button.clicked.connect(lambda _, piece=piece, label=addition_label: 
+						  self.add_piece_to_storage(piece, label))
+
+			layout.addWidget(QLabel(piece.package), 4)
+			layout.addWidget(addition_label, 4)
+			layout.addWidget(button, 1)
+			self.pieces_layout.addLayout(layout)
+
+
+
+
+	def add_piece_to_storage(self, piece:Piece, addition_label:QLabel):
+		self.storage_window = StorageWindow()
+		self.storage_window.set_inputs(piece, addition_label)
+		self.storage_window.show()
+
+
