@@ -49,6 +49,8 @@ class Controller:
 		self.mutex = threading.Lock()
 
 
+
+
 	def queueCommand(self, command: Command):
 		"""
 		Add a single command to the execution queue.
@@ -60,6 +62,9 @@ class Controller:
 		with self.mutex:
 			self._commands.append(command)
 	
+
+
+
 	def queueCommands(self, commands: list[Command]):
 		"""
 		Add multiple commands to the execution queue.
@@ -71,6 +76,9 @@ class Controller:
 		with self.mutex:
 			self._commands.extend(commands)
 
+
+
+
 	def requestTransition(self, transition: TransitionRequest):
 		"""
 		Request a state machine transition.
@@ -81,6 +89,9 @@ class Controller:
 		"""
 		with self.mutex:
 			self._toggleRequestTransitionBit(transition, True)
+
+
+
 
 	def getState(self) -> tuple[ControllerState, MachineState, Position]:
 		"""
@@ -101,6 +112,9 @@ class Controller:
 			controllerState = self._controllerState
 		return (controllerState, machineState, position)
 	
+
+
+
 	def _sendCommand(self, command:Command):
 		"""
 		Pack and send the given command on the serial port.
@@ -121,6 +135,9 @@ class Controller:
 
 		self._com.sendData(byteBuffer)
 	
+
+
+
 	def _updateMachineInfo(self):
 		"""
 		Receive a machine info packet and update `latestMachineInfo`.
@@ -136,6 +153,8 @@ class Controller:
 		machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
 		with self.mutex:
 			self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
+
+
 
 	def _nextCommand(self) -> Command:
 		"""
@@ -154,41 +173,82 @@ class Controller:
 				self._lastCommand = nextCommand
 		return nextCommand
 	
-	def _toggleRequestTransitionBit(self, bit: TransitionRequest, state: bool):
-		"""TODO: Add description.
 
-		TODO: Document parameters and behavior.
+
+
+	def _toggleRequestTransitionBit(self, bit: TransitionRequest, state: bool):
+		"""
+		Toggle the requested bit to a given state
+
+		Parameters:
+			bit (TransitionRequest):
+				Bit to toggle.
+			state (bool):
+				Request state for the bit
 		"""
 		if state:
 			self._controllerRequestTransitionField |= bit
 		else:
 			self._controllerRequestTransitionField &= ~bit
 	
-	def _check_and_transition(self, bit: TransitionRequest, target_state:ControllerState):
-		"""TODO: Add description.
 
-		TODO: Document parameters and behavior.
+
+
+	def _check_and_transition(self, bit: TransitionRequest, target_state:ControllerState) -> bool:
+		"""
+		Verify that a transition is due
+
+		Parameters:
+			bit (TransitionRequest):
+				Transition bit to validate
+			target_state (ControllerState):
+				Next controller state if the transition is requested
+		
+		Returns:
+			bool:
+				True if a transition happen
+				False if no transition happen
 		"""
 		with self.mutex:
+			transitionMade = False
 			if self._controllerRequestTransitionField & bit:
 				self._controllerState = target_state
 				self._controllerRequestTransitionField &= ~bit
-				return True
-		return False
+				transitionMade = True
+		return transitionMade
 	
-	def _handle_idle_state(self) -> Command:
-		"""Handle IDLE state - waiting for mode activation.
 
-		TODO: Document parameters and behavior.
+
+
+	def _handle_idle_state(self) -> Command:
+		"""
+		Handle IDLE state - wait for transition requests.
+		
+		Checks for pending transitions to RUNNING or MANUAL states.
+		No commands are executed in this state.
+		
+		Returns:
+			Command:
+				Command to send when in idle state (always EMPTY).
 		"""
 		self._check_and_transition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING)
 		self._check_and_transition(TransitionRequest.TO_MANUAL, ControllerState.MANUAL)
 		return Command(CommandId.EMPTY, 0, None, None)
 
+
+
+
 	def _handle_running_state(self) -> Command:
 		"""Handle RUNNING state - execute command queue automatically.
-
-		TODO: Document parameters and behavior.
+		
+		Executes queued commands sequentially when the machine is in READY state.
+		For PLACE commands, decrements the component quantity in storage.
+		Transitions to DONE state after HOME command completes.
+		Can transition to PAUSE state on request.
+		
+		Returns:
+			Command:
+				Next command from queue if machine is READY, otherwise EMPTY command.
 		"""
 		commandToSend = Command(CommandId.EMPTY, 0, None, None)
 		
@@ -211,10 +271,19 @@ class Controller:
 		self._check_and_transition(TransitionRequest.TO_PAUSE, ControllerState.PAUSE)
 		return commandToSend
 
+
+
+
 	def _handle_manual_state(self) -> Command:
 		"""Handle MANUAL state - execute commands manually.
-
-		TODO: Document parameters and behavior.
+		
+		Executes commands one at a time when the machine is in READY state,
+		requiring manual confirmation for each command.
+		Can transition to RUNNING or IDLE state on request.
+		
+		Returns:
+			Command:
+				Next command from queue if machine is READY, otherwise EMPTY command.
 		"""
 		commandToSend = Command(CommandId.EMPTY, 0, None, None)
 		
@@ -230,27 +299,54 @@ class Controller:
 		self._check_and_transition(TransitionRequest.TO_IDLE, ControllerState.IDLE)
 		return commandToSend
 
+
+
+
 	def _handle_pause_state(self) -> Command:
 		"""Handle PAUSE state - send stop command.
-
-		TODO: Document parameters and behavior.
+		
+		Continuously sends STOP commands to halt machine operation.
+		Can transition to RUNNING or IDLE state on request.
+		
+		Returns:
+			Command:
+				STOP command to halt machine execution.
 		"""
 		self._check_and_transition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING)
 		self._check_and_transition(TransitionRequest.TO_IDLE, ControllerState.IDLE)
 		return Command(CommandId.STOP, 0, None, None)
 
+
+
+
 	def _handle_done_state(self) -> Command:
 		"""Handle DONE state - job completed.
-
-		TODO: Document parameters and behavior.
+		
+		Indicates that all queued commands have been executed successfully.
+		Can transition back to IDLE state on request.
+		
+		Returns:
+			Command:
+				EMPTY command (no action needed).
 		"""
 		self._check_and_transition(TransitionRequest.TO_IDLE, ControllerState.IDLE)
 		return Command(CommandId.EMPTY, 0, None, None)
 	
+
+
+	
 	def _controlLoop(self):
 		"""Main control loop managing state machine and communication.
-
-		TODO: Document parameters and behavior.
+		
+		Runs continuously until closeEvent is set. On each iteration:
+		1. Determines current controller state
+		2. Dispatches to appropriate state handler
+		3. Sends resulting command to machine
+		4. Updates machine state information
+		5. Waits 50ms before next iteration
+		
+		This method runs in a separate thread and is the core of the
+		controller's state machine execution.
 		"""
 		state_handlers = {
 			ControllerState.IDLE: self._handle_idle_state,
