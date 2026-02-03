@@ -1,26 +1,47 @@
-#include <Arduino.h>
 #include "MotorControl.h"
- 
-AccelStepper motor(1,4,5);  //1=using a driver, 11=step, 12=dir
+
+//Driver : drv8825
+AccelStepper motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR);  //motor control type, step, dir
+AccelStepper motorY(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR);
+
+MultiStepper gantry;
+
+bool run_once = true;
+
+long positions[2] = {400,800};
+
+bool doneX = false;
+bool doneY = false;
 
 void setup()
 {
   Serial.begin(115200);
 
-  //Ligne pour tester enable manuellement (A retravailler)
-  //pinMode(46, OUTPUT);
-  //digitalWrite(46, HIGH);
-
-  //motor.move(400); //relative
-  //motor.moveTo(400); //absolute
-  
-  MoveToPos(motor, 400, 800, 400);
+  gantry.addStepper(motorX);
+  gantry.addStepper(motorY);
 }
 
 
 void loop()
 {
+  gantryMove(gantry, motorX, motorY, positions, 400);
+  
+  gantry.run();
 
-  //MoveToPosition(motor,1500,500);
+  // Serial.print("moteur 1 : ");
+  // Serial.println(motorX.currentPosition());
+  // Serial.print("moteur 2 : ");
+  // Serial.println(motorY.currentPosition());
+  // delay(10);
+  
+  // if ((motorX.currentPosition() == positions[0]) && (!doneX)){
+  //   Serial.println("Moteur 1 à destination");
+  //   doneX = true;
+  // }
+
+  // if ((motorY.currentPosition() == positions[1]) && (!doneY)){
+  //   Serial.println("Moteur 2 à destination");
+  //   doneY = true;
+  // }
 }
 
