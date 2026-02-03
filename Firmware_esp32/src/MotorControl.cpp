@@ -1,9 +1,13 @@
 #include "MotorControl.h"
 
-void gantryMove(MultiStepper& gantry, AccelStepper& motor1, AccelStepper& motor2, long positions[2], int speed)
+// void gantryMove(MultiStepper& gantry, AccelStepper& motor1, AccelStepper& motor2, long positions[NMOTOR], int speed)
+void gantryMove(MultiStepper& gantry, AccelStepper* motors[NMOTOR], long positions[NMOTOR], int speed)
 {
-    motor1.setMaxSpeed(speed);
-    motor2.setMaxSpeed(speed);
+    for (int index = 0; index < sizeof(motors)/sizeof(motors[0]); index++){
+        motors[index]->setMaxSpeed(speed);
+    }
+    // motors[0]->setMaxSpeed(speed);
+    // motors[1]->setMaxSpeed(speed);
     gantry.moveTo(positions);
 }
 
