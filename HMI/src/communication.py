@@ -27,6 +27,9 @@ class Communication:
 			baudrate=self.baudrate,
 			timeout=None,
 		)
+		# Flush buffers to clear any startup messages or leftover data
+		self.ser.reset_input_buffer()
+		self.ser.reset_output_buffer()
 
 
 	def close(self):
@@ -48,14 +51,18 @@ class Communication:
 			self.ser.write(data)
 		return
 
-	def receiveData(self) -> bytes:
-		"""Read a line from the serial port (blocking until '\\n').
+	def receiveData(self, numBytes: int) -> bytes:
+		"""Read a fixed number of bytes from the serial port (blocking).
+
+		Parameters:
+			numBytes (int):
+				Number of bytes to read
 
 		Returns:
-			bytes: The raw bytes read, including the terminating newline if present.
+			bytes: The raw bytes read.
 		"""
 		if self.isPortOpen():
-			data = self.ser.readline()
+			data = self.ser.read(numBytes)
 		else:
 			data = None
 		return data

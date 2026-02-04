@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-typedef struct position
+typedef struct __attribute__((packed)) position
 {
 	float x;
 	float y;
@@ -9,7 +9,7 @@ typedef struct position
 
 }position_t;
 
-enum class CommandId
+enum class CommandId : uint8_t
 {
 	STOP = 0,
 	MOVE = 1,
@@ -19,7 +19,7 @@ enum class CommandId
 	EMPTY = 5,   
 };
 
-enum class MachineState
+enum class MachineState : uint8_t
 {
 	ERROR = 0,
 	READY = 1,

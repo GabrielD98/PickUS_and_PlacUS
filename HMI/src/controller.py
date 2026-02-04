@@ -41,7 +41,7 @@ class Controller:
 
 	def __init__(self):
 		self._storage = Storage() # mutex on Storage?
-		self._com = Communication()
+		self._com = None
 		self._commands = []
 		self._lastCommand = Command(CommandId.EMPTY,0, None, None)
 		self._controllerState = ControllerState.IDLE
@@ -118,16 +118,18 @@ class Controller:
 
 
 
-	def connectionToMachine(self,comPort:str):
+	def connectionToMachine(self,comPort:str, baudrate:int):
 		"""
 		Open the serial port and start the controlLoop thread
 
 		Parameters:
 			comPort (str):
 				serial port to opne	
+			baudrate (int):
+				port speed
 		"""
-
-		self._com.open(comPort)
+		self._com = Communication(comPort, baudrate)
+		self._com.open()
 		self._comThread = threading.Thread(target=self._controlLoop)
 		self._comThread.start()
 
@@ -161,7 +163,7 @@ class Controller:
 			p = Position(0,0,0,0)
 
 		byteBuffer = struct.pack('<Bfffff',
-						    command.commandId,
+						    command.commandId.value,
 							command.velocity, 
 							p.x, p.y, p.z, p.yaw)
 
@@ -178,11 +180,12 @@ class Controller:
 		  uint8_t machine_state
 		  float32 x, y, z, yaw
 		"""
-		bytesBuffer = self._com.receiveData()
 		format = '<Bffff'
 		size = struct.calcsize(format)
+		bytesBuffer = self._com.receiveData(size)
 
 		machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
+		print(machineState, x, y, z, yaw)
 		with self.mutex:
 			self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
 
@@ -243,12 +246,11 @@ class Controller:
 		"""
 		with self.mutex:
 			transitionMade = False
-			if self._controllerRequestTransitionField & bit:
-				self._controllerState = target_state
-				self._controllerRequestTransitionField &= ~bit
-				transitionMade = True
+		if self._controllerRequestTransitionField & bit.value:
+			self._controllerState = target_state
+			self._controllerRequestTransitionField &= ~bit.value
+			transitionMade = True
 		return transitionMade
-	
 
 
 
