@@ -12,28 +12,15 @@ typedef struct __attribute__((packed)) infoToSend
 	position_t position;
 }infoToSend_t;
 
-void waitForConnection(void)
+void communicationLoop(void *pvParameters) //to change for controller &
 {
-	Serial.println("Waiting for Python connection...");
-	
-	// Wait for handshake byte from Python
-	while(true)
-	{
-		if(Serial.available() > 0)
-		{
-			return;
-		}
-	}
-}
-
-void communicationLoop(void) //to change for controller &
-{
+	(void)pvParameters;
 	while(true)
 	{
 		if(Serial.available() >= commandSize)
 		{
-			uint8_t byteBuffer[commandSize];
 			command_t recieveCmd;
+			uint8_t byteBuffer[commandSize];
 	
 			Serial.readBytes(byteBuffer, commandSize);
 			memcpy(&recieveCmd, byteBuffer, commandSize);
@@ -41,12 +28,11 @@ void communicationLoop(void) //to change for controller &
 			
 			delay(50);
 			
-			infoToSend_t test;
-			memset(&test, 0, sizeof(infoToSend_t));
-			test.state = MachineState::READY;
+			infoToSend_t infoToSend;
+			memset(&infoToSend, 0, sizeof(infoToSend_t));
 			//getState
 			//getPos
-			Serial.write((const uint8_t *)&test, sizeof(infoToSend_t));
+			Serial.write((const uint8_t *)&infoToSend, sizeof(infoToSend_t));
 		}
 	}
 }
