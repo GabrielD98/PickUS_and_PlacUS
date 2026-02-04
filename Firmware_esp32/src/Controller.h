@@ -18,7 +18,7 @@ public :
     Controller();
     ~Controller();
     void setCommand(command_t command);
-    void update(); //switch case
+    void update();
     position_t getPosition();
     MachineState getState();
 private :
@@ -27,10 +27,12 @@ private :
     AccelStepper* motors[NMOTOR];
     MultiStepper motorSystem;
 
+    Command command;
+
     void setTargets(position_t targets);
-    void setState(MachineState state);
-    void setPosition(position_t position);
-    // void setSpeed(float speed);
+    void setState(MachineState newState);
+    void setPosition(position_t newPosition);
+    void setSpeed(float speed);
 };
 
 #endif

@@ -11,9 +11,6 @@ public :
     MachineState state;
 
     // get
-private :
-    // set
-
 };
 
 #endif
