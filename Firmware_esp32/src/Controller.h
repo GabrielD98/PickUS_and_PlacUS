@@ -18,15 +18,14 @@ public :
     Controller();
     ~Controller();
     void update();
-    DataModel dataModel;
-   
+    
 private :
-
+    DataModel dataModel;
     AccelStepper* motors[NMOTOR];
     MultiStepper motorSystem;
 
 
-    void setTargets(position_t targets);
+    void setTargets();
     
 };
 

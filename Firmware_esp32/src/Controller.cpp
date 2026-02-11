@@ -14,7 +14,7 @@ Controller::Controller()
     motorSystem.addStepper(motorX);
     motorSystem.addStepper(motorY);
     motorSystem.addStepper(motorZ);
-    motorSystem.addStepper(motorYAW);
+    motorSystem.addStepper(motorYAW); 
 }
 
 Controller::~Controller()
@@ -25,29 +25,30 @@ Controller::~Controller()
 
 void Controller::update()
 {
-    switch(command.id){
+    
+    switch(dataModel.get()->command.id){
         case CommandId::STOP: // STOP
             
             break;
 
         case CommandId::MOVE: // MOVE
-            setTargets(command.requestedPosition);
+            setTargets();
             motorSystem.run();
             break;
 
         case CommandId::PICK: // PICK
-            setTargets(command.requestedPosition);
+            setTargets();
             motorSystem.run();
             break;
 
         case CommandId::PLACE: // PLACE
-            setTargets(command.requestedPosition);
+            setTargets();
             motorSystem.run();
             break;
 
         case CommandId::HOME: // HOME
             
-            // setTargets(command.requestedPosition);
+            // setTargets();
             // Run till encounter limit-switches, then update absolute coordinates
             motorSystem.run();
             break;
@@ -61,19 +62,23 @@ void Controller::update()
     }
 }
 
-void Controller::setTargets(position_t targets)
+void Controller::setTargets()
 { 
-    motorSystem.moveTo(targets);
+    float speed = dataModel.get()->command.velocity; // Set the variable speed to the requested velocity in the command 
+    position_t position = dataModel.get()->command.requestedPosition; // Sets the variable to the position requested by command 
+
+    long target[4] =
+    {
+        position.x,
+        position.y,
+        position.z,
+        position.yaw
+    };
+
+    for (int index = 0; index < sizeof(motors)/sizeof(motors[0]); index++){
+    motors[index]->setMaxSpeed(speed);
+    }
+    
+    motorSystem.moveTo(target);
 }
 
-
-// void setTargets(MultiStepper& gantry, AccelStepper* motors[NMOTOR], long positions[NMOTOR])
-// {
-//     gantry.moveTo(positions);
-// }
-
-// void setSpeed(float speed){
-//     for (int index = 0; index < sizeof(motors)/sizeof(motors[0]); index++){
-//     motors[index]->setMaxSpeed(speed);
-//     }
-// }
