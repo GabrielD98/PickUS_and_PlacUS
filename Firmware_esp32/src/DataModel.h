@@ -2,15 +2,26 @@
 #define DATAMODEL_H
 
 #include "../lib/data.hpp"
+#include <mutex>
 
-class DataModel
+typedef struct dataModel
 {
-public :
     command_t command;
     position_t position;
     MachineState state;
 
-    // get
+}dataModel_t;
+
+
+class DataModel
+{   
+    public :
+        DataModel();
+        dataModel_t* get();
+        void release();
+    private :
+        dataModel_t dataModel;
+        std::mutex mutex_; 
 };
 
 #endif

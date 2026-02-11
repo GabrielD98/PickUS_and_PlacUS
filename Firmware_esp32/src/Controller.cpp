@@ -22,45 +22,37 @@ Controller::~Controller()
 
 }
 
-void Controller::setCommand(command_t newCommand)
-{
-    command = newCommand;
-}
 
 void Controller::update()
 {
     switch(command.id){
-        case 0: // STOP
+        case CommandId::STOP: // STOP
             
             break;
 
-        case 1: // MOVE
-            setSpeed(command.velocity);
+        case CommandId::MOVE: // MOVE
             setTargets(command.requestedPosition);
             motorSystem.run();
             break;
 
-        case 2: // PICK
-            setSpeed(command.velocity);
+        case CommandId::PICK: // PICK
             setTargets(command.requestedPosition);
             motorSystem.run();
             break;
 
-        case 3: // PLACE
-            setSpeed(command.velocity);
+        case CommandId::PLACE: // PLACE
             setTargets(command.requestedPosition);
             motorSystem.run();
             break;
 
-        case 4: // HOME
-            setSpeed(command.velocity);
+        case CommandId::HOME: // HOME
             
             // setTargets(command.requestedPosition);
             // Run till encounter limit-switches, then update absolute coordinates
             motorSystem.run();
             break;
 
-        case 5: // EMPTY
+        case CommandId::EMPTY: // EMPTY
             motorSystem.run();
             break;
 
@@ -69,38 +61,11 @@ void Controller::update()
     }
 }
 
-position_t Controller::getPosition()
-{
-    return position;
-}
-
-MachineState Controller::getState()
-{
-    return state;
-}
-
 void Controller::setTargets(position_t targets)
-{
+{ 
     motorSystem.moveTo(targets);
 }
 
-void Controller::setState(MachineState newState)
-{
-    state = newState;
-}
-
-void Controller::setPosition(position_t newPosition)
-{
-    position = newPosition;
-}
-
-void Controller::setSpeed(float speed)
-{
-    motors[0]->setMaxSpeed(speed);
-    motors[1]->setMaxSpeed(speed);
-    motors[2]->setMaxSpeed(speed);
-    motors[3]->setMaxSpeed(speed);
-}
 
 // void setTargets(MultiStepper& gantry, AccelStepper* motors[NMOTOR], long positions[NMOTOR])
 // {

@@ -17,22 +17,17 @@ class Controller
 public :
     Controller();
     ~Controller();
-    void setCommand(command_t command);
     void update();
-    position_t getPosition();
-    MachineState getState();
+    DataModel dataModel;
+   
 private :
-    MachineState state;
-    position_t position;
+
     AccelStepper* motors[NMOTOR];
     MultiStepper motorSystem;
 
-    Command command;
 
     void setTargets(position_t targets);
-    void setState(MachineState newState);
-    void setPosition(position_t newPosition);
-    void setSpeed(float speed);
+    
 };
 
 #endif

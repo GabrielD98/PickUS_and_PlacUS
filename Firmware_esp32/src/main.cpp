@@ -11,6 +11,9 @@ void setup()
 void loop()
 {
   controller.update();
+  dataModel_t* dataModel = controller.dataModel.get();
+  dataModel->command = 0;
+  controller.dataModel.release();
   delay(50);
 }
 
