@@ -16,14 +16,12 @@ class Controller
 {
 public :
     Controller();
-    ~Controller();
     void update();
-    
-private :
     DataModel dataModel;
+
+private :
     AccelStepper* motors[NMOTOR];
     MultiStepper motorSystem;
-
 
     void setTargets();
     
