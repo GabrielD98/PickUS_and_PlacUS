@@ -22,6 +22,7 @@ from storage import Storage
 from data import *
 from typing import List
 from storage_window import StorageWindow
+from storage_ui_info import StorageUiInfo
 import utils
 		
 		
@@ -77,7 +78,7 @@ class Interface(QMainWindow):
 		#TODO delete label
 		#FILE READING LAYOUT
 		self.pieces_layout = QVBoxLayout()
-		left_layout.addLayout(self.pieces_layout, 6)
+		left_layout.addLayout(self.pieces_layout, 3)
 
 		#TODO delete label
 		white_label = QLabel(self)
@@ -192,23 +193,21 @@ class Interface(QMainWindow):
 
 		for piece in self.pieces:
 			layout = QHBoxLayout()
-			addition_label = QLabel("(Not Added)")
-			addition_label.setStyleSheet("color: red;") 
 			button = QPushButton("Add to Storage")
-			button.clicked.connect(lambda _, piece=piece, label=addition_label: 
-						  self.add_piece_to_storage(piece, label))
+			storage_info = StorageUiInfo(piece, button)
+			button.clicked.connect(lambda _, info=storage_info: 
+						  self.add_piece_to_storage(info))
 
-			layout.addWidget(QLabel(piece.package), 4)
-			layout.addWidget(addition_label, 4)
+			layout.addWidget(storage_info, 4)
 			layout.addWidget(button, 1)
 			self.pieces_layout.addLayout(layout)
 
 
 
 
-	def add_piece_to_storage(self, piece:Piece, addition_label:QLabel):
+	def add_piece_to_storage(self, info:StorageUiInfo):
 		self.storage_window = StorageWindow()
-		self.storage_window.set_inputs(piece, addition_label)
+		self.storage_window.set_inputs(info)
 		self.storage_window.show()
 
 

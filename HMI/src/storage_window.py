@@ -19,6 +19,7 @@ from storage import Storage
 from data import *
 from typing import List
 import utils
+from storage_ui_info import StorageUiInfo
 
 
 class StorageWindow(QMainWindow):
@@ -31,9 +32,9 @@ class StorageWindow(QMainWindow):
 		self.addition_label:QLabel = None
 		self.piece_name = "Unknown"
 		self.states = {
-			"available" : 0,
-			"ignore this component" : 1,
-			"storage is empty": 2
+			"available" : StorageState.USING,
+			"ignore this component" : StorageState.IGNORE,
+			"storage is empty": StorageState.EMPTY
 		}
 
 		global_widget = QWidget()
@@ -51,15 +52,13 @@ class StorageWindow(QMainWindow):
 
 
 
-	def set_inputs(self, piece:Piece, addition_label:QLabel):
-		if piece is None or addition_label is None:
+	def set_inputs(self, info:StorageUiInfo):
+		if info is None:
 			return
 		
 		utils.clearLayout(self.inputs_layout)
-		self.piece = piece
-		self.piece_name = piece.package
-
-		self.addition_label = addition_label
+		self.widget_info = info
+		self.piece_name = info.piece.package
 		
 		piece_label = QLabel(self.piece_name)
 
@@ -101,12 +100,9 @@ class StorageWindow(QMainWindow):
 		state = self.states[self.states_options.currentText()]
 		deltaPos = Position(0,0,0,0) #TODO dealer ak ca dans la calib
 
-		self.storage.addComponent(self.piece, deltaPos, state, quantity, automatic)
+		self.storage.addComponent(self.widget_info.piece, deltaPos, state, quantity, automatic)
 
-
-		if self.addition_label is not None:
-			self.addition_label.setText("(Added)")
-			self.addition_label.setStyleSheet("color: green;") 
+		self.widget_info.update_all(self.piece_name, state, quantity, automatic)
 		print("piece added successfully")
 		self.deleteLater()
 
