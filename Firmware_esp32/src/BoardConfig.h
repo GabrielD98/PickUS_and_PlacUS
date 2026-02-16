@@ -17,4 +17,16 @@
 #define PIN_DYAW_DIR 12
 #define PIN_DYAW_EN 46
 
+#define PIN_PUMP 3
+#define PIN_VALVE 21
+
+#define PIN_LCD_1 8
+#define PIN_LCD_2 9
+
+#define PIN_CANIC_TX 47
+#define PIN_CANIC_RX 48
+
+#define PIN_LIMSWITCH_X 35
+#define PIN_LIMSWITCH_Y 36
+
 #endif

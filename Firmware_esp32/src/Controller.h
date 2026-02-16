@@ -5,8 +5,6 @@
 #include <AccelStepper.h>
 #include <MultiStepper.h>
 
-#define NMOTOR 4
-
 #include "BoardConfig.h"
 
 #include "../lib/data.hpp"
@@ -16,11 +14,15 @@ class Controller
 {
 public :
     Controller();
+    ~Controller();
     void update();
     DataModel dataModel;
 
 private :
-    AccelStepper* motors[NMOTOR];
+    AccelStepper motorX;
+    AccelStepper motorY;
+    AccelStepper motorZ;
+    AccelStepper motorYAW;
     MultiStepper motorSystem;
 
     void setTargets();

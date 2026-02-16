@@ -2,19 +2,20 @@
 
 Controller::Controller()
 {
-    AccelStepper motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR);
-    AccelStepper motorY(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR);
-    AccelStepper motorZ(AccelStepper::DRIVER, PIN_DZ_STEP, PIN_DZ_DIR);
-    AccelStepper motorYAW(AccelStepper::DRIVER, PIN_DYAW_STEP, PIN_DYAW_DIR);
-    motors[0] = &motorX;
-    motors[1] = &motorY;
-    motors[2] = &motorZ;
-    motors[3] = &motorYAW;
+    motorX = AccelStepper(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR);
+    motorY = AccelStepper(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR);
+    motorZ = AccelStepper(AccelStepper::DRIVER, PIN_DZ_STEP, PIN_DZ_DIR);
+    motorYAW = AccelStepper(AccelStepper::DRIVER, PIN_DYAW_STEP, PIN_DYAW_DIR);
 
     motorSystem.addStepper(motorX);
     motorSystem.addStepper(motorY);
     motorSystem.addStepper(motorZ);
     motorSystem.addStepper(motorYAW); 
+}
+
+Controller::~Controller()
+{
+
 }
 
 void Controller::update()
@@ -89,20 +90,20 @@ void Controller::update()
             break;
 
         default:
-
-        position_t newPos;
-        newPos.x = motors[0]->currentPosition(); //New x position 
-        newPos.y = motors[1]->currentPosition(); //New y position
-        newPos.z = motors[2]->currentPosition(); //New z position
-        newPos.yaw = motors[3]->currentPosition(); //New yaw position 
-
-        dataModel.get()->position = newPos;
-        dataModel.release();
+        state_ = MachineState::READY;
+            break;
         
-        dataModel.get()->state = state_;
-        dataModel.release();
-
     }
+
+    position_t newPos;
+    newPos.x = motorX.currentPosition(); //New x position 
+    newPos.y = motorY.currentPosition(); //New y position
+    newPos.z = motorZ.currentPosition(); //New z position
+    newPos.yaw = motorYAW.currentPosition(); //New yaw position 
+    dataModel.get()->position = newPos;
+    dataModel.release();
+    dataModel.get()->state = state_;
+    dataModel.release();
 }
 
 void Controller::setTargets()
@@ -114,15 +115,16 @@ void Controller::setTargets()
 
     long target[4] =
     {
-        position.x,
-        position.y,
-        position.z,
-        position.yaw
+        static_cast<long>(position.x),
+        static_cast<long>(position.y),
+        static_cast<long>(position.z),
+        static_cast<long>(position.yaw)
     };
 
-    for (int index = 0; index < sizeof(motors)/sizeof(motors[0]); index++){
-    motors[index]->setMaxSpeed(speed);
-    }
+    motorX.setMaxSpeed(speed);
+    motorY.setMaxSpeed(speed);
+    motorZ.setMaxSpeed(speed);
+    motorYAW.setMaxSpeed(speed);
     
     motorSystem.moveTo(target);
 }

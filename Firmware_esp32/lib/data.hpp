@@ -1,3 +1,6 @@
+#ifndef DATA_HPP
+#define DATA_HPP
+
 #include <stdint.h>
 
 typedef struct Position
@@ -16,7 +19,7 @@ enum class CommandId
 	PICK = 2, 
 	PLACE = 3, 
 	HOME = 4, 
-	EMPTY = 5,   
+	EMPTY = 5
 };
 
 enum class MachineState
@@ -26,13 +29,15 @@ enum class MachineState
 	MOVING = 2,
 	PICKING = 3,
 	PLACING = 4,
-	DISCONNECTED = 5, 
+	DISCONNECTED = 5
 };
 
-typedef struct __attribute__((packed)) Command
+typedef struct Command
 {
 	CommandId id;
 	float velocity;
 	position_t requestedPosition;
 
 }command_t;
+
+#endif

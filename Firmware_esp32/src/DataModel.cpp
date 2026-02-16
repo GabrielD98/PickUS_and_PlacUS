@@ -22,5 +22,4 @@ dataModel_t* DataModel::get()
 void DataModel::release()
 {
     mutex_.unlock();
-    //unlock
 }
