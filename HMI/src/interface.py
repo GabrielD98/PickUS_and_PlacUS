@@ -143,7 +143,6 @@ class Interface(QMainWindow):
 
 		
 		self.setCentralWidget(global_widget)
-
 		self.showMaximized()
 
 
@@ -164,6 +163,8 @@ class Interface(QMainWindow):
 		self.file_path = str(Path(filename))
 		self.file_label.setText(self.file_path)
 		self.analyse_button.setEnabled(True)
+		self.analyse_button.setText("Analyse")
+		utils.clearLayout(self.pieces_layout)
 
 		
 
@@ -174,6 +175,8 @@ class Interface(QMainWindow):
 			return
 		self.pieces = self.get_all_unique_piece(pieces)
 		self.update_piece_list()
+		self.analyse_button.setEnabled(False)
+		self.analyse_button.setText("Analysis Completed")
 
 
 
@@ -189,7 +192,6 @@ class Interface(QMainWindow):
 
 	def update_piece_list(self):
 
-		utils.clearLayout(self.pieces_layout)
 
 		for piece in self.pieces:
 			layout = QHBoxLayout()
