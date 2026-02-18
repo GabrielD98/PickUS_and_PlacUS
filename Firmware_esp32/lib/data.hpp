@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef struct Position
+typedef struct __attribute__((packed)) position
 {
 	float x = 0;
 	float y = 0;
@@ -12,7 +12,7 @@ typedef struct Position
 
 }position_t;
 
-enum class CommandId
+enum class CommandId : uint8_t
 {
 	STOP = 0,
 	MOVE = 1,
@@ -22,7 +22,7 @@ enum class CommandId
 	EMPTY = 5
 };
 
-enum class MachineState
+enum class MachineState : uint8_t
 {
 	ERROR = 0,
 	READY = 1,
