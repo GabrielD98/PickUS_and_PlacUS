@@ -3,12 +3,13 @@ from enum import Enum
 import numbers
 
 
-class Command(Enum):
+class CommandId(Enum):
     STOP = 0    #Tells the machine to stop immediatly
     MOVE = 1    #Tells the machine to go to a setpoint
     PICK = 2    #Tells the machine to drop down, pick a piece, and go up
     PLACE = 3   #Tells the machine to drop down, place the piece, and go up
-
+    HOME = 4    #Tells the machine to go home(x,y,z limit switches)
+    EMPTY = 5   #Tells the machine to continue the current command
 
 class Type(Enum):
     RESISTOR = 0    
@@ -21,8 +22,26 @@ class StorageState(Enum):
     IGNORE = 1  #Tells the slicer to ignore these components.
     EMPTY = 2   #The storage of these components is empty.
 
+class MachineState(Enum):
+    ERROR = 0
+    READY = 1
+    MOVING = 2
+    PIKCING = 3
+    PLACING = 4
+    DISCONNECTED = 5 
 
+class ControllerState(Enum):
+    IDLE = 0
+    RUNNING = 1
+    MANUAL = 2
+    PAUSE = 3
+    DONE = 4
 
+class TransitionRequest(Enum):
+    TO_RUNNING = (1<<0)
+    TO_MANUAL = (1<<1)
+    TO_PAUSE = (1<<2)
+    TO_IDLE = (1<<3)
 
 @dataclass
 class Position:
@@ -142,3 +161,12 @@ class StorageUnit:
     state : StorageState    
     quantity : int          
     automatic : bool        
+
+
+@dataclass
+class Command:
+
+    commandId : CommandId
+    velocity : float
+    position : Position
+    piece : Piece
