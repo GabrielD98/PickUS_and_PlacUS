@@ -21,7 +21,7 @@ import utils
 
 class JogWidget(QWidget):
 
-    def __init__(self):
+    def __init__(self, isMain = True):
         super().__init__()
         self.stacked_widget = QStackedWidget()
         self.interaction_widgets:List[QWidget] = []
@@ -98,8 +98,10 @@ class JogWidget(QWidget):
         mode_on_layout.addLayout(entry_layout)
         mode_on_widget.setLayout(mode_on_layout)
         mode_on_layout.addWidget(go_to_pos)
-        mode_on_layout.addStretch()
-        mode_on_layout.addWidget(deactivate)
+
+        if (isMain):
+            mode_on_layout.addStretch()
+            mode_on_layout.addWidget(deactivate)
 
         speed_layout.addWidget(self.speed_label)
         speed_layout.addWidget(self.speed_slider)
@@ -144,6 +146,9 @@ class JogWidget(QWidget):
         self.interaction_widgets.append(self.yaw_entry)
         self.interaction_widgets.append(go_to_pos)
         self.deactivate_interaction_widget()
+
+        if not isMain :
+            self.stacked_widget.setCurrentIndex(1)
        
 
 

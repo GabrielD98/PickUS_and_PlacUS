@@ -20,7 +20,7 @@ from data import *
 from typing import List
 import utils
 from storage_ui_info import StorageUiInfo
-
+from jog_widget import JogWidget
 
 class StorageWindow(QMainWindow):
 	def __init__(self, parent=None):
@@ -73,13 +73,25 @@ class StorageWindow(QMainWindow):
 		self.states_options.addItems(list(self.states.keys()))
 
 		self.auto_checkbox = QCheckBox("Is the Feeder Automatic")
+		
+		self.calibration_layout = QVBoxLayout()
+		calibrate_button = QPushButton("Calibrate")
+		calibrate_button.clicked.connect(self.open_calibration_tab)
+		self.calibration_layout.addWidget(calibrate_button)
 
 		self.inputs_layout.addWidget(piece_label)
 		self.inputs_layout.addLayout(quantity_layout)
 		self.inputs_layout.addWidget(self.states_options)
 		self.inputs_layout.addWidget(self.auto_checkbox)
+		self.inputs_layout.addLayout(self.calibration_layout)
 
-	
+		
+
+	def open_calibration_tab(self):
+		utils.clearLayout(self.calibration_layout)
+		info_label = QLabel("Place the tip of the gripper on the first commponent of the storage")
+		self.calibration_layout.addWidget(info_label)
+		self.calibration_layout.addWidget(JogWidget(isMain=False))
 
 
 	def closeEvent(self, event: QEvent):
@@ -98,7 +110,7 @@ class StorageWindow(QMainWindow):
 		quantity = int(value)
 		automatic = self.auto_checkbox.isChecked()
 		state = self.states[self.states_options.currentText()]
-		deltaPos = Position(0,0,0,0) #TODO dealer ak ca dans la calib
+		deltaPos = Position(0,0,0,0) #TODO demander la position courante au controleur
 
 		self.storage.addComponent(self.widget_info.piece, deltaPos, state, quantity, automatic)
 
