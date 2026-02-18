@@ -19,8 +19,8 @@ from storage import Storage
 from data import *
 from typing import List
 import utils
-from storage_ui_info import StorageUiInfo
-from jog_widget import JogWidget
+from gui.storage_ui_info import StorageUiInfo
+from gui.jog_widget import JogWidget
 
 class StorageWindow(QMainWindow):
 	def __init__(self, parent=None):

@@ -18,15 +18,15 @@ from pathlib import Path
 
 from controller import Controller
 from file_interpreter import FileInterpreter
-from pnp_state_widget import PnPStateWidget
+from gui.pnp_state_widget import PnPStateWidget
 from slicer import Slicer
 from storage import Storage
 from data import *
 from typing import List
-from storage_window import StorageWindow
-from storage_ui_info import StorageUiInfo
-from jog_widget import JogWidget
-from command_widget import CommandWidget
+from gui.storage_window import StorageWindow
+from gui.storage_ui_info import StorageUiInfo
+from gui.jog_widget import JogWidget
+from gui.command_widget import CommandWidget
 import utils
 		
 		
@@ -133,7 +133,7 @@ class Interface(QMainWindow):
 		img_label = QLabel(self)
 		pixmap = QPixmap("../data/a_joyful_Julius_C.png")
 		img_label.setPixmap(pixmap)
-		right_layout.addWidget(img_label, 2)
+		right_layout.addWidget(img_label, 4)
 
 		
 		self.setCentralWidget(global_widget)

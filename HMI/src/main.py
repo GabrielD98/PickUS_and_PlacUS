@@ -2,7 +2,7 @@ from file_interpreter import FileInterpreter
 from storage import Storage
 from slicer import Slicer
 from data import *
-from interface import Interface
+from gui.interface import Interface
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication
 import sys
