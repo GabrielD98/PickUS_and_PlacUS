@@ -24,6 +24,7 @@ from typing import List
 from storage_window import StorageWindow
 from storage_ui_info import StorageUiInfo
 from jog_widget import JogWidget
+from command_widget import CommandWidget
 import utils
 		
 		
@@ -106,10 +107,8 @@ class Interface(QMainWindow):
 
 
 		#TODO delete label
-		white_label = QLabel(self)
-		white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
 		commands_layout = QHBoxLayout()
-		commands_layout.addWidget(white_label)
+		commands_layout.addWidget(CommandWidget())
 		left_layout.addLayout(commands_layout, 2)
 
 

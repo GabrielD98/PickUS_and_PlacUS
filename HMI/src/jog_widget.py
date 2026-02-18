@@ -46,7 +46,7 @@ class JogWidget(QWidget):
         init_speed = 50
         self.speed_label = QLabel(f"speed : {init_speed}%")
         self.speed_slider = QSlider(Qt.Horizontal)
-        self.speed_slider.setRange(0, 100)
+        self.speed_slider.setRange(10, 100)
         self.speed_slider.setValue(init_speed)
         self.speed_slider.valueChanged.connect(self.update_speed_slider)
 
