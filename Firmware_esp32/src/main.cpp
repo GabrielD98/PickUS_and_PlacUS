@@ -1,29 +1,18 @@
-#include "Controller.h"
+#include <Arduino.h>
 
-Controller controller;
+// put function declarations here:
+int myFunction(int, int);
 
-int i = 1;
-
-void setup()
-{
-  Serial.begin(115200);
+void setup() {
+  // put your setup code here, to run once:
+  int result = myFunction(2, 3);
 }
 
-
-void loop()
-{
-  if (i==1)
-  {
-    dataModel_t* dataModel = controller.dataModel.get();
-    dataModel->command.id = CommandId::MOVE;
-    dataModel->command.velocity = 300;
-    dataModel->command.requestedPosition.x = 200;
-    dataModel->command.requestedPosition.y = 400;
-    dataModel->command.requestedPosition.z = 400;
-    dataModel->command.requestedPosition.yaw = 400;
-    controller.dataModel.release();
-    i = 0;
-  }
-  controller.update();
+void loop() {
+  // put your main code here, to run repeatedly:
 }
 
+// put function definitions here:
+int myFunction(int x, int y) {
+  return x + y;
+}
