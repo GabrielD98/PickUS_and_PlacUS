@@ -16,7 +16,6 @@ from PyQt5.QtWidgets import (
     QStackedWidget,
     QSlider
 )
-
 import utils
 
 
@@ -64,7 +63,7 @@ class CommandWidget(QWidget):
         self.pause_button.setText("Pause")
 
     def toggle_start(self):
-        if self.on:
+        if self.on: 
             self.stop()
         else:
             self.start()

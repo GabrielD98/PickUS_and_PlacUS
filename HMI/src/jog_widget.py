@@ -219,7 +219,7 @@ class JogWidget(QWidget):
 
     def go_home(self):
         print("Going home")
-        time.sleep(1)
+        #time.sleep(1)
         self.activate_interaction_widget()
 
 

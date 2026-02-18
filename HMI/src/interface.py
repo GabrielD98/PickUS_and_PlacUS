@@ -16,7 +16,9 @@ from PyQt5.QtWidgets import (
 from PyQt5 import QtWidgets
 from pathlib import Path
 
+from controller import Controller
 from file_interpreter import FileInterpreter
+from pnp_state_widget import PnPStateWidget
 from slicer import Slicer
 from storage import Storage
 from data import *
@@ -35,6 +37,7 @@ class Interface(QMainWindow):
 	def __init__(self):
 		super().__init__()
 		self.storage_window:StorageWindow = None
+		self.controller = Controller()
 		self.storage = Storage()
 		self.pieces:List[Piece] = []
 		self.file_path = "No file selected"
@@ -113,20 +116,11 @@ class Interface(QMainWindow):
 
 
 		#TODO delete label
-		white_label = QLabel(self)
-		white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
 		state_layout = QHBoxLayout()
-		state_layout.addWidget(white_label)
-		right_layout.addLayout(state_layout, 4)
+		state_layout.addWidget(PnPStateWidget(self.controller))
+		right_layout.addLayout(state_layout, 1)
 
 
-
-		#TODO delete label
-		white_label = QLabel(self)
-		white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
-		home_layout = QHBoxLayout()
-		home_layout.addWidget(white_label)
-		right_layout.addLayout(home_layout, 3)
 
 		#TODO delete label
 		#white_label = QLabel(self)
@@ -139,7 +133,7 @@ class Interface(QMainWindow):
 		img_label = QLabel(self)
 		pixmap = QPixmap("../data/a_joyful_Julius_C.png")
 		img_label.setPixmap(pixmap)
-		#right_layout.addWidget(img_label, 4)
+		right_layout.addWidget(img_label, 2)
 
 		
 		self.setCentralWidget(global_widget)
