@@ -25,8 +25,10 @@ private :
     AccelStepper motorYAW;
     MultiStepper motorSystem;
 
+    bool ValveState = false; 
+    bool first = true; 
+
     void setTargets();
-    
 };
 
 #endif

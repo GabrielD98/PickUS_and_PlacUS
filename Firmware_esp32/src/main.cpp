@@ -14,17 +14,13 @@ void loop()
 {
   if (i==1)
   {
-    controller.dataModel.get()->command.id = CommandId::MOVE;
-    controller.dataModel.release();
-    controller.dataModel.get()->command.velocity = 800;
-    controller.dataModel.release();
-    controller.dataModel.get()->command.requestedPosition.x = 400;
-    controller.dataModel.release();
-    controller.dataModel.get()->command.requestedPosition.y = 400;
-    controller.dataModel.release();
-    controller.dataModel.get()->command.requestedPosition.z = 0;
-    controller.dataModel.release();
-    controller.dataModel.get()->command.requestedPosition.yaw = 0;
+    dataModel_t* dataModel = controller.dataModel.get();
+    dataModel->command.id = CommandId::MOVE;
+    dataModel->command.velocity = 300;
+    dataModel->command.requestedPosition.x = 200;
+    dataModel->command.requestedPosition.y = 400;
+    dataModel->command.requestedPosition.z = 400;
+    dataModel->command.requestedPosition.yaw = 400;
     controller.dataModel.release();
     i = 0;
   }

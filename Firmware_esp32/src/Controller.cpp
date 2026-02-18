@@ -23,6 +23,7 @@ void Controller::update()
     CommandId command_id = dataModel.get()->command.id;    
     dataModel.release();
     MachineState state_;
+    long initHeight = 0;
 
     switch(command_id){
         case CommandId::STOP: // STOP
@@ -42,25 +43,47 @@ void Controller::update()
             break;
 
         case CommandId::PICK: // PICK
+
+            initHeight = motorZ.currentPosition();
             setTargets();
-            if (motorSystem.run())
+            if(motorSystem.run())
             {
                 state_ = MachineState::PICKING;
             }
+            else if (first)
+            {
+                ValveState = !ValveState;
+                digitalWrite(PIN_VALVE, ValveState);
+                dataModel.get()->position.z = initHeight;
+                dataModel.release();
+                first = !first;
+            }
             else
             {
+                first = true; 
                 state_ = MachineState::READY;
             }
             break;
 
         case CommandId::PLACE: // PLACE
+            
+            initHeight = motorZ.currentPosition();
             setTargets();
-            if (motorSystem.run())
+            if(motorSystem.run())
             {
                 state_ = MachineState::PLACING;
             }
+            else if (first)
+            {
+                ValveState = !ValveState;
+                digitalWrite(PIN_VALVE, ValveState);
+                dataModel.get()->position.z = initHeight;
+                dataModel.release();
+                first = !first;
+            }
             else
             {
+                first = true; 
                 state_ = MachineState::READY;
             }
             break;
@@ -100,6 +123,7 @@ void Controller::update()
     newPos.y = motorY.currentPosition(); //New y position
     newPos.z = motorZ.currentPosition(); //New z position
     newPos.yaw = motorYAW.currentPosition(); //New yaw position 
+
     dataModel.get()->position = newPos;
     dataModel.release();
     dataModel.get()->state = state_;
@@ -128,4 +152,3 @@ void Controller::setTargets()
     
     motorSystem.moveTo(target);
 }
-
