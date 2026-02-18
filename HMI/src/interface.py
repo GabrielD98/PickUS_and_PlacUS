@@ -23,6 +23,7 @@ from data import *
 from typing import List
 from storage_window import StorageWindow
 from storage_ui_info import StorageUiInfo
+from jog_widget import JogWidget
 import utils
 		
 		
@@ -129,17 +130,17 @@ class Interface(QMainWindow):
 		right_layout.addLayout(home_layout, 3)
 
 		#TODO delete label
-		white_label = QLabel(self)
-		white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
+		#white_label = QLabel(self)
+		#white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
 		jog_layout = QHBoxLayout()
-		jog_layout.addWidget(white_label)
+		jog_layout.addWidget(JogWidget())
 		right_layout.addLayout(jog_layout, 4)
 
 
 		img_label = QLabel(self)
 		pixmap = QPixmap("../data/a_joyful_Julius_C.png")
 		img_label.setPixmap(pixmap)
-		right_layout.addWidget(img_label, 4)
+		#right_layout.addWidget(img_label, 4)
 
 		
 		self.setCentralWidget(global_widget)
