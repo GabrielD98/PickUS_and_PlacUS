@@ -7,7 +7,9 @@
 Controller ctrl;
 PressureSensor pSensor(PIN_PSENSOR_CLK,PIN_PSENSOR_DATA);
 
+void communicationLoop(void *pvParameters);
 void controlLoop(void *pvParameters);
+void testLoop(void*pvParameters);
 
 void setup()
 {
