@@ -2,10 +2,7 @@
 #include "../lib/data.hpp"
 #include "BoardConfig.h"
 #include "Controller.h"
-#include "communication.hpp"
 #include "pressureSensor.hpp"
-
-#define ENABLE_TEST true
 
 Controller ctrl;
 PressureSensor pSensor(PIN_PSENSOR_CLK,PIN_PSENSOR_DATA);
@@ -20,7 +17,6 @@ void setup()
 	pinMode(PIN_LIMSWITCH_Z,INPUT);
 	pSensor.init();
 
-	/*
 	xTaskCreatePinnedToCore(
 		communicationLoop,
 		"communicationTask",
@@ -30,71 +26,80 @@ void setup()
 		NULL,
 		0
 	);
-	*/
-
-	xTaskCreatePinnedToCore(
-		controlLoop,
-		"controlTask",
-		10000,
-		&ctrl,
-		1,
-		NULL,
-		1
-	);
+	if(!ENABLE_TEST)
+	{
+			xTaskCreatePinnedToCore(
+			testLoop,
+			"controlTask",
+			10000,
+			&ctrl,
+			1,
+			NULL,
+			1
+		);
+	}
+	else
+	{
+		xTaskCreatePinnedToCore(
+			controlLoop,
+			"controlTask",
+			10000,
+			&ctrl,
+			1,
+			NULL,
+			1
+		);
+	}
 	
 
 }
 
 
 void loop()
+{}
+
+void communicationLoop(void *pvParameters) //to change for controller &
 {
+	Controller* controller = (Controller*)pvParameters;
+	uint16_t commandSize = sizeof(command_t);
+	while(true)
+	{
+		if(Serial.available() >= commandSize)
+		{
+			command_t recieveCmd;
+			uint8_t byteBuffer[commandSize];
 	
+			Serial.readBytes(byteBuffer, commandSize);
+			memcpy(&recieveCmd, byteBuffer, commandSize);
+			dataModel_t* dataModel = controller->dataModel.get();
+			dataModel->command = recieveCmd;
+			controller->dataModel.release();
+
+			vTaskDelay(50); //TODO: Confirm this delay
+			
+			statusFrame_t statusFrame;
+			dataModel = controller->dataModel.get();
+			statusFrame.position = dataModel->position;
+			statusFrame.state = dataModel->state;
+			controller->dataModel.release();
+			Serial.write((const uint8_t *)&statusFrame, sizeof(statusFrame_t));
+		}
+	}
 }
 
 void controlLoop(void *pvParameters)
 {
 	Controller* controller = (Controller*)pvParameters;
-	digitalWrite(PIN_PUMP,HIGH);
-	int timeForPressure = millis();
-
 	while(1)
 	{
-		dataModel_t* dataModel = controller->dataModel.get();
-		dataModel->command.id = CommandId::MOVE;
-		dataModel->command.velocity = 200;
-
-		if(!digitalRead(PIN_LIMSWITCH_Z))
-		{
-			if(dataModel->state == MachineState::READY)
-			{
-				dataModel->command.requestedPosition.x = 400;
-				dataModel->command.requestedPosition.y = 400;
-				dataModel->command.requestedPosition.yaw = 400;
-				dataModel->command.requestedPosition.z = 400;
-			}
-			
-			digitalWrite(PIN_VALVE,HIGH);
-			
-		}
-		else
-		{
-			if(dataModel->state == MachineState::READY)
-			{
-				dataModel->command.requestedPosition.x = 0;
-				dataModel->command.requestedPosition.y = 0;
-				dataModel->command.requestedPosition.yaw = 0;
-				dataModel->command.requestedPosition.z = 0;
-			}
-
-			digitalWrite(PIN_VALVE,LOW);
-			
-		}
-		//Serial.println(pSensor.getPressureKPa());
-
-		controller->dataModel.release();
 		controller->update();
-		
 	}
-	
+}
 
+void testLoop(void*pvParameters)
+{
+	Controller* controller = (Controller*)pvParameters;
+	while(1)
+	{
+	}
 }

@@ -40,4 +40,10 @@ typedef struct Command
 
 }command_t;
 
+typedef struct __attribute__((packed)) statusFrame
+{
+	MachineState state;
+	position_t position;
+}statusFrame_t;
+
 #endif

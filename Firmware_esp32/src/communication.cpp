@@ -8,11 +8,7 @@
 
 #define commandSize sizeof(command_t)
 
-typedef struct __attribute__((packed)) infoToSend
-{
-	MachineState state;
-	position_t position;
-}infoToSend_t;
+
 
 void communicationLoop(void *pvParameters) //to change for controller &
 {
