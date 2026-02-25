@@ -81,7 +81,6 @@ class Interface(QMainWindow):
 		left_layout.addLayout(file_layout, 1)
 
 
-		#TODO delete label
 		#FILE READING LAYOUT
 		self.pieces_layout = QVBoxLayout()
 		left_layout.addLayout(self.pieces_layout, 3)
@@ -94,39 +93,22 @@ class Interface(QMainWindow):
 		left_layout.addLayout(calibration_layout, 2)
 
 
-		#TODO delete label
 		slice_layout = QHBoxLayout()
 		self.slice_widget = SliceInfoWidget()
 		slice_layout.addWidget(self.slice_widget)
 		left_layout.addLayout(slice_layout)
 
 
-		#TODO delete label
-		"""
-		white_label = QLabel(self)
-		white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
-		step_layout = QHBoxLayout()
-		step_layout.addWidget(white_label)
-		left_layout.addLayout(step_layout, 6)
-		"""
-
-
-		#TODO delete label
 		commands_layout = QHBoxLayout()
 		commands_layout.addWidget(CommandWidget())
 		left_layout.addLayout(commands_layout, 2)
 
 
-		#TODO delete label
 		state_layout = QHBoxLayout()
 		state_layout.addWidget(PnPStateWidget(self.controller))
 		right_layout.addLayout(state_layout, 1)
 
 
-
-		#TODO delete label
-		#white_label = QLabel(self)
-		#white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
 		jog_layout = QHBoxLayout()
 		jog_layout.addWidget(JogWidget())
 		right_layout.addLayout(jog_layout, 4)

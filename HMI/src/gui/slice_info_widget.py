@@ -65,7 +65,8 @@ class SliceInfoWidget(QWidget):
                                           Position(0,0,-1,0),   #TODO offset du z
                                           1)
         
-        print(self.pieces)
+
+        utils.clearLayout(self.scrollLayout)
         for command in self.commands:
             position = command.position
 
