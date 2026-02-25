@@ -1,3 +1,6 @@
+#ifndef PRESSURESENSOR_H
+#define PRESSURESENSOR_H
+
 #include <stdint.h>
 
 
@@ -15,3 +18,5 @@ class PressureSensor
 		long zeroValue;
 
 };
+
+#endif
