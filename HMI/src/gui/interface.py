@@ -27,6 +27,7 @@ from gui.storage_window import StorageWindow
 from gui.storage_ui_info import StorageUiInfo
 from gui.jog_widget import JogWidget
 from gui.command_widget import CommandWidget
+from gui.slice_info_widget import SliceInfoWidget
 import utils
 		
 		
@@ -94,19 +95,20 @@ class Interface(QMainWindow):
 
 
 		#TODO delete label
-		white_label = QLabel(self)
-		white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
 		slice_layout = QHBoxLayout()
-		slice_layout.addWidget(white_label)
-		left_layout.addLayout(slice_layout, 2)
+		self.slice_widget = SliceInfoWidget()
+		slice_layout.addWidget(self.slice_widget)
+		left_layout.addLayout(slice_layout)
 
 
 		#TODO delete label
+		"""
 		white_label = QLabel(self)
 		white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
 		step_layout = QHBoxLayout()
 		step_layout.addWidget(white_label)
 		left_layout.addLayout(step_layout, 6)
+		"""
 
 
 		#TODO delete label
@@ -167,6 +169,8 @@ class Interface(QMainWindow):
 		pieces = FileInterpreter().readPositionFile(self.file_path)
 		if pieces is None:
 			return
+		
+		self.slice_widget.set_pieces(pieces)
 		self.pieces = self.get_all_unique_piece(pieces)
 		self.update_piece_list()
 		self.analyse_button.setEnabled(False)
