@@ -192,7 +192,8 @@ class Controller:
 				self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
 		except (struct.error, ValueError):
 			# Discard invalid/garbage data and resync
-			self._com.ser.reset_input_buffer()
+			if self._com.isPortOpen():
+				self._com.ser.reset_input_buffer()
 			return
 
 
