@@ -12,9 +12,7 @@ if __name__ == "__main__":
     print("Starting Program")
 
     try : 
-
-        
-        test.connectionToMachine("COM19",115200)
+        pass
 
         
 

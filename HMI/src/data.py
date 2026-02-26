@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, IntFlag
 import numbers
 
 
@@ -37,7 +37,7 @@ class ControllerState(Enum):
     PAUSE = 3
     DONE = 4
 
-class TransitionRequest(Enum):
+class TransitionRequest(IntFlag):
     TO_RUNNING = (1<<0)
     TO_MANUAL = (1<<1)
     TO_PAUSE = (1<<2)

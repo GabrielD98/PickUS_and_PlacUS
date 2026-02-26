@@ -68,19 +68,18 @@ void loop()
 void communicationLoop(void *pvParameters)
 {
 	Controller* controller = (Controller*)pvParameters;
-	uint16_t commandSize = sizeof(command_t);
 	while(true)
 	{
-		if(Serial.available() >= commandSize)
+		if(Serial.available() >= sizeof(command_t))
 		{
-			command_t recieveCmd;
-			uint8_t byteBuffer[commandSize];
+			command_t receiveCmd;
+			uint8_t byteBuffer[sizeof(command_t)];
 	
 			//Receive section
-			Serial.readBytes(byteBuffer, commandSize);
-			memcpy(&recieveCmd, byteBuffer, commandSize);
+			Serial.readBytes(byteBuffer, sizeof(command_t));
+			memcpy(&receiveCmd, byteBuffer, sizeof(command_t));
 			dataModel_t* dataModel = controller->dataModel.get();
-			dataModel->command = recieveCmd;
+			dataModel->command = receiveCmd;
 			controller->dataModel.release();
 
 			vTaskDelay(50); //TODO: Confirm this delay
@@ -92,6 +91,10 @@ void communicationLoop(void *pvParameters)
 			statusFrame.state = dataModel->state;
 			controller->dataModel.release();
 			Serial.write((const uint8_t *)&statusFrame, sizeof(statusFrame_t));
+		}
+		else
+		{
+			vTaskDelay(10);
 		}
 	}
 }

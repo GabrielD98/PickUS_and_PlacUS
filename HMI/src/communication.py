@@ -1,5 +1,4 @@
 import serial
-import time
 
 class Communication:
 	"""
@@ -55,7 +54,7 @@ class Communication:
 				pass
 		return
 
-	def receiveData(self, numBytes: int) -> bytes:
+	def receiveData(self, numBytes: int) -> bytes | None:
 		"""Read a fixed number of bytes from the serial port (blocking).
 
 		Parameters:
@@ -64,6 +63,7 @@ class Communication:
 
 		Returns:
 			bytes: The raw bytes read.
+			None: if exception or port not open
 		"""
 		if self.isPortOpen():
 			try:
