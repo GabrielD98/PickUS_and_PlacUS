@@ -4,12 +4,14 @@ import unittest
 from test_file_interpreter import TestFileInterpreter
 from test_storage import TestStorage
 from test_slicer import TestSlicer
+from test_controller_communication import TestControllerCommunication
 
 
 if __name__ == '__main__':
     test_classes_to_run = [TestFileInterpreter,
-                           TestStorage, 
-                           TestSlicer]
+                           TestStorage,
+                           TestSlicer,
+                           TestControllerCommunication]
     loader = unittest.TestLoader()
 
     suites_list = []

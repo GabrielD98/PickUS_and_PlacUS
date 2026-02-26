@@ -2,22 +2,19 @@
 #include "../lib/data.hpp"
 #include "BoardConfig.h"
 #include "Controller.h"
-#include "pressureSensor.hpp"
+#include "TestRunner.h"
 
 Controller ctrl;
-PressureSensor pSensor(PIN_PSENSOR_CLK,PIN_PSENSOR_DATA);
+TestRunner testRunner(&ctrl);
 
 void communicationLoop(void *pvParameters);
 void controlLoop(void *pvParameters);
-void testLoop(void*pvParameters);
+void testLoop(void *pvParameters);
 
 void setup()
 {
 	Serial.begin(115200);
-	delay(1000); // Wait for serial to initialize
-
-	pinMode(PIN_LIMSWITCH_Z,INPUT);
-	pSensor.init();
+	while (!Serial) { delay(10); } // Block until host opens the serial port
 
 	xTaskCreatePinnedToCore(
 		communicationLoop,
@@ -28,11 +25,11 @@ void setup()
 		NULL,
 		0
 	);
-	if(!ENABLE_TEST)
+	if(ENABLE_TEST)
 	{
 			xTaskCreatePinnedToCore(
 			testLoop,
-			"controlTask",
+			"testTask",
 			10000,
 			&ctrl,
 			1,
@@ -60,7 +57,15 @@ void setup()
 void loop()
 {}
 
-void communicationLoop(void *pvParameters) //to change for controller &
+
+/**
+ * @brief FreeRTOS task that handles serial communication with the host.
+ *        Receives a command_t packet and writes it to the shared DataModel,
+ *        then reads back the current state and position and sends a statusFrame_t reply.
+ *
+ * @param pvParameters Pointer to the shared Controller instance.
+ */
+void communicationLoop(void *pvParameters)
 {
 	Controller* controller = (Controller*)pvParameters;
 	uint16_t commandSize = sizeof(command_t);
@@ -71,6 +76,7 @@ void communicationLoop(void *pvParameters) //to change for controller &
 			command_t recieveCmd;
 			uint8_t byteBuffer[commandSize];
 	
+			//Receive section
 			Serial.readBytes(byteBuffer, commandSize);
 			memcpy(&recieveCmd, byteBuffer, commandSize);
 			dataModel_t* dataModel = controller->dataModel.get();
@@ -79,6 +85,7 @@ void communicationLoop(void *pvParameters) //to change for controller &
 
 			vTaskDelay(50); //TODO: Confirm this delay
 			
+			//Send section
 			statusFrame_t statusFrame;
 			dataModel = controller->dataModel.get();
 			statusFrame.position = dataModel->position;
@@ -89,6 +96,14 @@ void communicationLoop(void *pvParameters) //to change for controller &
 	}
 }
 
+
+/**
+ * @brief FreeRTOS task that runs the main motion control loop.
+ *        Calls Controller::update() continuously to process commands
+ *        from the shared DataModel and drive the stepper motors.
+ *
+ * @param pvParameters Pointer to the shared Controller instance.
+ */
 void controlLoop(void *pvParameters)
 {
 	Controller* controller = (Controller*)pvParameters;
@@ -98,10 +113,21 @@ void controlLoop(void *pvParameters)
 	}
 }
 
+/**
+ * @brief FreeRTOS task used during integration testing (enabled via ENABLE_TEST build flag).
+ *        Replaces controlLoop on core 1. Use this to exercise hardware and verify
+ *        that communication, DataModel, and actuators behave as expected.
+ *
+ * @param pvParameters Pointer to the shared Controller instance.
+ */
 void testLoop(void*pvParameters)
 {
 	Controller* controller = (Controller*)pvParameters;
+
+	testRunner.runTests();
+	
 	while(1)
 	{
+		vTaskDelay(100);
 	}
 }

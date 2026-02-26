@@ -32,7 +32,7 @@ enum class MachineState : uint8_t
 	DISCONNECTED = 5
 };
 
-typedef struct Command
+typedef struct __attribute__((packed)) command
 {
 	CommandId id;
 	float velocity;

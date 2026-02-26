@@ -184,10 +184,16 @@ class Controller:
 		size = struct.calcsize(format)
 		bytesBuffer = self._com.receiveData(size)
 
-		machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
-		print(machineState, x, y, z, yaw)
-		with self.mutex:
-			self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
+		if bytesBuffer is None or len(bytesBuffer) < size:
+			return
+		try:
+			machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
+			with self.mutex:
+				self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
+		except (struct.error, ValueError):
+			# Discard invalid/garbage data and resync
+			self._com.ser.reset_input_buffer()
+			return
 
 
 
@@ -290,10 +296,13 @@ class Controller:
 			machineState = self._latestMachineInfo[0]
 		
 		if machineState == MachineState.READY:
-			commandToSend = self._nextCommand()
-			if commandToSend and commandToSend.commandId == CommandId.PLACE:
-				self._storage.components[commandToSend.piece].quantity -= 1
-				self._storage.components[commandToSend.piece].piece = commandToSend.piece #TODO: confirm that piece position is the right one
+			nextCommand = self._nextCommand()
+			if nextCommand is not None:
+				commandToSend = nextCommand
+			if commandToSend.commandId == CommandId.PLACE:
+				if commandToSend.piece is not None and commandToSend.piece in self._storage.components:
+					self._storage.components[commandToSend.piece].quantity -= 1
+					self._storage.components[commandToSend.piece].piece = commandToSend.piece
 			
 			with self.mutex:
 				lastCommandId = self._lastCommand.commandId

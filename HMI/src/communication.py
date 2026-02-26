@@ -1,4 +1,5 @@
 import serial
+import time
 
 class Communication:
 	"""
@@ -25,9 +26,9 @@ class Communication:
 		self.ser = serial.Serial(
 			port=self.port,
 			baudrate=self.baudrate,
-			timeout=None,
+			timeout=1,
 		)
-		# Flush buffers to clear any startup messages or leftover data
+
 		self.ser.reset_input_buffer()
 		self.ser.reset_output_buffer()
 
@@ -46,9 +47,12 @@ class Communication:
 		Parameters:
 			data (bytes):
 				Data to send
-        """
+		"""
 		if self.isPortOpen():
-			self.ser.write(data)
+			try:
+				self.ser.write(data)
+			except serial.SerialException:
+				pass
 		return
 
 	def receiveData(self, numBytes: int) -> bytes:
@@ -62,7 +66,10 @@ class Communication:
 			bytes: The raw bytes read.
 		"""
 		if self.isPortOpen():
-			data = self.ser.read(numBytes)
+			try:
+				data = self.ser.read(numBytes)
+			except (serial.SerialException, AttributeError):
+				data = None
 		else:
 			data = None
 		return data
