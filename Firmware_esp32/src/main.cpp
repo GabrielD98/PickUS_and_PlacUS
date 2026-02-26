@@ -3,6 +3,7 @@
 #include "BoardConfig.h"
 #include "Controller.h"
 #include "TestRunner.h"
+#include "TestRunner.h"
 
 Controller ctrl;
 TestRunner testRunner(&ctrl);
@@ -75,9 +76,8 @@ void communicationLoop(void *pvParameters)
 			command_t receiveCmd;
 			uint8_t byteBuffer[sizeof(command_t)];
 	
-			//Receive section
-			Serial.readBytes(byteBuffer, sizeof(command_t));
-			memcpy(&receiveCmd, byteBuffer, sizeof(command_t));
+			Serial.readBytes(byteBuffer, commandSize);
+			memcpy(&recieveCmd, byteBuffer, commandSize);
 			dataModel_t* dataModel = controller->dataModel.get();
 			dataModel->command = receiveCmd;
 			controller->dataModel.release();

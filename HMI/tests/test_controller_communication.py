@@ -9,7 +9,7 @@ from controller import Controller
 from data import Command, CommandId, Position, ControllerState, MachineState
 
 
-ESP32_PORT = os.getenv("ESP32_PORT")
+ESP32_PORT = os.getenv("ESP32_PORT", "COM19")
 ESP32_BAUD = int(os.getenv("ESP32_BAUD", "115200"))
 ESP32_TEST_TIMEOUT = float(os.getenv("ESP32_TEST_TIMEOUT", "10"))
 
@@ -17,17 +17,11 @@ ESP32_TEST_TIMEOUT = float(os.getenv("ESP32_TEST_TIMEOUT", "10"))
 class TestControllerCommunication(unittest.TestCase):
 	def test_sequence_with_esp32(self):
 
-		if not ESP32_PORT:
-			self.skipTest("ESP32_PORT environment variable not set – skipping hardware test")
-
 		print("\nTEST COMMUNICATION")
 
 		controller = Controller()
 
-		try:
-			controller.connectionToMachine(ESP32_PORT, ESP32_BAUD)
-		except Exception as e:
-			self.skipTest(f"Could not open {ESP32_PORT}: {e}")
+		controller.connectionToMachine(ESP32_PORT, ESP32_BAUD)  # open() waits 2s for ESP32 startup
 		try:
 			self._wait_for_machine_ready(controller, ESP32_TEST_TIMEOUT)
 
