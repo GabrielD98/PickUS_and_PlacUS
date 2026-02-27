@@ -2,18 +2,17 @@ from file_interpreter import FileInterpreter
 from storage import Storage
 from slicer import Slicer
 from data import *
+from controller import Controller
 
 
 
-
+test = Controller()
 
 if __name__ == "__main__":
     print("Starting Program")
 
     try : 
-
         pass
-
 
         
 

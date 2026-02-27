@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef struct Position
+typedef struct __attribute__((packed)) position
 {
 	float x = 0;
 	float y = 0;
@@ -12,7 +12,7 @@ typedef struct Position
 
 }position_t;
 
-enum class CommandId
+enum class CommandId : uint8_t
 {
 	STOP = 0,
 	MOVE = 1,
@@ -22,7 +22,7 @@ enum class CommandId
 	EMPTY = 5
 };
 
-enum class MachineState
+enum class MachineState : uint8_t
 {
 	ERROR = 0,
 	READY = 1,
@@ -32,7 +32,7 @@ enum class MachineState
 	DISCONNECTED = 5
 };
 
-typedef struct Command
+typedef struct __attribute__((packed)) command
 {
 	CommandId id;
 	float velocity;
@@ -40,4 +40,12 @@ typedef struct Command
 
 }command_t;
 
+typedef struct __attribute__((packed)) statusFrame
+{
+	MachineState state;
+	position_t position;
+}statusFrame_t;
+
+static_assert(sizeof(command_t) == 21, "command_t size must remain 21 bytes for protocol compatibility");
+static_assert(sizeof(statusFrame_t) == 17, "statusFrame_t size must remain 17 bytes for protocol compatibility");
 #endif

@@ -25,8 +25,11 @@ class Communication:
 		self.ser = serial.Serial(
 			port=self.port,
 			baudrate=self.baudrate,
-			timeout=None,
+			timeout=1,
 		)
+
+		self.ser.reset_input_buffer()
+		self.ser.reset_output_buffer()
 
 
 	def close(self):
@@ -43,19 +46,30 @@ class Communication:
 		Parameters:
 			data (bytes):
 				Data to send
-        """
-		if self.isPortOpen():
-			self.ser.write(data)
-		return
-
-	def receiveData(self) -> bytes:
-		"""Read a line from the serial port (blocking until '\\n').
-
-		Returns:
-			bytes: The raw bytes read, including the terminating newline if present.
 		"""
 		if self.isPortOpen():
-			data = self.ser.readline()
+			try:
+				self.ser.write(data)
+			except serial.SerialException:
+				pass
+		return
+
+	def receiveData(self, numBytes: int) -> bytes | None:
+		"""Read a fixed number of bytes from the serial port (blocking).
+
+		Parameters:
+			numBytes (int):
+				Number of bytes to read
+
+		Returns:
+			bytes: The raw bytes read.
+			None: if exception or port not open
+		"""
+		if self.isPortOpen():
+			try:
+				data = self.ser.read(numBytes)
+			except (serial.SerialException, AttributeError):
+				data = None
 		else:
 			data = None
 		return data
