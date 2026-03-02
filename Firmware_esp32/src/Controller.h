@@ -9,6 +9,7 @@
 
 #include "../lib/data.hpp"
 #include "DataModel.h"
+#include "LimitSwitch.h"
 
 class Controller
 {
@@ -25,10 +26,15 @@ private :
     AccelStepper motorYAW;
     MultiStepper motorSystem;
 
+    LimitSwitch limSwitchX;
+    LimitSwitch limSwitchY;
+    LimitSwitch limSwitchZ;
+
     bool ValveState = false; 
     bool first = true; 
 
     void setTargets();
+    void goHome();
 };
 
 #endif

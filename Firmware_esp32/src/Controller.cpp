@@ -1,12 +1,14 @@
 #include "Controller.h"
 
 Controller::Controller()
+    : motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR),
+      motorY(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR),
+      motorZ(AccelStepper::DRIVER, PIN_DZ_STEP, PIN_DZ_DIR),
+      motorYAW(AccelStepper::DRIVER, PIN_DYAW_STEP, PIN_DYAW_DIR),
+      limSwitchX(PIN_LIMSWITCH_X),
+      limSwitchY(PIN_LIMSWITCH_Y),
+      limSwitchZ(PIN_LIMSWITCH_Z)
 {
-    motorX = AccelStepper(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR);
-    motorY = AccelStepper(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR);
-    motorZ = AccelStepper(AccelStepper::DRIVER, PIN_DZ_STEP, PIN_DZ_DIR);
-    motorYAW = AccelStepper(AccelStepper::DRIVER, PIN_DYAW_STEP, PIN_DYAW_DIR);
-
     // Enable stepper drivers (active LOW)
     pinMode(PIN_DX_EN, OUTPUT);   digitalWrite(PIN_DX_EN, LOW);
     pinMode(PIN_DY_EN, OUTPUT);   digitalWrite(PIN_DY_EN, LOW);
@@ -16,7 +18,7 @@ Controller::Controller()
     motorSystem.addStepper(motorX);
     motorSystem.addStepper(motorY);
     motorSystem.addStepper(motorZ);
-    motorSystem.addStepper(motorYAW); 
+    motorSystem.addStepper(motorYAW);
 }
 
 Controller::~Controller()
@@ -97,15 +99,8 @@ void Controller::update()
         case CommandId::HOME: // HOME
             
             setTargets();
-            // Run till encounter limit-switches, then update absolute coordinates
-            if (motorSystem.run())
-            {
-                state_ = MachineState::MOVING;
-            }
-            else
-            {
-                state_ = MachineState::READY;
-            }
+            this->goHome();
+            state_ = MachineState::READY;
             break;
 
         case CommandId::EMPTY: // EMPTY
@@ -157,4 +152,67 @@ void Controller::setTargets()
     motorYAW.setMaxSpeed(speed);
     
     motorSystem.moveTo(target);
+}
+
+
+void Controller::goHome()
+{
+    int16_t stepPerLoop = -1;
+    HomingState homingState = HomingState::HOMING_X;
+
+    while(homingState != HomingState::HOMING_DONE)
+    {
+        switch (homingState)
+        {
+        case HomingState::HOMING_X:
+
+            if(limSwitchX.isTriggered())
+            {
+                motorX.setCurrentPosition(0);
+                homingState = HomingState::HOMING_Y;
+            }
+            else
+            {
+                motorX.move(stepPerLoop);
+            }
+
+            break;
+        case HomingState::HOMING_Y:
+
+            if(limSwitchY.isTriggered())
+            {
+                motorY.setCurrentPosition(0);
+                homingState = HomingState::HOMING_Z;
+            }
+            else
+            {
+                motorX.move(stepPerLoop);
+            }
+            break;
+
+        case HomingState::HOMING_Z:
+
+            if(limSwitchZ.isTriggered())
+            {
+                motorZ.setCurrentPosition(0);
+                homingState = HomingState::HOMING_YAW;
+            }
+            else
+            {
+                motorZ.move(stepPerLoop);
+            }
+        
+            break;
+            
+        case HomingState::HOMING_YAW:
+
+            motorX.setCurrentPosition(0);
+            homingState = HomingState::HOMING_Y;
+            break;
+
+        case HomingState::HOMING_DONE:
+            break;
+        }
+
+    }
 }
