@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
 )
 
 
+from controller import Controller
 from storage import Storage
 from data import *
 from typing import List
@@ -23,9 +24,9 @@ from gui.storage_ui_info import StorageUiInfo
 from gui.jog_widget import JogWidget
 
 class StorageWindow(QMainWindow):
-	def __init__(self, parent=None):
+	def __init__(self, parent=None, controller:Controller = None):
 		super().__init__(parent)
-
+		self.controller = controller
 		self.setWindowTitle("Storage Manager")
 		self.storage = Storage()
 		self.piece:Piece = None
@@ -91,7 +92,7 @@ class StorageWindow(QMainWindow):
 		utils.clearLayout(self.calibration_layout)
 		info_label = QLabel("Place the tip of the gripper on the first commponent of the storage")
 		self.calibration_layout.addWidget(info_label)
-		self.calibration_layout.addWidget(JogWidget(isMain=False))
+		self.calibration_layout.addWidget(JogWidget(isMain=False, controller=self.controller))
 
 
 	def closeEvent(self, event: QEvent):

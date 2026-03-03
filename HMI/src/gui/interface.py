@@ -28,6 +28,7 @@ from gui.storage_ui_info import StorageUiInfo
 from gui.jog_widget import JogWidget
 from gui.command_widget import CommandWidget
 from gui.slice_info_widget import SliceInfoWidget
+from gui.calbration_window import CalibrationWindow
 import utils
 		
 		
@@ -36,9 +37,10 @@ import utils
 
 class Interface(QMainWindow):
 	def __init__(self):
-		super().__init__()
+		super().__init__()	
+		self.calibration_pos = Position(-1,-1,-1,-1)
 		self.storage_window:StorageWindow = None
-		self.controller = Controller()
+		self.controller = Controller()  #TODO controller as a singleton for less crust ?
 		self.storage = Storage()
 		self.pieces:List[Piece] = []
 		self.file_path = "No file selected"
@@ -86,10 +88,10 @@ class Interface(QMainWindow):
 		left_layout.addLayout(self.pieces_layout, 3)
 
 		#TODO delete label
-		white_label = QLabel(self)
-		white_label.setStyleSheet("background-color: white; border: 1px solid black;") 
+		self.calibrate_button = QPushButton("Calibrate")
+		self.calibrate_button.clicked.connect(lambda : self.start_calibration())
 		calibration_layout = QHBoxLayout()
-		calibration_layout.addWidget(white_label)
+		calibration_layout.addWidget(self.calibrate_button)
 		left_layout.addLayout(calibration_layout, 2)
 
 
@@ -110,7 +112,7 @@ class Interface(QMainWindow):
 
 
 		jog_layout = QHBoxLayout()
-		jog_layout.addWidget(JogWidget())
+		jog_layout.addWidget(JogWidget(controller=self.controller))
 		right_layout.addLayout(jog_layout, 4)
 
 
@@ -161,6 +163,7 @@ class Interface(QMainWindow):
 
 
 
+
 	def get_all_unique_piece(self, pieces:List[Piece]) -> List[Piece]:
 		unique_pieces:dict[Piece:Piece] = {}
 		for piece in pieces:
@@ -188,8 +191,13 @@ class Interface(QMainWindow):
 
 
 	def add_piece_to_storage(self, info:StorageUiInfo):
-		self.storage_window = StorageWindow()
+		self.storage_window = StorageWindow(controller=self.controller)
 		self.storage_window.set_inputs(info)
 		self.storage_window.show()
+
+
+	def start_calibration(self):
+		self.calibration_window = CalibrationWindow(position=self.calibration_pos, controller=self.controller)
+		self.calibration_window.show()
 
 

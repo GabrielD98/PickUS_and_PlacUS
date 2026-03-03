@@ -17,12 +17,15 @@ from PyQt5.QtWidgets import (
     QSlider
 )
 
+from data import Position
+from controller import Controller
 import utils
 
 class JogWidget(QWidget):
 
-    def __init__(self, isMain = True):
+    def __init__(self, isMain = True, controller:Controller=None):
         super().__init__()
+        self.controller = controller
         self.stacked_widget = QStackedWidget()
         self.interaction_widgets:List[QWidget] = []
         self.interaction_on = True
@@ -255,3 +258,7 @@ class JogWidget(QWidget):
             }}
         """
         self.speed_slider.setStyleSheet(style)
+
+    
+    def get_gripper_position(self) -> Position:
+        return self.controller.getState()[2]

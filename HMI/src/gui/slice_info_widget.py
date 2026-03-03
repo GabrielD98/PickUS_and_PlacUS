@@ -51,8 +51,6 @@ class SliceInfoWidget(QWidget):
 
         self.scrollLayout = QVBoxLayout(scrollContent)
         scrollContent.setLayout(self.scrollLayout)
-        #for item in items:
-        #    self.scrollLayout.addWidget(item)
         scroll.setWidget(scrollContent)
 
 
