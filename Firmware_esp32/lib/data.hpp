@@ -29,7 +29,7 @@ enum class MachineState : uint8_t
 	MOVING = 2,
 	PICKING = 3,
 	PLACING = 4,
-	DISCONNECTED = 5
+	HOMING = 5,
 };
 
 typedef struct __attribute__((packed)) command

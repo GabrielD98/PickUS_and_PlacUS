@@ -16,7 +16,9 @@ Controller::Controller()
     motorSystem.addStepper(motorX);
     motorSystem.addStepper(motorY);
     motorSystem.addStepper(motorZ);
-    motorSystem.addStepper(motorYAW); 
+    motorSystem.addStepper(motorYAW);
+
+    machineState = MachineState::READY;
 }
 
 Controller::~Controller()
@@ -26,114 +28,47 @@ Controller::~Controller()
 
 void Controller::update()
 {
-    CommandId command_id = dataModel.get()->command.id;    
+    command_t command =  dataModel.get()->command;
     dataModel.release();
-    MachineState state_;
-    long initHeight = 0;
 
-    switch(command_id){
-        case CommandId::STOP: // STOP
-            state_ = MachineState::READY;
-            break;
-
-        case CommandId::MOVE: // MOVE
-            setTargets();
-            if (motorSystem.run())
-            {
-                state_ = MachineState::MOVING;
-            }
-            else
-            {
-                state_ = MachineState::READY;
-            }
-            break;
-
-        case CommandId::PICK: // PICK
-
-            initHeight = motorZ.currentPosition();
-            setTargets();
-            if(motorSystem.run())
-            {
-                state_ = MachineState::PICKING;
-            }
-            else if (first)
-            {
-                ValveState = !ValveState;
-                digitalWrite(PIN_VALVE, ValveState);
-                dataModel.get()->position.z = initHeight;
-                dataModel.release();
-                first = !first;
-            }
-            else
-            {
-                first = true; 
-                state_ = MachineState::READY;
-            }
-            break;
-
-        case CommandId::PLACE: // PLACE
-            
-            initHeight = motorZ.currentPosition();
-            setTargets();
-            if(motorSystem.run())
-            {
-                state_ = MachineState::PLACING;
-            }
-            else if (first)
-            {
-                ValveState = !ValveState;
-                digitalWrite(PIN_VALVE, ValveState);
-                dataModel.get()->position.z = initHeight;
-                dataModel.release();
-                first = !first;
-            }
-            else
-            {
-                first = true; 
-                state_ = MachineState::READY;
-            }
-            break;
-
-        case CommandId::HOME: // HOME
-            
-            setTargets();
-            // Run till encounter limit-switches, then update absolute coordinates
-            if (motorSystem.run())
-            {
-                state_ = MachineState::MOVING;
-            }
-            else
-            {
-                state_ = MachineState::READY;
-            }
-            break;
-
-        case CommandId::EMPTY: // EMPTY
-            if (motorSystem.run())
-            {
-            }
-            else 
-            {
-                state_ = MachineState::READY;
-            }
-            break;
-
-        default:
-        state_ = MachineState::READY;
-            break;
-        
+    switch (this->machineState)
+    {
+    case MachineState::ERROR:
+        //TODO
+        break;
+    
+    case MachineState::READY:
+        /* code */
+        break;
+    
+    case MachineState::MOVING:
+        /* code */
+        break;
+    
+    case MachineState::PLACING:
+        /* code */
+        break;
+    
+    case MachineState::PICKING:
+        /* code */
+        break;
+    
+    case MachineState::HOMING:
+        /* code */
+        break;
+    
     }
 
-    position_t newPos;
-    newPos.x = motorX.currentPosition(); //New x position 
-    newPos.y = motorY.currentPosition(); //New y position
-    newPos.z = motorZ.currentPosition(); //New z position
-    newPos.yaw = motorYAW.currentPosition(); //New yaw position 
+    position_t currentPosition;
+    currentPosition.x = motorX.currentPosition();
+    currentPosition.y = motorY.currentPosition();
+    currentPosition.z = motorZ.currentPosition();
+    currentPosition.yaw = motorYAW.currentPosition();
 
-    dataModel.get()->position = newPos;
-    dataModel.release();
-    dataModel.get()->state = state_;
-    dataModel.release();
+    dataModel_t* dataModel = this->dataModel.get();
+    dataModel->position = currentPosition;
+    dataModel->state = this->machineState;
+    this->dataModel.release();
 }
 
 void Controller::setTargets()
