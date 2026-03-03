@@ -31,10 +31,11 @@ private :
     LimitSwitch limSwitchZ;
 
     MachineState machineState;
+    HomingState homingState;
     bool ValveState = false; 
     bool first = true; 
 
-    void setTargets();
+    void setTargets(position_t position, float speed);
     void goHome();
 };
 
