@@ -17,15 +17,22 @@ from PyQt5.QtWidgets import (
     QSlider
 )
 
-from data import Position
+from data import Command, Position
 from controller import Controller
+from data import *
 import utils
+
+
+JOG_STEP = 1
+
 
 class JogWidget(QWidget):
 
     def __init__(self, isMain = True, controller:Controller=None):
         super().__init__()
         self.controller = controller
+        init_speed = 50
+        self.speed = MAX_SPEED * init_speed/100
         self.stacked_widget = QStackedWidget()
         self.interaction_widgets:List[QWidget] = []
         self.interaction_on = True
@@ -46,7 +53,7 @@ class JogWidget(QWidget):
         go_home = QPushButton("Go Home")
         go_home.clicked.connect(self.go_home)
 
-        init_speed = 50
+        
         self.speed_label = QLabel(f"speed : {init_speed}%")
         self.speed_slider = QSlider(Qt.Horizontal)
         self.speed_slider.setRange(10, 100)
@@ -71,6 +78,8 @@ class JogWidget(QWidget):
         y_minus.clicked.connect(lambda : self.go_down()) 
         x_plus.clicked.connect(lambda : self.go_left()) 
         x_minus.clicked.connect(lambda : self.go_right()) 
+        z_plus.clicked.connect(lambda : self.go_higher()) 
+        z_minus.clicked.connect(lambda : self.go_lower()) 
         go_to_pos.clicked.connect(lambda : self.go_to_position())
         deactivate.clicked.connect(lambda : self.turn_off_jog_mode())
 
@@ -180,20 +189,43 @@ class JogWidget(QWidget):
 
     def go_up(self):
         print("up")
+        current_pos = self.get_gripper_position()
+        self.move_gripper(target=current_pos+Position(0, JOG_STEP, 0, 0))
 
     def go_down(self):
         print("down")
+        current_pos = self.get_gripper_position()
+        self.move_gripper(target=current_pos+Position(0, -1*JOG_STEP, 0, 0))
 
     def go_left(self):
+        current_pos = self.get_gripper_position()
+        self.move_gripper(target=current_pos+Position(-1*JOG_STEP, 0, 0, 0))
         print("left")
 
     def go_right(self):
+        current_pos = self.get_gripper_position()
+        self.move_gripper(target=current_pos+Position(JOG_STEP, 0, 0, 0))
         print("right")
 
+    def go_lower(self):
+        current_pos = self.get_gripper_position()
+        self.move_gripper(target=current_pos+Position(0, 0, -1*JOG_STEP, 0))
+        print("left")
+
+    def go_higher(self):
+        current_pos = self.get_gripper_position()
+        self.move_gripper(target=current_pos+Position(0, 0, JOG_STEP, 0))
+        print("right")
+
+
     def rotate_left(self):
+        current_pos = self.get_gripper_position()
+        self.move_gripper(target=current_pos+Position(0, 0, 0, -1*JOG_STEP))
         print("rotate left")
 
     def rotate_right(self):
+        current_pos = self.get_gripper_position()
+        self.move_gripper(target=current_pos+Position(0, 0, 0, JOG_STEP))
         print("rotate right")
 
     def go_to_position(self):
@@ -216,17 +248,24 @@ class JogWidget(QWidget):
             print(f"Invalid input for the yaw value. Must be an interger, is instead : {yaw_value}")
             return
         
+        self.move_gripper(target=Position(x_value, y_value, z_value, yaw_value))
 
-        #TODO do smt with these value, should be a controller call
+
+    def move_gripper(self, target:Position):
+        command = Command(CommandId.MOVE, MAX_SPEED * self.speed/100.0, target, None)
+        self.controller.queueCommand(command)
+
 
 
     def go_home(self):
         print("Going home")
+        #TODO go home logic, dont know how the limit switches work
         #time.sleep(1)
         self.activate_interaction_widget()
 
 
     def update_speed_slider(self, value):
+        self.speed = value
         self.speed_label.setText(f"speed : {str(value)}%")
 
         return

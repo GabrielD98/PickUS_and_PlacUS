@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 import numbers
 
+MAX_SPEED = 1
+
 
 class CommandId(Enum):
     STOP = 0    #Tells the machine to stop immediatly
