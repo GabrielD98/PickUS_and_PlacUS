@@ -84,4 +84,11 @@ class SliceInfoWidget(QWidget):
 
     def set_pieces(self, pieces:List[Piece]):
         self.pieces = pieces
+
+
+    def enable_slicing(self):
         self.slice_button.setEnabled(True)
+
+    def reset(self):
+        utils.clearLayout(self.scrollLayout)
+        self.slice_button.setEnabled(False)

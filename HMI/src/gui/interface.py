@@ -31,8 +31,7 @@ from gui.slice_info_widget import SliceInfoWidget
 from gui.calbration_window import CalibrationWindow
 import utils
 		
-		
-		
+
 
 
 class Interface(QMainWindow):
@@ -90,6 +89,7 @@ class Interface(QMainWindow):
 		#TODO delete label
 		self.calibrate_button = QPushButton("Calibrate")
 		self.calibrate_button.clicked.connect(lambda : self.start_calibration())
+		self.calibrate_button.setEnabled(False)
 		calibration_layout = QHBoxLayout()
 		calibration_layout.addWidget(self.calibrate_button)
 		left_layout.addLayout(calibration_layout, 2)
@@ -146,6 +146,9 @@ class Interface(QMainWindow):
 		self.analyse_button.setText("Analyse")
 		utils.clearLayout(self.pieces_layout)
 
+		self.calibrate_button.setEnabled(False)
+		self.slice_widget.reset()
+
 		
 
 
@@ -158,6 +161,7 @@ class Interface(QMainWindow):
 		self.pieces = self.get_all_unique_piece(pieces)
 		self.update_piece_list()
 		self.analyse_button.setEnabled(False)
+		self.calibrate_button.setEnabled(True)
 		self.analyse_button.setText("Analysis Completed")
 
 
@@ -199,5 +203,6 @@ class Interface(QMainWindow):
 	def start_calibration(self):
 		self.calibration_window = CalibrationWindow(position=self.calibration_pos, controller=self.controller)
 		self.calibration_window.show()
+		self.slice_widget.enable_slicing()
 
 
