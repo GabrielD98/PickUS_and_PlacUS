@@ -9,6 +9,7 @@
 
 #include "../lib/data.hpp"
 #include "DataModel.h"
+#include "Mosfet.h"
 #include "LimitSwitch.h"
 
 class Controller
@@ -26,17 +27,22 @@ private :
     AccelStepper motorYAW;
     MultiStepper motorSystem;
 
+    Mosfet valve = Mosfet(PIN_VALVE);
+    Mosfet pump = Mosfet(PIN_PUMP);
+
     LimitSwitch limSwitchX;
     LimitSwitch limSwitchY;
     LimitSwitch limSwitchZ;
 
     MachineState machineState;
     HomingState homingState;
-    bool ValveState = false; 
-    bool first = true; 
+    PickingState pickingState;
+    PlacingState placingState;
 
     void setTargets(position_t position, float speed);
     void goHome();
+    void picking();
+    void placing();
 };
 
 #endif

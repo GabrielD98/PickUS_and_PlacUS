@@ -2,6 +2,9 @@
 
 #define STEP_PER_HOME_LOOP -1
 
+#define contactHeight -200
+#define zAxisSpeed 200
+
 Controller::Controller()
     : motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR),
       motorY(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR),
@@ -24,11 +27,12 @@ Controller::Controller()
 
     machineState = MachineState::READY;
     homingState = HomingState::HOMING_X;
+    pickingState = PickingState::PICKING_INIT;
+    placingState = PlacingState::PLACING_INIT;
 }
 
 Controller::~Controller()
 {
-
 }
 
 void Controller::update()
@@ -55,12 +59,10 @@ void Controller::update()
 
         case CommandId::PICK:
             machineState = MachineState::PICKING;
-            setTargets(command.requestedPosition,command.velocity);
             break;
 
         case CommandId::PLACE:
             machineState = MachineState::PLACING;
-            setTargets(command.requestedPosition,command.velocity);
             break;
 
         case CommandId::HOME:
@@ -80,7 +82,12 @@ void Controller::update()
         break;
     
     case MachineState::PLACING:
-        //TODO
+        picking();
+        if(pickingState == PickingState::PICKING_DONE)
+        {
+            machineState = MachineState::READY;
+            pickingState = PickingState::PICKING_INIT;
+        }
         break;
     
     case MachineState::PICKING:
@@ -144,8 +151,8 @@ void Controller::goHome()
         {
             motorX.move(STEP_PER_HOME_LOOP);
         }
-
         break;
+
     case HomingState::HOMING_Y:
 
         if(limSwitchY.isTriggered())
@@ -170,7 +177,6 @@ void Controller::goHome()
         {
             motorZ.move(STEP_PER_HOME_LOOP);
         }
-    
         break;
         
     case HomingState::HOMING_YAW:
@@ -180,6 +186,87 @@ void Controller::goHome()
         break;
 
     case HomingState::HOMING_DONE:
+        break;
+    }
+}
+
+void Controller::picking()
+{
+    switch (pickingState)
+    {
+    case PickingState::PICKING_INIT:
+        pump.on();
+        delay(100);
+        valve.on();
+        pickingState = PickingState::PICKING_GOING_DOWN;
+        break;
+
+    case PickingState::PICKING_GOING_DOWN:
+        motorZ.setMaxSpeed(zAxisSpeed);    
+        motorZ.moveTo(contactHeight);
+        if(motorZ.distanceToGo() == 0)
+        {
+            pickingState = PickingState::PICKING_CONTACT;
+        }
+        break;
+
+    case PickingState::PICKING_CONTACT:
+        valve.off();
+        delay(100);
+        pickingState = PickingState::PICKING_GOING_UP;
+        break;
+
+    case PickingState::PICKING_GOING_UP:
+        motorZ.setMaxSpeed(zAxisSpeed); 
+        motorZ.moveTo(0);
+        if(motorZ.distanceToGo() == 0)
+        {
+            pickingState = PickingState::PICKING_DONE;
+        }
+        break;
+
+    case PickingState::PICKING_DONE:
+        break;
+    }
+}
+
+
+void Controller::placing()
+{
+    switch (placingState)
+    {
+    case PlacingState::PLACING_INIT:
+        valve.off();
+        placingState = PlacingState::PLACING_GOING_DOWN;
+        break;
+
+    case PlacingState::PLACING_GOING_DOWN:
+        motorZ.setMaxSpeed(zAxisSpeed);    
+        motorZ.moveTo(contactHeight);
+        if(motorZ.distanceToGo() == 0)
+        {
+            placingState = PlacingState::PLACING_CONTACT;
+        }
+        break;
+
+    case PlacingState::PLACING_CONTACT:
+        valve.on();
+        delay(100);
+        placingState = PlacingState::PLACING_GOING_UP;
+        break;
+
+    case PlacingState::PLACING_GOING_UP:
+        motorZ.setMaxSpeed(zAxisSpeed); 
+        motorZ.moveTo(0);
+        if(motorZ.distanceToGo() == 0)
+        {
+            placingState = PlacingState::PLACING_DONE;
+        }
+        break;
+
+    case PlacingState::PLACING_DONE:
+        valve.off();
+        pump.off();
         break;
     }
 }
