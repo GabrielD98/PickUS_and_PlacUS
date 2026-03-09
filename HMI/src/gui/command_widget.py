@@ -17,9 +17,7 @@ from PyQt5.QtWidgets import (
     QSlider
 )
 import utils
-
-
-
+from gui.gui_data_manager import GuiDataManager
 
 class CommandWidget(QWidget):
 
@@ -29,6 +27,7 @@ class CommandWidget(QWidget):
         #TODO utiliser des enum de data maybe
         self.on = False 
         self.in_pause = False
+        self.data_manager = GuiDataManager()
 
         layout = QHBoxLayout()
         self.setLayout(layout)
@@ -43,10 +42,16 @@ class CommandWidget(QWidget):
         layout.addWidget(self.pause_button)
 
 
+
+
     def start(self):
         self.on = True
         self.start_button.setText("Stop")
         self.pause_button.setEnabled(True)
+        self.data_manager.start_pnp()
+
+
+
 
     def stop(self):
         self.on = False
@@ -54,19 +59,32 @@ class CommandWidget(QWidget):
         self.pause_button.setEnabled(False)
         self.unpause() #reset le pause button, a voir ak la logique globale TODO
     
+
+
+
     def pause(self):
         self.in_pause = True
         self.pause_button.setText("Continue")
-    
+        self.data_manager.pause_pnp()
+
+
+
+
     def unpause(self):
         self.in_pause = False
         self.pause_button.setText("Pause")
+        self.data_manager.continue_pnp()
+
+
+
 
     def toggle_start(self):
         if self.on: 
             self.stop()
         else:
             self.start()
+
+
 
 
     def toggle_pause(self):

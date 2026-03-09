@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
 )
 
 from data import Command, Position
-from controller import Controller
+from gui.gui_data_manager import GuiDataManager
 from data import *
 import utils
 
@@ -28,10 +28,10 @@ JOG_STEP = 1
 
 class JogWidget(QWidget):
 
-    def __init__(self, isMain = True, controller:Controller=None):
+    def __init__(self, isMain = True):
         super().__init__()
-        self.controller = controller
         init_speed = 50
+        self.data_manager = GuiDataManager()
         self.speed = MAX_SPEED * init_speed/100
         self.stacked_widget = QStackedWidget()
         self.interaction_widgets:List[QWidget] = []
@@ -253,7 +253,8 @@ class JogWidget(QWidget):
 
     def move_gripper(self, target:Position):
         command = Command(CommandId.MOVE, MAX_SPEED * self.speed/100.0, target, None)
-        self.controller.queueCommand(command)
+        self.data_manager.queue_command(command)
+    
 
 
 
@@ -300,4 +301,4 @@ class JogWidget(QWidget):
 
     
     def get_gripper_position(self) -> Position:
-        return self.controller.getState()[2]
+        return self.data_manager.get_gripper_position()

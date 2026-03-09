@@ -15,7 +15,6 @@ from PyQt5.QtWidgets import (
 )
 
 
-from controller import Controller
 from storage import Storage
 from data import *
 from typing import List
@@ -25,7 +24,7 @@ from gui.jog_widget import JogWidget
 
 
 class CalibrationWindow(QMainWindow):
-    def __init__(self, parent=None, position:Position = None, controller:Controller=None):
+    def __init__(self, parent=None, position:Position = None):
         super().__init__(parent)
 
         self.position = position
@@ -40,7 +39,7 @@ class CalibrationWindow(QMainWindow):
         instruction = QLabel("Please put the end of the gripper on the calibration spot, then click 'confirm'")
         self.calibrate_button = QPushButton("Confirm")
         self.calibrate_button.clicked.connect(lambda : self.set_calibration_position())
-        self.jog_widget = JogWidget(isMain=False, controller=controller)
+        self.jog_widget = JogWidget(isMain=False)
         global_layout.addWidget(instruction)
         global_layout.addWidget(self.jog_widget)
         global_layout.addWidget(self.calibrate_button)

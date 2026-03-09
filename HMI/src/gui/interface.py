@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
 	QVBoxLayout,
@@ -66,7 +67,6 @@ class Interface(QMainWindow):
 
 
 
-
 		#FILE READING LAYOUT
 		explore_file = QPushButton("Open .pos file")
 		explore_file.clicked.connect(self.open_file_dialog)
@@ -107,12 +107,12 @@ class Interface(QMainWindow):
 
 
 		state_layout = QHBoxLayout()
-		state_layout.addWidget(PnPStateWidget(self.controller))
+		state_layout.addWidget(PnPStateWidget())
 		right_layout.addLayout(state_layout, 1)
 
 
 		jog_layout = QHBoxLayout()
-		jog_layout.addWidget(JogWidget(controller=self.controller))
+		jog_layout.addWidget(JogWidget())
 		right_layout.addLayout(jog_layout, 4)
 
 
@@ -124,6 +124,12 @@ class Interface(QMainWindow):
 		
 		self.setCentralWidget(global_widget)
 		self.showMaximized()
+
+		# Set up the update loop
+		self.timer = QTimer(self)
+		self.timer.setInterval(500) # Update every 500 milliseconds
+		self.timer.timeout.connect(self.update_gui) 
+		self.timer.start() 
 
 
 
@@ -195,14 +201,21 @@ class Interface(QMainWindow):
 
 
 	def add_piece_to_storage(self, info:StorageUiInfo):
-		self.storage_window = StorageWindow(controller=self.controller)
+		self.storage_window = StorageWindow()
 		self.storage_window.set_inputs(info)
 		self.storage_window.show()
 
 
 	def start_calibration(self):
-		self.calibration_window = CalibrationWindow(position=self.calibration_pos, controller=self.controller)
+		self.calibration_window = CalibrationWindow(position=self.calibration_pos)
 		self.calibration_window.show()
 		self.slice_widget.enable_slicing()
 
 
+
+
+
+
+	def update_gui(self):
+		"""This function runs every 500ms when the timer times out."""
+		print("loop")

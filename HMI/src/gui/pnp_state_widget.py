@@ -19,17 +19,17 @@ from PyQt5.QtWidgets import (
 
 import utils
 from data import Position
-from controller import Controller
+from gui.gui_data_manager import GuiDataManager
 
 
 
 class PnPStateWidget(QWidget):
 
-    def __init__(self, controller:Controller = None):
+    def __init__(self):
         super().__init__()
 
         layout = QVBoxLayout()
-        self.controller = controller
+        self.dataManager = GuiDataManager()
         self.state_label = QLabel("State : -")
         self.state_label.setAlignment(Qt.AlignCenter) 
         self.position = Position(0,0,0,0)
@@ -44,7 +44,7 @@ class PnPStateWidget(QWidget):
         
 
     def update_state(self):
-        state = self.controller.getState()
+        state = self.dataManager.get_machine_state()
         self.state_label.setText(f"State : {state[1]}")
         self.position = state[2]
         self.position_label = QLabel(f"Position : {self.position.x}, {self.position.y},"

@@ -20,7 +20,6 @@ from PyQt5.QtWidgets import (
 
 import utils
 from data import Command, Piece, Position
-from controller import Controller
 from slicer import Slicer
 from storage import Storage
 
@@ -92,3 +91,4 @@ class SliceInfoWidget(QWidget):
     def reset(self):
         utils.clearLayout(self.scrollLayout)
         self.slice_button.setEnabled(False)
+
