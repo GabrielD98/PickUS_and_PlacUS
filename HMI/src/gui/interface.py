@@ -19,6 +19,7 @@ from pathlib import Path
 
 from controller import Controller
 from file_interpreter import FileInterpreter
+from gui.gui_data_manager import GuiDataManager
 from gui.pnp_state_widget import PnPStateWidget
 from slicer import Slicer
 from storage import Storage
@@ -38,6 +39,7 @@ import utils
 class Interface(QMainWindow):
 	def __init__(self):
 		super().__init__()	
+		self.connected = False
 		self.calibration_pos = Position(-1,-1,-1,-1)
 		self.storage_window:StorageWindow = None
 		self.controller = Controller()  #TODO controller as a singleton for less crust ?
@@ -214,8 +216,19 @@ class Interface(QMainWindow):
 
 
 
-
-
 	def update_gui(self):
 		"""This function runs every 500ms when the timer times out."""
+		if not self.connected:
+			#TODO check for disconnection with exeption request. connected should not be local here
+			self.try_connect()
 		print("loop")
+
+
+
+
+	def try_connect(self):
+		try :
+			GuiDataManager().connect_to_pnp()
+			self.connected = True
+		except Exception as e :
+			pass

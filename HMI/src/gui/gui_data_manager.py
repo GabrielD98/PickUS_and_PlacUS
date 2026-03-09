@@ -55,3 +55,8 @@ class GuiDataManager:
 
     def continue_pnp(self):
         self.controller.requestTransition(TransitionRequest.TO_RUNNING)
+
+
+
+    def connect_to_pnp(self):
+        self.controller.connectionToMachine()
