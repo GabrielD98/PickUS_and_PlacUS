@@ -11,6 +11,7 @@
 #include "DataModel.h"
 #include "Mosfet.h"
 #include "LimitSwitch.h"
+#include "pressureSensor.h"
 
 class Controller
 {
@@ -27,8 +28,9 @@ private :
     AccelStepper motorYAW;
     MultiStepper motorSystem;
 
-    Mosfet valve = Mosfet(PIN_VALVE);
-    Mosfet pump = Mosfet(PIN_PUMP);
+    Mosfet valve;
+    Mosfet pump;
+    PressureSensor pressureSensor;
 
     LimitSwitch limSwitchX;
     LimitSwitch limSwitchY;
@@ -38,11 +40,13 @@ private :
     HomingState homingState;
     PickingState pickingState;
     PlacingState placingState;
+    PickPlaceState pickPlaceState;
 
     void setTargets(position_t position, float speed);
     void goHome();
     void picking();
     void placing();
+    void executePickPlace(PickPlaceMode mode);
 };
 
 #endif
