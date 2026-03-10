@@ -82,7 +82,7 @@ void communicationLoop(void *pvParameters)
 			dataModel->command = receiveCmd;
 			controller->dataModel.release();
 
-			vTaskDelay(50); //TODO: Confirm this delay
+			vTaskDelay(pdMS_TO_TICKS(50)); //TODO: Confirm this delay
 			
 			//Send section
 			statusFrame_t statusFrame;
