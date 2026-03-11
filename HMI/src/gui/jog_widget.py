@@ -180,9 +180,11 @@ class JogWidget(QWidget):
 
 
     def turn_on_jog_mode(self):
+        self.data_manager.transition_to_manual()
         self.stacked_widget.setCurrentIndex(1)
 
     def turn_off_jog_mode(self):
+        self.data_manager.transition_to_idle()
         self.stacked_widget.setCurrentIndex(0)
 
     def deactivate_interaction_widget(self):

@@ -45,7 +45,7 @@ class Controller:
 		self._commands = []
 		self._lastCommand = Command(CommandId.EMPTY,0, None, None)
 		self._controllerState = ControllerState.IDLE
-		self._latestMachineInfo = (MachineState.DISCONNECTED, Position(0,0,0,0))
+		self._latestMachineInfo = (MachineState.HOMING, Position(0,0,0,0))
 		self._closeEvent = threading.Event()
 		self._comThread = None
 		self._controllerRequestTransitionField = 0
@@ -188,6 +188,7 @@ class Controller:
 			return
 		try:
 			machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
+			print("reception : ", machineState, x, y, z, yaw)
 			with self.mutex:
 				self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
 		except (struct.error, ValueError):
@@ -406,6 +407,7 @@ class Controller:
 			
 			handler = state_handlers.get(currentState)
 			commandToSend = handler() if handler else Command(CommandId.EMPTY, 0, None, None)
+			print(commandToSend)
 			
 			self._sendCommand(commandToSend)
 			self._updateMachineInfo()

@@ -30,7 +30,7 @@ class MachineState(Enum):
     MOVING = 2
     PIKCING = 3
     PLACING = 4
-    DISCONNECTED = 5 
+    HOMING = 5 
 
 class ControllerState(Enum):
     IDLE = 0

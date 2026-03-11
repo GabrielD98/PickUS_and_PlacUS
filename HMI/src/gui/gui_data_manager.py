@@ -58,6 +58,16 @@ class GuiDataManager:
         self.controller.requestTransition(TransitionRequest.TO_PAUSE)
 
 
+    def transition_to_running(self):
+        self.controller.requestTransition(TransitionRequest.TO_RUNNING)
+
+    def transition_to_manual(self):
+        self.controller.requestTransition(TransitionRequest.TO_MANUAL)
+
+    def transition_to_idle(self):
+        self.controller.requestTransition(TransitionRequest.TO_IDLE)
+
+
     def stop_pnp(self):
         pass #TODO Eloi?
 
@@ -67,7 +77,7 @@ class GuiDataManager:
     def homing_thread(self, ending_function = None):
         self.blocked = True
         home_cmd = Command(CommandId.HOME,
-            velocity=None,
+            velocity=0,
             position=None,
             piece=None)
         self.controller.queueCommand(home_cmd)
@@ -80,6 +90,7 @@ class GuiDataManager:
             ending_function()
         self.homed = True
         self.blocked = False
+
         
         
 
