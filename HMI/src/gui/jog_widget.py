@@ -157,7 +157,9 @@ class JogWidget(QWidget):
         self.interaction_widgets.append(self.z_entry)
         self.interaction_widgets.append(self.yaw_entry)
         self.interaction_widgets.append(go_to_pos)
-        self.deactivate_interaction_widget()
+
+        if self.data_manager.homed == False:
+            self.deactivate_interaction_widget()
 
         if not isMain :
             self.stacked_widget.setCurrentIndex(1)
@@ -260,9 +262,8 @@ class JogWidget(QWidget):
 
     def go_home(self):
         print("Going home")
-        #TODO go home logic, dont know how the limit switches work
-        #time.sleep(1)
-        self.activate_interaction_widget()
+        self.data_manager.go_home(ending_function=self.activate_interaction_widget)
+        #self.activate_interaction_widget()
 
 
     def update_speed_slider(self, value):

@@ -42,7 +42,7 @@ class Interface(QMainWindow):
 		self.connected = False
 		self.calibration_pos = Position(-1,-1,-1,-1)
 		self.storage_window:StorageWindow = None
-		self.controller = Controller()  #TODO controller as a singleton for less crust ?
+		self.data_manager = GuiDataManager()
 		self.storage = Storage()
 		self.pieces:List[Piece] = []
 		self.file_path = "No file selected"
@@ -221,6 +221,8 @@ class Interface(QMainWindow):
 		if not self.connected:
 			#TODO check for disconnection with exeption request. connected should not be local here
 			self.try_connect()
+			print("connection successful")
+
 		print("loop")
 
 
