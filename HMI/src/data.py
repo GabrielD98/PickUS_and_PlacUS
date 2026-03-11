@@ -162,7 +162,8 @@ class StorageUnit:
     deltaPos : Position     
     state : StorageState    
     quantity : int          
-    automatic : bool        
+    automatic : bool     
+    rotation : int    
 
 
 @dataclass

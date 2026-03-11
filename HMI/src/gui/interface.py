@@ -223,7 +223,7 @@ class Interface(QMainWindow):
 			self.try_connect()
 			
 
-		print("loop")
+		#print("loop")
 
 
 
@@ -232,6 +232,7 @@ class Interface(QMainWindow):
 		try :
 			GuiDataManager().connect_to_pnp()
 			self.connected = True
-			print("connection successful")
+			#print("connection successful")
 		except Exception as e :
-			print(f"failed connection to PnP : {e}")
+			pass
+			#print(f"failed connection to PnP : {e}")
