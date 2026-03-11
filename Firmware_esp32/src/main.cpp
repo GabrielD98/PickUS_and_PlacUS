@@ -16,12 +16,15 @@ void setup()
   testPosition.z = 20;
   testPosition.yaw = 180;
   
-  position_t stepsPosition;
-  position_t mmPosition;
   printf("POSITIONS : x = %f y = %f z = %f yaw = %f", testPosition.x,testPosition.y,testPosition.z,testPosition.yaw);
-  stepsPosition = coordToStep(testPosition);
+  
+  
+  position_t stepsPosition;
+  stepsPosition = mmToStep(testPosition);
   printf("POSITIONS : x = %f y = %f z = %f yaw = %f", stepsPosition.x,stepsPosition.y,stepsPosition.z,stepsPosition.yaw);
-  stepToCoord(stepsPosition);
+  
+  position_t mmPosition;
+  stepToMm(stepsPosition);
   printf("POSITIONS : x = %f y = %f z = %f yaw = %f", mmPosition.x,mmPosition.y,mmPosition.z,mmPosition.yaw);
 }
 

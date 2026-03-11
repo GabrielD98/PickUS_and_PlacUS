@@ -1,38 +1,52 @@
 #include "Geometry.h"
 
-
 Position dimensionLimits(Position targetPosition)
 {
-    if (targetPosition.x > P_LIM_X)
+    if (targetPosition.x > P_X_MAX)
     {
-        targetPosition.x = P_LIM_X;
+        targetPosition.x = P_X_MAX;
     }
-    if (targetPosition.y > P_LIM_Y)
+    if (targetPosition.x < P_X_MIN)
     {
-        targetPosition.y = P_LIM_Y;
+        targetPosition.x = P_X_MIN;
     }
-    if (targetPosition.z > P_LIM_Z)
+    if (targetPosition.y > P_Y_MAX)
     {
-        targetPosition.z = P_LIM_Z;
+        targetPosition.y = P_Y_MAX;
     }
-    if (targetPosition.yaw > P_LIM_YAW)
+    if (targetPosition.y < P_Y_MIN)
     {
-        targetPosition.yaw = P_LIM_YAW;
+        targetPosition.y = P_Y_MIN;
     }
+    if (targetPosition.z > P_Z_MAX)
+    {
+        targetPosition.z = P_Z_MAX;
+    }
+    if (targetPosition.z < P_Z_MIN)
+    {
+        targetPosition.z = P_Z_MIN;
+    }
+    if (targetPosition.yaw > P_YAW_MAX)
+    {
+        targetPosition.yaw = P_YAW_MAX;
+    }
+    if (targetPosition.yaw < P_YAW_MIN)
+    {
+        targetPosition.yaw = P_YAW_MIN;
+    }
+
     return targetPosition;
 }
 
 Position mmToStep(Position distance)
 {
-    Position steps;
     dimensionLimits(distance);
 
+    Position steps;
+    
     steps.x = round((distance.x*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
     steps.y = round((distance.y*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
-
-    //Beaucoup de questionnement sur cette formule je ne suis pas sure que ce soit bon
-    steps.z = round((MICROSTEPPING_Z*STEPS_REVOLUTION*acos(1 - distance.z/CAME_DIAMETER))/2*PI);
-
+    steps.z = round((MICROSTEPPING_Z*STEPS_REVOLUTION*acos(1 + distance.z/CAM_DIAMETER))/2*PI);
     steps.yaw = round((distance.yaw*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
 
     return steps;
@@ -44,10 +58,7 @@ Position stepToMm(Position steps)
 
     distance.x = round((steps.x*MM_REVOLUTION)/(STEPS_REVOLUTION*MICROSTEPPING_X));
     distance.y = round((steps.y*MM_REVOLUTION)/(STEPS_REVOLUTION*MICROSTEPPING_Y));
-
-    //Beaucoup de questionnement sur cette formule je ne suis pas sure que ce soit bon
-    distance.z = round(CAME_DIAMETER*(1 - cos((steps.z*2*PI)/(STEPS_REVOLUTION*MICROSTEPPING_Z))));
-
+    distance.z = round(CAM_DIAMETER*(cos((steps.z*2*PI)/(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1));
     distance.yaw = round((steps.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW));
 
     return steps;
