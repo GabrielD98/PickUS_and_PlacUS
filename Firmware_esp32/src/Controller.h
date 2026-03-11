@@ -38,8 +38,6 @@ private :
 
     MachineState machineState;
     HomingState homingState;
-    PickingState pickingState;
-    PlacingState placingState;
     PickPlaceState pickPlaceState;
 
     void setTargets(position_t position, float speed);

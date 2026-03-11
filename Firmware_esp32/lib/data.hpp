@@ -42,26 +42,6 @@ enum class HomingState : uint8_t
 
 };
 
-enum class PickingState : uint8_t
-{
-	PICKING_INIT = 0,
-	PICKING_GOING_DOWN = 1,
-	PICKING_CONTACT = 2,
-	PICKING_GOING_UP = 3,
-	PICKING_DONE = 4,
-
-};
-
-enum class PlacingState : uint8_t
-{
-	PLACING_INIT = 0,
-	PLACING_GOING_DOWN = 1,
-	PLACING_CONTACT = 2,
-	PLACING_GOING_UP = 3,
-	PLACING_DONE = 4,
-
-};
-
 enum class PickPlaceMode : uint8_t
 {
 	PICK = 0,

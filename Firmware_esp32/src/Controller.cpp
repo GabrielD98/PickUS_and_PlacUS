@@ -34,8 +34,6 @@ Controller::Controller()
 
     machineState = MachineState::READY;
     homingState = HomingState::HOMING_X;
-    pickingState = PickingState::PICKING_INIT;
-    placingState = PlacingState::PLACING_INIT;
     pickPlaceState = PickPlaceState::INIT;
 }
 
@@ -48,42 +46,47 @@ void Controller::update()
     command_t command =  dataModel.get()->command;
     dataModel.release();
 
+    if(command.id == CommandId::STOP)
+    {
+        machineState == MachineState::READY;
+    }
+
     switch (machineState)
     {
-    case MachineState::ERROR:
-        //TODO
-        break;
-    
-    case MachineState::READY:
-
-        switch (command.id)
-        {
-        case CommandId::STOP:
+        case MachineState::ERROR:
+            //TODO
             break;
-            
-        case CommandId::MOVE:
-            machineState = MachineState::MOVING;
-            setTargets(command.requestedPosition,command.velocity);
-            break;
+        
+        case MachineState::READY:
 
-        case CommandId::PICK:
-            setTargets(command.requestedPosition,command.velocity);
-            machineState = MachineState::PICKING;
-            break;
+            switch (command.id)
+            {
+                case CommandId::STOP:
+                    break;
+                    
+                case CommandId::MOVE:
+                    machineState = MachineState::MOVING;
+                    setTargets(command.requestedPosition,command.velocity);
+                    break;
 
-        case CommandId::PLACE:
-            setTargets(command.requestedPosition,command.velocity);
-            machineState = MachineState::PLACING;
-            break;
+                case CommandId::PICK:
+                    setTargets(command.requestedPosition,command.velocity);
+                    machineState = MachineState::PICKING;
+                    break;
 
-        case CommandId::HOME:
-            machineState = MachineState::HOMING;
-            break;
+                case CommandId::PLACE:
+                    setTargets(command.requestedPosition,command.velocity);
+                    machineState = MachineState::PLACING;
+                    break;
 
-        case CommandId::EMPTY:
-            break;
+                case CommandId::HOME:
+                    machineState = MachineState::HOMING;
+                    break;
 
-        }
+                case CommandId::EMPTY:
+                    break;
+
+            }
     break;
     
     case MachineState::MOVING:
@@ -96,11 +99,12 @@ void Controller::update()
     
     case MachineState::PLACING:
 
-        picking();
-        if(pickingState == PickingState::PICKING_DONE)
+        executePickPlace(PickPlaceMode::PLACE);
+
+        if(pickPlaceState == PickPlaceState::DONE)
         {
             machineState = MachineState::READY;
-            pickingState = PickingState::PICKING_INIT;
+            pickPlaceState = PickPlaceState::INIT;
         }
         break;
     
@@ -208,85 +212,6 @@ void Controller::goHome()
         break;
 
     case HomingState::HOMING_DONE:
-        break;
-    }
-}
-
-void Controller::picking()
-{
-    switch (pickingState)
-    {
-    case PickingState::PICKING_INIT:
-        pump.on();
-        delay(100);
-        valve.on();
-        pickingState = PickingState::PICKING_GOING_DOWN;
-        break;
-
-    case PickingState::PICKING_GOING_DOWN:
-        motorZ.setMaxSpeed(zAxisSpeed);    
-        motorZ.moveTo(contactHeight);
-        if(motorZ.distanceToGo() == 0)
-        {
-            pickingState = PickingState::PICKING_CONTACT;
-        }
-        break;
-
-    case PickingState::PICKING_CONTACT:
-        valve.off();
-        delay(100);
-        pickingState = PickingState::PICKING_GOING_UP;
-        break;
-
-    case PickingState::PICKING_GOING_UP:
-        motorZ.setMaxSpeed(zAxisSpeed); 
-        motorZ.moveTo(0);
-        if(motorZ.distanceToGo() == 0)
-        {
-            pickingState = PickingState::PICKING_DONE;
-        }
-        break;
-
-    case PickingState::PICKING_DONE:
-        break;
-    }
-}
-
-
-void Controller::placing()
-{
-    switch (placingState)
-    {
-    case PlacingState::PLACING_INIT:
-        valve.off();
-        placingState = PlacingState::PLACING_GOING_DOWN;
-        break;
-
-    case PlacingState::PLACING_GOING_DOWN:
-        if(motorZ.distanceToGo() == 0)
-        {
-            placingState = PlacingState::PLACING_CONTACT;
-        }
-        break;
-
-    case PlacingState::PLACING_CONTACT:
-        valve.on();
-        delay(100);
-        placingState = PlacingState::PLACING_GOING_UP;
-        break;
-
-    case PlacingState::PLACING_GOING_UP:
-        motorZ.setMaxSpeed(zAxisSpeed); 
-        motorZ.moveTo(0);
-        if(motorZ.distanceToGo() == 0)
-        {
-            placingState = PlacingState::PLACING_DONE;
-        }
-        break;
-
-    case PlacingState::PLACING_DONE:
-        valve.off();
-        pump.off();
         break;
     }
 }
