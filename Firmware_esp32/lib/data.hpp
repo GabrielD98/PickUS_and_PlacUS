@@ -32,7 +32,7 @@ enum class MachineState : uint8_t
 	DISCONNECTED = 5
 };
 
-typedef struct Command
+typedef struct __attribute__((packed)) command
 {
 	CommandId id;
 	float velocity;
@@ -40,4 +40,12 @@ typedef struct Command
 
 }command_t;
 
+typedef struct __attribute__((packed)) statusFrame
+{
+	MachineState state;
+	position_t position;
+}statusFrame_t;
+
+static_assert(sizeof(command_t) == 21, "command_t size must remain 21 bytes for protocol compatibility");
+static_assert(sizeof(statusFrame_t) == 17, "statusFrame_t size must remain 17 bytes for protocol compatibility");
 #endif

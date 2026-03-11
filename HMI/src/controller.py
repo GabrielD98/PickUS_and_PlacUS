@@ -141,10 +141,10 @@ class Controller:
 		Close the serial port and stop the controlLoop thread
 				
 		"""
-
-		self._com.close()
-		self._closeEvent.set()
-		self._comThread.join()
+		if self._com is not None:
+			self._com.close()
+			self._closeEvent.set()
+			self._comThread.join()
 
 
 
@@ -184,10 +184,17 @@ class Controller:
 		size = struct.calcsize(format)
 		bytesBuffer = self._com.receiveData(size)
 
-		machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
-		print(machineState, x, y, z, yaw)
-		with self.mutex:
-			self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
+		if bytesBuffer is None or len(bytesBuffer) < size:
+			return
+		try:
+			machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
+			with self.mutex:
+				self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
+		except (struct.error, ValueError):
+			# Discard invalid/garbage data and resync
+			if self._com.isPortOpen():
+				self._com.ser.reset_input_buffer()
+			return
 
 
 
@@ -222,9 +229,9 @@ class Controller:
 				Request state for the bit
 		"""
 		if state:
-			self._controllerRequestTransitionField |= bit
+			self._controllerRequestTransitionField |= bit.value
 		else:
-			self._controllerRequestTransitionField &= ~bit
+			self._controllerRequestTransitionField &= ~bit.value
 	
 
 
@@ -246,10 +253,10 @@ class Controller:
 		"""
 		with self.mutex:
 			transitionMade = False
-		if self._controllerRequestTransitionField & bit.value:
-			self._controllerState = target_state
-			self._controllerRequestTransitionField &= ~bit.value
-			transitionMade = True
+			if self._controllerRequestTransitionField & bit.value:
+				self._controllerState = target_state
+				self._controllerRequestTransitionField &= ~bit.value
+				transitionMade = True
 		return transitionMade
 
 
@@ -290,10 +297,13 @@ class Controller:
 			machineState = self._latestMachineInfo[0]
 		
 		if machineState == MachineState.READY:
-			commandToSend = self._nextCommand()
-			if commandToSend and commandToSend.commandId == CommandId.PLACE:
-				self._storage.components[commandToSend.piece].quantity -= 1
-				self._storage.components[commandToSend.piece].piece = commandToSend.piece #TODO: confirm that piece position is the right one
+			nextCommand = self._nextCommand()
+			if nextCommand is not None:
+				commandToSend = nextCommand
+			if commandToSend.commandId == CommandId.PLACE:
+				if commandToSend.piece is not None and commandToSend.piece in self._storage.components:
+					self._storage.components[commandToSend.piece].quantity -= 1
+					self._storage.components[commandToSend.piece].piece = commandToSend.piece
 			
 			with self.mutex:
 				lastCommandId = self._lastCommand.commandId

@@ -7,6 +7,12 @@ Controller::Controller()
     motorZ = AccelStepper(AccelStepper::DRIVER, PIN_DZ_STEP, PIN_DZ_DIR);
     motorYAW = AccelStepper(AccelStepper::DRIVER, PIN_DYAW_STEP, PIN_DYAW_DIR);
 
+    // Enable stepper drivers (active LOW)
+    pinMode(PIN_DX_EN, OUTPUT);   digitalWrite(PIN_DX_EN, LOW);
+    pinMode(PIN_DY_EN, OUTPUT);   digitalWrite(PIN_DY_EN, LOW);
+    pinMode(PIN_DZ_EN, OUTPUT);   digitalWrite(PIN_DZ_EN, LOW);
+    pinMode(PIN_DYAW_EN, OUTPUT); digitalWrite(PIN_DYAW_EN, LOW);
+
     motorSystem.addStepper(motorX);
     motorSystem.addStepper(motorY);
     motorSystem.addStepper(motorZ);
