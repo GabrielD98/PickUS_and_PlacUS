@@ -34,7 +34,6 @@ class PnPStateWidget(QWidget):
 
         connection_layout = QHBoxLayout()
         ports = self.scan_serial_ports()
-        print(ports)
         self.port_options = QComboBox(self)
         self.port_options.addItems(ports)
         self.connection_label = QLabel()
@@ -74,6 +73,12 @@ class PnPStateWidget(QWidget):
         
         return open_ports
     
+
+
+    def update_scanned_port(self) :
+        ports = self.scan_serial_ports()
+        self.port_options.clear()
+        self.port_options.addItems(ports)
 
 
     def get_selected_port(self) -> str:
