@@ -22,3 +22,11 @@ def is_int(value:str):
         return True
     except ValueError:
         return False
+    
+
+def is_float(value:str):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False

@@ -23,14 +23,13 @@ from data import *
 import utils
 
 
-JOG_STEP = 1
-
 
 class JogWidget(QWidget):
 
     def __init__(self, isMain = True):
         super().__init__()
         init_speed = 50
+        self.jog_step = 0.5
         self.data_manager = GuiDataManager()
         self.speed = MAX_SPEED * init_speed/100
         self.stacked_widget = QStackedWidget()
@@ -59,6 +58,15 @@ class JogWidget(QWidget):
         self.speed_slider.setRange(10, 100)
         self.speed_slider.setValue(init_speed)
         self.speed_slider.valueChanged.connect(self.update_speed_slider)
+
+
+        step_entry_layout = QHBoxLayout()
+        step_label_entry = QLabel("jog step ")
+        self.jog_step_entry = QLineEdit(self)
+        self.jog_step_entry.setText("1")
+        step_entry_layout.addWidget(step_label_entry)
+        step_entry_layout.addWidget(self.jog_step_entry)
+
 
         increment_label = QLabel("Increment Jog")
         yaw_r = QPushButton("\u2b6e")
@@ -103,6 +111,7 @@ class JogWidget(QWidget):
         mode_on_layout.addStretch()
         mode_on_layout.addLayout(speed_layout)
         mode_on_layout.addWidget(increment_label)
+        mode_on_layout.addLayout(step_entry_layout)
         mode_on_layout.addLayout(upper_layout)
         mode_on_layout.addLayout(lower_layout)
         mode_on_layout.addStretch()
@@ -157,6 +166,8 @@ class JogWidget(QWidget):
         self.interaction_widgets.append(self.z_entry)
         self.interaction_widgets.append(self.yaw_entry)
         self.interaction_widgets.append(go_to_pos)
+        self.interaction_widgets.append(step_label_entry)
+        self.interaction_widgets.append(self.jog_step_entry)
 
         if self.data_manager.homed == False:
             self.deactivate_interaction_widget()
@@ -189,45 +200,78 @@ class JogWidget(QWidget):
         self.interaction_on = True
 
 
+
+    def validate_step_input(self):
+        value = self.jog_step_entry.text()
+        if not utils.is_float(value):
+            print(f"Invalid input for the step entry. Must be a float, is instead : {value}")
+            return None
+        return float(value)
+
+
     def go_up(self):
         print("up")
+        step = self.validate_step_input()
+        if step is None:
+            return
         current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, JOG_STEP, 0, 0))
+        self.move_gripper(target=current_pos+Position(0, step, 0, 0))
 
     def go_down(self):
         print("down")
+        step = self.validate_step_input()
+        if step is None:
+            return
         current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, -1*JOG_STEP, 0, 0))
+        self.move_gripper(target=current_pos+Position(0, -1*step, 0, 0))
 
     def go_left(self):
+        step = self.validate_step_input()
+        if step is None:
+            return
         current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(-1*JOG_STEP, 0, 0, 0))
+        self.move_gripper(target=current_pos+Position(-1*step, 0, 0, 0))
         print("left")
 
     def go_right(self):
+        step = self.validate_step_input()
+        if step is None:
+            return
         current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(JOG_STEP, 0, 0, 0))
+        self.move_gripper(target=current_pos+Position(step, 0, 0, 0))
         print("right")
 
     def go_lower(self):
+        step = self.validate_step_input()
+        if step is None:
+            return
         current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, 0, -1*JOG_STEP, 0))
+        self.move_gripper(target=current_pos+Position(0, 0, -1*step, 0))
         print("left")
 
     def go_higher(self):
+        step = self.validate_step_input()
+        if step is None:
+            return
         current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, 0, JOG_STEP, 0))
+        self.move_gripper(target=current_pos+Position(0, 0, step, 0))
         print("right")
 
 
     def rotate_left(self):
+        step = self.validate_step_input()
+        if step is None:
+            return
         current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, 0, 0, -1*JOG_STEP))
+        self.move_gripper(target=current_pos+Position(0, 0, 0, -1*step))
         print("rotate left")
 
     def rotate_right(self):
+        step = self.validate_step_input()
+        if step is None:
+            return
         current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, 0, 0, JOG_STEP))
+        self.move_gripper(target=current_pos+Position(0, 0, 0, step))
         print("rotate right")
 
     def go_to_position(self):
@@ -262,8 +306,8 @@ class JogWidget(QWidget):
 
     def go_home(self):
         print("Going home")
-        self.data_manager.go_home(ending_function=self.activate_interaction_widget)
-        #self.activate_interaction_widget()
+        #self.data_manager.go_home(ending_function=self.activate_interaction_widget)
+        self.activate_interaction_widget()
 
 
     def update_speed_slider(self, value):
