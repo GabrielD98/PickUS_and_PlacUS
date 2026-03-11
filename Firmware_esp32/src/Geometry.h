@@ -10,8 +10,6 @@
 
 //Size definitions (mm)
 #define GEAR_RADIUS 8
-// #define BASE_WIDTH 290
-// #define BASE_LENGTH 290
 
 //Motor steps definitions 
 #define STEPS_REVOLUTION 200
