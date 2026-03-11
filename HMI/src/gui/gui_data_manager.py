@@ -96,4 +96,4 @@ class GuiDataManager:
 
 
     def connect_to_pnp(self):
-        self.controller.connectionToMachine()
+        self.controller.connectionToMachine(comPort = "COM8", baudrate = 115200)

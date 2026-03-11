@@ -221,7 +221,7 @@ class Interface(QMainWindow):
 		if not self.connected:
 			#TODO check for disconnection with exeption request. connected should not be local here
 			self.try_connect()
-			print("connection successful")
+			
 
 		print("loop")
 
@@ -232,5 +232,6 @@ class Interface(QMainWindow):
 		try :
 			GuiDataManager().connect_to_pnp()
 			self.connected = True
+			print("connection successful")
 		except Exception as e :
-			pass
+			print(f"failed connection to PnP : {e}")
