@@ -80,6 +80,7 @@ class GuiDataManager:
         self.homed = True
         self.blocked = False
         
+        
 
 
     def go_home(self, ending_function):
@@ -90,10 +91,18 @@ class GuiDataManager:
 
 
 
+
     def continue_pnp(self):
         self.controller.requestTransition(TransitionRequest.TO_RUNNING)
 
 
 
-    def connect_to_pnp(self):
-        self.controller.connectionToMachine(comPort = "COM8", baudrate = 115200)
+
+    def connect_to_pnp(self, port:str):
+        self.controller.connectionToMachine(comPort = port, baudrate = 115200)
+
+
+
+
+    def disconnect(self):
+        self.controller.disconnectionFromMachine()

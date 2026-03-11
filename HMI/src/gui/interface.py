@@ -1,4 +1,6 @@
-from PyQt5.QtCore import QSize, Qt
+import time
+
+from PyQt5.QtCore import QEvent, QSize, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (
@@ -109,7 +111,8 @@ class Interface(QMainWindow):
 
 
 		state_layout = QHBoxLayout()
-		state_layout.addWidget(PnPStateWidget())
+		self.state_widget = PnPStateWidget()
+		state_layout.addWidget(self.state_widget)
 		right_layout.addLayout(state_layout, 1)
 
 
@@ -230,9 +233,21 @@ class Interface(QMainWindow):
 
 	def try_connect(self):
 		try :
-			GuiDataManager().connect_to_pnp()
+			port = self.state_widget.get_selected_port()
+			self.data_manager.connect_to_pnp(port)
 			self.connected = True
+			self.state_widget.set_connected()
 			#print("connection successful")
 		except Exception as e :
 			pass
 			#print(f"failed connection to PnP : {e}")
+
+		
+
+
+	
+	def closeEvent(self, event: QEvent):
+		"""Override the default close event handler."""
+		
+		self.deleteLater()	
+		self.data_manager.disconnect()
