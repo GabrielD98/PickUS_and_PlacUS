@@ -58,8 +58,8 @@ class PnPStateWidget(QWidget):
 
     def update_state(self):
         state = self.dataManager.get_machine_state()
-        self.state_label.setText(f"State : {state[1]}")
-        self.position = state[2]
+        self.state_label.setText(f"State : {state}")
+        self.position = self.dataManager.get_gripper_position()
         self.position_label = QLabel(f"Position : {self.position.x}, {self.position.y},"
                                      + f" {self.position.z}, {self.position.yaw}")
         

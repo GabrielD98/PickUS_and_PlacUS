@@ -67,11 +67,12 @@ class GuiDataManager:
     def homing_thread(self, ending_function = None):
         self.blocked = True
         home_cmd = Command(CommandId.HOME,
-            velocity=MAX_SPEED*0.5,
+            velocity=None,
             position=None,
             piece=None)
         self.controller.queueCommand(home_cmd)
 
+        time.sleep(0.5)
         while not self.get_machine_state() == MachineState.READY:
             time.sleep(0.5)
 

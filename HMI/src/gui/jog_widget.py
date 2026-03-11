@@ -306,8 +306,8 @@ class JogWidget(QWidget):
 
     def go_home(self):
         print("Going home")
-        #self.data_manager.go_home(ending_function=self.activate_interaction_widget)
-        self.activate_interaction_widget()
+        self.data_manager.go_home(ending_function=self.activate_interaction_widget)
+        #self.activate_interaction_widget()
 
 
     def update_speed_slider(self, value):

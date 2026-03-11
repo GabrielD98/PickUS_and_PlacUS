@@ -225,6 +225,8 @@ class Interface(QMainWindow):
 			#TODO check for disconnection with exeption request. connected should not be local here
 			self.try_connect()
 			
+		else :
+			self.state_widget.update_state()
 		#print("loop")
 
 
