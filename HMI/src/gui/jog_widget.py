@@ -283,20 +283,20 @@ class JogWidget(QWidget):
         z_value = self.z_entry.text()
         yaw_value = self.yaw_entry.text()
 
-        if not utils.is_int(x_value):
+        if not utils.is_float(x_value):
             print(f"Invalid input for the x value. Must be an interger, is instead : {x_value}")
             return
-        if not utils.is_int(y_value):
+        if not utils.is_float(y_value):
             print(f"Invalid input for the y value. Must be an interger, is instead : {y_value}")
             return
-        if not utils.is_int(z_value):
+        if not utils.is_float(z_value):
             print(f"Invalid input for the z value. Must be an interger, is instead : {z_value}")
             return
-        if not utils.is_int(yaw_value):
+        if not utils.is_float(yaw_value):
             print(f"Invalid input for the yaw value. Must be an interger, is instead : {yaw_value}")
             return
         
-        self.move_gripper(target=Position(x_value, y_value, z_value, yaw_value))
+        self.move_gripper(target=Position(float(x_value), float(y_value), float(z_value), float(yaw_value)))
 
 
     def move_gripper(self, target:Position):
