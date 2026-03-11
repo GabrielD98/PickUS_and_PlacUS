@@ -4,17 +4,17 @@
 #define PIECE_PRESSURE_THRESHOLD 80 //TODO: validate value;
 #define NO_PIECE_PRESSURE_THRESHOLD 100 //TODO: validate value;
 
-#define contactHeight -200
-#define zAxisSpeed 200
+#define HOME_SPEED 1000
+#define HOME_ACCEL 2000
 
 Controller::Controller()
     : motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR),
       motorY(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR),
       motorZ(AccelStepper::DRIVER, PIN_DZ_STEP, PIN_DZ_DIR),
       motorYAW(AccelStepper::DRIVER, PIN_DYAW_STEP, PIN_DYAW_DIR),
-      limSwitchX(PIN_LIMSWITCH_X),
-      limSwitchY(PIN_LIMSWITCH_Y),
-      limSwitchZ(PIN_LIMSWITCH_Z),
+      limSwitchX(PIN_LIMSWITCH_X,true),
+      limSwitchY(PIN_LIMSWITCH_Y,true),
+      limSwitchZ(PIN_LIMSWITCH_Z,true),
       valve(PIN_VALVE),
       pump(PIN_PUMP),
       pressureSensor(PIN_PSENSOR_CLK,PIN_PSENSOR_DATA)
@@ -175,7 +175,10 @@ void Controller::goHome()
         }
         else
         {
+            motorX.setMaxSpeed(HOME_SPEED);
+            motorX.setAcceleration(HOME_ACCEL);
             motorX.move(STEP_PER_HOME_LOOP);
+            motorX.run();
         }
         break;
 
@@ -188,7 +191,10 @@ void Controller::goHome()
         }
         else
         {
+            motorY.setMaxSpeed(HOME_SPEED);
+            motorY.setAcceleration(HOME_ACCEL);
             motorY.move(STEP_PER_HOME_LOOP);
+            motorY.run();
         }
         break;
 
@@ -201,7 +207,10 @@ void Controller::goHome()
         }
         else
         {
+            motorZ.setMaxSpeed(HOME_SPEED);
+            motorZ.setAcceleration(HOME_ACCEL);
             motorZ.move(STEP_PER_HOME_LOOP);
+            motorZ.run();
         }
         break;
         
@@ -279,14 +288,13 @@ void Controller::executePickPlace(PickPlaceMode mode)
         {
             pickPlaceState = PickPlaceState::DONE;
         }
-        break;
-
-    case PickPlaceState::DONE:
-
         if (mode == PickPlaceMode::PLACE)
         {
             valve.off(); pump.off();
         }
+        break;
+
+    case PickPlaceState::DONE:
         break;
     }
 }

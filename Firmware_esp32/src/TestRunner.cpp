@@ -7,9 +7,19 @@ TestRunner::TestRunner(Controller* ctrl) : ctrl(ctrl)
 bool TestRunner::runTests()
 {
     bool pass = true;
-    pass &= TEST_communication();
+    pass &= TEST_MOVE();
+    pass &= TEST_PICK();
+    pass &= TEST_PLACE();
+    pass &= TEST_HOME();
     // add more tests here
     return pass;
+}
+
+bool TestRunner::runComTest()
+{
+	bool pass = true;
+    pass &= TEST_communication();
+	return pass;
 }
 
 /**
@@ -96,5 +106,165 @@ bool TestRunner::TEST_communication(uint32_t durationMs)
 		vTaskDelay(10);
 	}
 	
+	return true;
+}
+
+bool TestRunner::TEST_MOVE(void)
+{
+	position_t testPosition;
+	testPosition.x = 100;
+	testPosition.y = 100;
+	testPosition.z = 100;
+	testPosition.yaw = 100;
+
+	dataModel_t* dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::MOVE;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+
+	ctrl->update();
+
+	dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::EMPTY;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+
+	uint8_t loopCount = 0;
+
+	MachineState machineState = MachineState::MOVING;
+	while(machineState != MachineState::READY)
+	{
+		loopCount++;
+		if(loopCount == 200)
+		{
+			dataModel = ctrl->dataModel.get();
+			machineState = dataModel->state;
+			ctrl->dataModel.release();
+			loopCount = 0;
+		}
+		ctrl->update();
+	}
+	return true;
+}
+
+bool TestRunner::TEST_PICK(void)
+{
+	position_t testPosition;
+	testPosition.x = 100;
+	testPosition.y = 100;
+	testPosition.z = 200;
+	testPosition.yaw = 100;
+	
+	dataModel_t* dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::PICK;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+	
+	ctrl->update();
+
+	dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::EMPTY;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+
+	uint8_t loopCount = 0;
+
+	MachineState machineState = MachineState::PICKING;
+	while(machineState != MachineState::READY)
+	{
+		loopCount++;
+		if(loopCount == 200)
+		{
+			dataModel = ctrl->dataModel.get();
+			machineState = dataModel->state;
+			ctrl->dataModel.release();
+			loopCount = 0;
+		}
+		ctrl->update();
+	}
+	return true;
+}
+
+bool TestRunner::TEST_PLACE(void)
+{
+	position_t testPosition;
+	testPosition.x = 100;
+	testPosition.y = 100;
+	testPosition.z = 200;
+	testPosition.yaw = 100;
+	
+	dataModel_t* dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::PLACE;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+	
+	ctrl->update();
+
+	dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::EMPTY;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+
+	uint8_t loopCount = 0;
+
+	MachineState machineState = MachineState::PLACING;
+	while(machineState != MachineState::READY)
+	{
+		loopCount++;
+		if(loopCount == 200)
+		{
+			dataModel = ctrl->dataModel.get();
+			machineState = dataModel->state;
+			ctrl->dataModel.release();
+			loopCount = 0;
+		}
+		ctrl->update();
+	}
+	return true;
+}
+
+bool TestRunner::TEST_HOME(void)
+{
+	position_t testPosition;
+	testPosition.x = 100;
+	testPosition.y = 100;
+	testPosition.z = 200;
+	testPosition.yaw = 100;
+	
+	dataModel_t* dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::HOME;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+	
+	ctrl->update();
+
+	dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::EMPTY;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+
+	uint8_t loopCount = 0;
+
+	MachineState machineState = MachineState::HOMING;
+	while(machineState != MachineState::READY)
+	{
+		loopCount++;
+		if(loopCount == 200)
+		{
+			dataModel = ctrl->dataModel.get();
+			machineState = dataModel->state;
+			ctrl->dataModel.release();
+			loopCount = 0;
+		}
+		ctrl->update();
+	}
 	return true;
 }

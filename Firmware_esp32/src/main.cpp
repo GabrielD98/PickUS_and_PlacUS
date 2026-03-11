@@ -13,9 +13,9 @@ void testLoop(void *pvParameters);
 
 void setup()
 {
+	
 	Serial.begin(115200);
 	while (!Serial) { delay(10); } // Block until host opens the serial port
-
 	xTaskCreatePinnedToCore(
 		communicationLoop,
 		"communicationTask",
