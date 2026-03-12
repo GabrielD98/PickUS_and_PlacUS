@@ -11,6 +11,8 @@ bool TestRunner::runTests()
     pass &= TEST_PICK();
     pass &= TEST_PLACE();
     pass &= TEST_HOME();
+	pass &= TEST_LIMITS();
+	pass &= TEST_GEOMETRY();
     // add more tests here
     return pass;
 }
@@ -266,5 +268,60 @@ bool TestRunner::TEST_HOME(void)
 		}
 		ctrl->update();
 	}
+	return true;
+}
+
+bool TestRunner::TEST_LIMITS(void)
+{
+	position_t testPosition; 
+	testPosition.x = -100;
+	testPosition.y = 330;
+	testPosition.z = 20;
+	testPosition.yaw = -180;
+
+	position_t stepsPosition = mmToStep(testPosition);
+
+	if (stepsPosition.x != P_X_MIN || stepsPosition.y != P_Y_MAX || stepsPosition.z != P_Z_MAX || stepsPosition.yaw != P_Y_MIN)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool TestRunner::TEST_GEOMETRY(void)
+{
+	position_t testPosition; 
+	testPosition.x = 100;
+	testPosition.y = 200;
+	testPosition.z = -20;
+	testPosition.yaw = 180;
+
+	position_t stepsPosition = mmToStep(testPosition);
+
+	position_t mmPosition = stepToMm(stepsPosition);
+
+	float Threshold_x = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_X);
+	float Threshold_y = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_Y);
+	float Threshold_z = 360/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
+	float Threshold_yaw = CAM_DIAMETER*(cos(2*PI/(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1);
+	
+	if ((mmPosition.x < testPosition.x - Threshold_x || mmPosition.x > testPosition.x + Threshold_x))
+	{
+		return false;
+	}
+	if ((mmPosition.y < testPosition.y - Threshold_y || mmPosition.y > testPosition.y + Threshold_y))
+	{
+		return false;
+	}
+	if ((mmPosition.z < testPosition.z - Threshold_z || mmPosition.z > testPosition.z + Threshold_z))
+	{
+		return false;
+	}
+	if ((mmPosition.yaw < testPosition.yaw - Threshold_yaw || mmPosition.yaw > testPosition.yaw + Threshold_yaw))
+	{
+		return false;
+	}
+
 	return true;
 }

@@ -17,6 +17,8 @@ private:
     bool TEST_PICK(void);
     bool TEST_PLACE(void);
     bool TEST_HOME(void);
+    bool TEST_LIMITS(void);
+    bool TEST_GEOMETRY(void);
     // add more tests here
 };
 

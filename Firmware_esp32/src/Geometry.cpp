@@ -1,6 +1,6 @@
 #include "Geometry.h"
 
-Position dimensionLimits(Position targetPosition)
+position_t dimensionLimits(position_t targetPosition)
 {
     if (targetPosition.x > P_X_MAX)
     {
@@ -38,11 +38,11 @@ Position dimensionLimits(Position targetPosition)
     return targetPosition;
 }
 
-Position mmToStep(Position distance)
+position_t mmToStep(position_t distance)
 {
     dimensionLimits(distance);
 
-    Position steps;
+    position_t steps;
     
     steps.x = round((distance.x*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
     steps.y = round((distance.y*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
@@ -52,16 +52,16 @@ Position mmToStep(Position distance)
     return steps;
 }
 
-Position stepToMm(Position steps)
+position_t stepToMm(position_t steps)
 {
-    Position distance;
+    position_t distance;
 
-    distance.x = round((steps.x*MM_REVOLUTION)/(STEPS_REVOLUTION*MICROSTEPPING_X));
-    distance.y = round((steps.y*MM_REVOLUTION)/(STEPS_REVOLUTION*MICROSTEPPING_Y));
-    distance.z = round(CAM_DIAMETER*(cos((steps.z*2*PI)/(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1));
-    distance.yaw = round((steps.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW));
+    distance.x = (steps.x*MM_REVOLUTION)/(STEPS_REVOLUTION*MICROSTEPPING_X);
+    distance.y = (steps.y*MM_REVOLUTION)/(STEPS_REVOLUTION*MICROSTEPPING_Y);
+    distance.z = CAM_DIAMETER*(cos((steps.z*2*PI)/(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1);
+    distance.yaw = (steps.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
 
-    return steps;
+    return distance;
 }
 
 

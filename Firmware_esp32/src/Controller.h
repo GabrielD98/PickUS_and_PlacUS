@@ -12,6 +12,7 @@
 #include "Mosfet.h"
 #include "LimitSwitch.h"
 #include "pressureSensor.h"
+#include "Geometry.h"
 
 class Controller
 {
