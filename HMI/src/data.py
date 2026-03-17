@@ -158,7 +158,8 @@ class StorageUnit:
         automatic (bool):
             Is the feeder automatic or not.
     """
-    piece : Piece           
+    piece : Piece    
+    position : Position       
     deltaPos : Position     
     state : StorageState    
     quantity : int          

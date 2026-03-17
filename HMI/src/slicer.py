@@ -61,7 +61,7 @@ class Slicer :
             
             #for each piece, move towards its place in the storage, 
             #pick it, move towards the placement zone, and place it
-            pick_position = self.storage.components[piece].piece.position
+            pick_position = self.storage.components[piece].position
             
             # Move to storage position
             commands.append(Command(
