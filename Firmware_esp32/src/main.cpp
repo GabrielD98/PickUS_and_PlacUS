@@ -16,18 +16,9 @@ void setup()
 	
 	Serial.begin(115200);
 	while (!Serial) { delay(10); } // Block until host opens the serial port
-	xTaskCreatePinnedToCore(
-		communicationLoop,
-		"communicationTask",
-		10000,
-		&ctrl,
-		1,
-		NULL,
-		0
-	);
 	if(ENABLE_TEST)
 	{
-			xTaskCreatePinnedToCore(
+		xTaskCreatePinnedToCore(
 			testLoop,
 			"testTask",
 			10000,
@@ -37,8 +28,40 @@ void setup()
 			1
 		);
 	}
+	else if(ENABLE_COM_TEST)
+	{
+		xTaskCreatePinnedToCore(
+			testLoop,
+			"testTask",
+			10000,
+			&ctrl,
+			1,
+			NULL,
+			1
+		);
+
+		xTaskCreatePinnedToCore(
+			communicationLoop,
+			"communicationTask",
+			10000,
+			&ctrl,
+			1,
+			NULL,
+			0
+		);
+	}
 	else
 	{
+		xTaskCreatePinnedToCore(
+			communicationLoop,
+			"communicationTask",
+			10000,
+			&ctrl,
+			1,
+			NULL,
+			0
+		);
+
 		xTaskCreatePinnedToCore(
 			controlLoop,
 			"controlTask",
@@ -126,8 +149,15 @@ void controlLoop(void *pvParameters)
 void testLoop(void*pvParameters)
 {
 	Controller* controller = (Controller*)pvParameters;
-
-	testRunner.runTests();
+	
+	if(ENABLE_COM_TEST)
+	{
+		testRunner.runComTest();
+	}
+	else if(ENABLE_TEST)
+	{
+		testRunner.runTests();
+	}
 	
 	while(1)
 	{

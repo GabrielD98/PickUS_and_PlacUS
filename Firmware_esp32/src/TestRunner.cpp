@@ -7,12 +7,12 @@ TestRunner::TestRunner(Controller* ctrl) : ctrl(ctrl)
 bool TestRunner::runTests()
 {
     bool pass = true;
+	pass &= TEST_LIMITS();
+	pass &= TEST_GEOMETRY();
     pass &= TEST_MOVE();
     pass &= TEST_PICK();
     pass &= TEST_PLACE();
     pass &= TEST_HOME();
-	pass &= TEST_LIMITS();
-	pass &= TEST_GEOMETRY();
     // add more tests here
     return pass;
 }
@@ -273,24 +273,43 @@ bool TestRunner::TEST_HOME(void)
 
 bool TestRunner::TEST_LIMITS(void)
 {
+	bool result = true;
+	
 	position_t testPosition; 
-	testPosition.x = -100;
-	testPosition.y = 330;
-	testPosition.z = 20;
-	testPosition.yaw = -180;
+	testPosition.x = 100.0;
+	testPosition.y = 330.0;
+	testPosition.z = 20.0;
+	testPosition.yaw = -180.0;
 
-	position_t stepsPosition = mmToStep(testPosition);
+	position_t stepsPosition = dimensionLimits(testPosition);
 
-	if (stepsPosition.x != P_X_MIN || stepsPosition.y != P_Y_MAX || stepsPosition.z != P_Z_MAX || stepsPosition.yaw != P_Y_MIN)
+	Serial.println(stepsPosition.x);
+	Serial.println(stepsPosition.y);
+	Serial.println(stepsPosition.z);
+	Serial.println(stepsPosition.yaw);
+
+	if (stepsPosition.x != testPosition.x || stepsPosition.y != P_Y_MAX ||
+		stepsPosition.z != P_Z_MAX || stepsPosition.yaw != P_Y_MIN)
 	{
-		return false;
+		result = false;
 	}
 
-	return true;
+	if(result)
+	{
+		Serial.println("PHYSICAL LIMIT PASSED");
+	}
+	else
+	{
+		Serial.println("PHYSICAL LIMIT FAILED");
+	}
+
+	return result;
 }
 
 bool TestRunner::TEST_GEOMETRY(void)
 {
+	bool result = true;
+
 	position_t testPosition; 
 	testPosition.x = 100;
 	testPosition.y = 200;
@@ -308,20 +327,29 @@ bool TestRunner::TEST_GEOMETRY(void)
 	
 	if ((mmPosition.x < testPosition.x - Threshold_x || mmPosition.x > testPosition.x + Threshold_x))
 	{
-		return false;
+		result = false;
 	}
 	if ((mmPosition.y < testPosition.y - Threshold_y || mmPosition.y > testPosition.y + Threshold_y))
 	{
-		return false;
+		result = false;
 	}
 	if ((mmPosition.z < testPosition.z - Threshold_z || mmPosition.z > testPosition.z + Threshold_z))
 	{
-		return false;
+		result = false;
 	}
 	if ((mmPosition.yaw < testPosition.yaw - Threshold_yaw || mmPosition.yaw > testPosition.yaw + Threshold_yaw))
 	{
-		return false;
+		result = false;
 	}
 
-	return true;
+	if(result)
+	{
+		Serial.println("GEOMETRY PASSED");
+	}
+	else
+	{
+		Serial.println("GEOMETRY FAILED");
+	}
+
+	return result;
 }
