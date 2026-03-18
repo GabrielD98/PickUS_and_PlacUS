@@ -34,7 +34,7 @@ from gui.command_widget import CommandWidget
 from gui.slice_info_widget import SliceInfoWidget
 from gui.calbration_window import CalibrationWindow
 import utils
-		
+import random
 
 
 
@@ -122,8 +122,13 @@ class Interface(QMainWindow):
 
 
 		img_label = QLabel(self)
-		pixmap = QPixmap("../data/a_joyful_Julius_C.png")
+		img = "../data/a_joyful_Julius_C.png"
+		rand_num = random.randint(1, 20)
+		if rand_num == 1:
+			img = "../data/julius_salad.png"
+		pixmap = QPixmap(img)
 		img_label.setPixmap(pixmap)
+		img_label.setScaledContents(True) 
 		right_layout.addWidget(img_label, 4)
 
 		
@@ -234,6 +239,7 @@ class Interface(QMainWindow):
 
 	def try_connect(self):
 		try :
+			return
 			self.state_widget.update_scanned_port()
 			port = self.state_widget.get_selected_port()
 			self.data_manager.connect_to_pnp(port)
