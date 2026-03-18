@@ -15,6 +15,10 @@
 #define P_YAW_MAX 360
 #define P_YAW_MIN 0
 
+//Speed max
+#define SPEED_MAX 100.0
+#define SPEED_MIN -100.0
+
 //Size definitions (mm)
 #define GEAR_RADIUS 8.0
 
@@ -32,5 +36,6 @@
 position_t dimensionLimits(position_t targetPosition);
 position_t coordToStep(position_t distance);
 position_t stepToCoord(position_t step);
+velocity_t velocityToStep(float velocity);
 
 #endif

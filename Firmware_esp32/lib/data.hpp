@@ -12,6 +12,15 @@ typedef struct __attribute__((packed)) position
 
 }position_t;
 
+typedef struct __attribute__((packed)) velocity
+{
+	float x = 0;
+	float y = 0;
+	float z = 0;
+	float yaw = 0;
+
+}velocity_t;
+
 enum class CommandId : uint8_t
 {
 	STOP = 0,

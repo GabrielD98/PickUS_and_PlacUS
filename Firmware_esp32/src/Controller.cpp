@@ -166,14 +166,7 @@ void Controller::setTargets(position_t position, float speed)
         (long)position.yaw
     };
 
-    //TODO: create a speed struct/ use someting else
-    position_t convertedSpeed;
-    convertedSpeed.x = speed;
-    convertedSpeed.y = speed;
-    convertedSpeed.z = speed;
-    convertedSpeed.yaw = speed;
-
-    convertedSpeed = coordToStep(convertedSpeed);
+    velocity_t convertedSpeed = velocityToStep(speed);
 
     motorX.setMaxSpeed(convertedSpeed.x);
     motorY.setMaxSpeed(convertedSpeed.y);

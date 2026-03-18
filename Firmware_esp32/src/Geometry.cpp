@@ -65,4 +65,25 @@ position_t stepToCoord(position_t steps)
     return distance;
 }
 
+velocity_t velocityToStep(float velocity)
+{
+    velocity_t stepsPerSec;
+    if(velocity>SPEED_MAX)
+    {
+        velocity = SPEED_MAX;
+    }
+    if(velocity<SPEED_MIN)
+    {
+        velocity = SPEED_MIN;
+    }
+    
+    stepsPerSec.x = round((velocity*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
+    stepsPerSec.y = round((velocity*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
+    stepsPerSec.z = round((MICROSTEPPING_Z*STEPS_REVOLUTION*acos(1 + velocity/CAM_DIAMETER))/(2*PI));
+    stepsPerSec.yaw = round((velocity*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
+
+
+    return stepsPerSec;
+}
+
 

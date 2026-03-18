@@ -10,7 +10,7 @@ public:
     ~Mosfet();
     void on();
     void off();
-    bool getState() const;
+    bool getState();
 private:
     uint8_t pin;
     bool state;

@@ -1,7 +1,7 @@
 #include "Mosfet.h"
 #include <Arduino.h>
 
-Mosfet::Mosfet(int pin)
+Mosfet::Mosfet(uint8_t pin)
 {
     this->pin = pin;
     this->state = false;
