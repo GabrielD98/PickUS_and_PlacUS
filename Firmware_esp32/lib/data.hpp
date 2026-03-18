@@ -43,11 +43,12 @@ enum class MachineState : uint8_t
 
 enum class HomingState : uint8_t
 {
-	HOMING_X = 0,
-	HOMING_Y = 1,
-	HOMING_Z = 2,
-	HOMING_YAW = 3,
-	HOMING_DONE = 4,
+	INIT = 0,
+	X = 1,
+	Y = 2,
+	Z = 3,
+	YAW = 4,
+	HOMING_DONE = 5,
 
 };
 

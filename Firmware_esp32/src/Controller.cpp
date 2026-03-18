@@ -1,13 +1,14 @@
 #include "Controller.h"
 #include "Geometry.h"
 
-#define STEP_PER_HOME_LOOP -1
+#define HOME_DIRECTION -1.0f
 #define PIECE_PRESSURE_THRESHOLD 80 //TODO: validate value;
 #define NO_PIECE_PRESSURE_THRESHOLD 100 //TODO: validate value;
 
-#define HOME_SPEED 1000
-#define HOME_ACCEL 2000
+#define HOME_SPEED 100.0
 #define POSITION_UPDATE_FREQ 100
+
+const velocity_t homeVelocity = velocityToStep(HOME_SPEED);
 
 Controller::Controller()
     : motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR),
@@ -35,7 +36,7 @@ Controller::Controller()
     pressureSensor.init(); //TODO create a controller init
 
     machineState = MachineState::READY;
-    homingState = HomingState::HOMING_X;
+    homingState = HomingState::INIT;
     pickPlaceState = PickPlaceState::INIT;
 
     lastPositionUpdateMS = millis();
@@ -84,6 +85,7 @@ void Controller::update()
                     break;
 
                 case CommandId::HOME:
+                    homingState = HomingState::INIT;
                     machineState = MachineState::HOMING;
                     break;
 
@@ -129,7 +131,7 @@ void Controller::update()
         if(homingState == HomingState::HOMING_DONE)
         {
             machineState = MachineState::READY;
-            homingState = HomingState::HOMING_X;
+            homingState = HomingState::INIT;
         }
         break;
     
@@ -181,63 +183,61 @@ void Controller::goHome()
 {
     switch (homingState)
     {
-    case HomingState::HOMING_X:
+        case HomingState::INIT:
+            homingState = HomingState::Z;
+            motorZ.setMaxSpeed(homeVelocity.z / 10.0f);
+            motorZ.setSpeed(HOME_DIRECTION * (homeVelocity.z / 10.0f));
+            break;
 
-        if(limSwitchX.isTriggered())
-        {
-            motorX.setCurrentPosition(0);
-            homingState = HomingState::HOMING_Y;
+        case HomingState::Z:
+            if(limSwitchZ.isTriggered())
+            {
+                motorZ.setCurrentPosition(0);
+                homingState = HomingState::X;
+                motorX.setMaxSpeed(homeVelocity.x);
+                motorX.setSpeed(HOME_DIRECTION * homeVelocity.x);
+            }
+            else
+            {
+                motorZ.runSpeed();
+            }
+            break;
+
+        case HomingState::X:
+            if(limSwitchX.isTriggered())
+            {
+                motorX.setCurrentPosition(0);
+                homingState = HomingState::Y;
+                motorY.setMaxSpeed(homeVelocity.y);
+                motorY.setSpeed(HOME_DIRECTION * homeVelocity.y);
+            }
+            else
+            {
+                motorX.runSpeed();
+            }
+            break;
+
+        case HomingState::Y:
+            if(limSwitchY.isTriggered())
+            {
+                motorY.setCurrentPosition(0);
+                homingState = HomingState::YAW;
+            }
+            else
+            {
+                motorY.runSpeed();
+            }
+            break;
+
+        case HomingState::YAW:
+
+            motorYAW.setCurrentPosition(0);
+            homingState = HomingState::HOMING_DONE;
+            break;
+
+        case HomingState::HOMING_DONE:
+            break;
         }
-        else
-        {
-            motorX.setMaxSpeed(HOME_SPEED);
-            motorX.setAcceleration(HOME_ACCEL);
-            motorX.move(STEP_PER_HOME_LOOP);
-            motorX.run();
-        }
-        break;
-
-    case HomingState::HOMING_Y:
-
-        if(limSwitchY.isTriggered())
-        {
-            motorY.setCurrentPosition(0);
-            homingState = HomingState::HOMING_Z;
-        }
-        else
-        {
-            motorY.setMaxSpeed(HOME_SPEED);
-            motorY.setAcceleration(HOME_ACCEL);
-            motorY.move(STEP_PER_HOME_LOOP);
-            motorY.run();
-        }
-        break;
-
-    case HomingState::HOMING_Z:
-
-        if(limSwitchZ.isTriggered())
-        {
-            motorZ.setCurrentPosition(0);
-            homingState = HomingState::HOMING_YAW;
-        }
-        else
-        {
-            motorZ.setMaxSpeed(HOME_SPEED);
-            motorZ.setAcceleration(HOME_ACCEL);
-            motorZ.move(STEP_PER_HOME_LOOP);
-            motorZ.run();
-        }
-        break;
-        
-    case HomingState::HOMING_YAW:
-
-        motorYAW.setCurrentPosition(0);
-        homingState = HomingState::HOMING_DONE;
-        break;
-
-    case HomingState::HOMING_DONE:
-        break;
-    }
 }
 
 
