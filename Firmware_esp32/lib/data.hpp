@@ -12,6 +12,15 @@ typedef struct __attribute__((packed)) position
 
 }position_t;
 
+typedef struct __attribute__((packed)) velocity
+{
+	float x = 0;
+	float y = 0;
+	float z = 0;
+	float yaw = 0;
+
+}velocity_t;
+
 enum class CommandId : uint8_t
 {
 	STOP = 0,
@@ -29,8 +38,34 @@ enum class MachineState : uint8_t
 	MOVING = 2,
 	PICKING = 3,
 	PLACING = 4,
-	DISCONNECTED = 5
+	HOMING = 5,
 };
+
+enum class HomingState : uint8_t
+{
+	HOMING_X = 0,
+	HOMING_Y = 1,
+	HOMING_Z = 2,
+	HOMING_YAW = 3,
+	HOMING_DONE = 4,
+
+};
+
+enum class PickPlaceMode : uint8_t
+{
+	PICK = 0,
+	PLACE = 1,
+};
+
+enum class PickPlaceState : uint8_t
+{
+	INIT = 0,
+	GOING_DOWN = 1,
+	CONTACT = 2,
+	GOING_UP = 3,
+	DONE = 4,
+};
+
 
 typedef struct __attribute__((packed)) command
 {

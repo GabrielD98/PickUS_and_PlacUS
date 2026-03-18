@@ -9,6 +9,10 @@
 
 #include "../lib/data.hpp"
 #include "DataModel.h"
+#include "Mosfet.h"
+#include "LimitSwitch.h"
+#include "pressureSensor.h"
+#include "Geometry.h"
 
 class Controller
 {
@@ -25,10 +29,23 @@ private :
     AccelStepper motorYAW;
     MultiStepper motorSystem;
 
-    bool ValveState = false; 
-    bool first = true; 
+    Mosfet valve;
+    Mosfet pump;
+    PressureSensor pressureSensor;
 
-    void setTargets();
+    LimitSwitch limSwitchX;
+    LimitSwitch limSwitchY;
+    LimitSwitch limSwitchZ;
+
+    MachineState machineState;
+    HomingState homingState;
+    PickPlaceState pickPlaceState;
+
+    uint64_t lastPositionUpdateMS;
+
+    void setTargets(position_t position, float speed);
+    void goHome();
+    void executePickPlace(PickPlaceMode mode);
 };
 
 #endif

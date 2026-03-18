@@ -7,9 +7,21 @@ TestRunner::TestRunner(Controller* ctrl) : ctrl(ctrl)
 bool TestRunner::runTests()
 {
     bool pass = true;
-    pass &= TEST_communication();
+	pass &= TEST_LIMITS();
+	pass &= TEST_GEOMETRY();
+    pass &= TEST_MOVE();
+    pass &= TEST_PICK();
+    pass &= TEST_PLACE();
+    pass &= TEST_HOME();
     // add more tests here
     return pass;
+}
+
+bool TestRunner::runComTest()
+{
+	bool pass = true;
+    pass &= TEST_communication();
+	return pass;
 }
 
 /**
@@ -97,4 +109,251 @@ bool TestRunner::TEST_communication(uint32_t durationMs)
 	}
 	
 	return true;
+}
+
+bool TestRunner::TEST_MOVE(void)
+{
+	position_t testPosition;
+	testPosition.x = 100;
+	testPosition.y = 100;
+	testPosition.z = 100;
+	testPosition.yaw = 100;
+
+	dataModel_t* dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::MOVE;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+
+	ctrl->update();
+
+	dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::EMPTY;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+
+	uint8_t loopCount = 0;
+
+	MachineState machineState = MachineState::MOVING;
+	while(machineState != MachineState::READY)
+	{
+		loopCount++;
+		if(loopCount == 200)
+		{
+			dataModel = ctrl->dataModel.get();
+			machineState = dataModel->state;
+			ctrl->dataModel.release();
+			loopCount = 0;
+		}
+		ctrl->update();
+	}
+	return true;
+}
+
+bool TestRunner::TEST_PICK(void)
+{
+	position_t testPosition;
+	testPosition.x = 100;
+	testPosition.y = 100;
+	testPosition.z = 200;
+	testPosition.yaw = 100;
+	
+	dataModel_t* dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::PICK;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+	
+	ctrl->update();
+
+	dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::EMPTY;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+
+	uint8_t loopCount = 0;
+
+	MachineState machineState = MachineState::PICKING;
+	while(machineState != MachineState::READY)
+	{
+		loopCount++;
+		if(loopCount == 200)
+		{
+			dataModel = ctrl->dataModel.get();
+			machineState = dataModel->state;
+			ctrl->dataModel.release();
+			loopCount = 0;
+		}
+		ctrl->update();
+	}
+	return true;
+}
+
+bool TestRunner::TEST_PLACE(void)
+{
+	position_t testPosition;
+	testPosition.x = 100;
+	testPosition.y = 100;
+	testPosition.z = 200;
+	testPosition.yaw = 100;
+	
+	dataModel_t* dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::PLACE;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+	
+	ctrl->update();
+
+	dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::EMPTY;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+
+	uint8_t loopCount = 0;
+
+	MachineState machineState = MachineState::PLACING;
+	while(machineState != MachineState::READY)
+	{
+		loopCount++;
+		if(loopCount == 200)
+		{
+			dataModel = ctrl->dataModel.get();
+			machineState = dataModel->state;
+			ctrl->dataModel.release();
+			loopCount = 0;
+		}
+		ctrl->update();
+	}
+	return true;
+}
+
+bool TestRunner::TEST_HOME(void)
+{
+	position_t testPosition;
+	testPosition.x = 100;
+	testPosition.y = 100;
+	testPosition.z = 200;
+	testPosition.yaw = 100;
+	
+	dataModel_t* dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::HOME;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+	
+	ctrl->update();
+
+	dataModel = ctrl->dataModel.get();
+	dataModel->command.id = CommandId::EMPTY;
+	dataModel->command.requestedPosition = testPosition;
+	dataModel->command.velocity = 200;
+	ctrl->dataModel.release();
+
+	uint8_t loopCount = 0;
+
+	MachineState machineState = MachineState::HOMING;
+	while(machineState != MachineState::READY)
+	{
+		loopCount++;
+		if(loopCount == 200)
+		{
+			dataModel = ctrl->dataModel.get();
+			machineState = dataModel->state;
+			ctrl->dataModel.release();
+			loopCount = 0;
+		}
+		ctrl->update();
+	}
+	return true;
+}
+
+bool TestRunner::TEST_LIMITS(void)
+{
+	bool result = false;
+	
+	position_t testPosition; 
+	testPosition.x = 100;
+	testPosition.y = 330.0;
+	testPosition.z = 20.0;
+	testPosition.yaw = -180.0;
+
+	position_t stepsPosition = dimensionLimits(testPosition);
+
+	Serial.println(stepsPosition.x);
+	Serial.println(stepsPosition.y);
+	Serial.println(stepsPosition.z);
+	Serial.println(stepsPosition.yaw);
+
+	if (stepsPosition.x == 100.0 || stepsPosition.y == P_Y_MAX ||
+		stepsPosition.z == P_Z_MAX || stepsPosition.yaw == P_Y_MIN)
+	{
+		result = true;
+	}
+
+	if(result)
+	{
+		Serial.println("PHYSICAL LIMIT PASSED");
+	}
+	else
+	{
+		Serial.println("PHYSICAL LIMIT FAILED");
+	}
+
+	return result;
+}
+
+bool TestRunner::TEST_GEOMETRY(void)
+{
+	bool result = true;
+
+	position_t testPosition; 
+	testPosition.x = 100;
+	testPosition.y = 200;
+	testPosition.z = -20;
+	testPosition.yaw = 180;
+
+	position_t stepsPosition = coordToStep(testPosition);
+
+	position_t mmPosition = stepToCoord(stepsPosition);
+
+	float Threshold_x = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_X);
+	float Threshold_y = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_Y);
+	float Threshold_z = 360/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
+	float Threshold_yaw = abs(CAM_DIAMETER*(cos(2*PI/(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1));
+	
+	if ((mmPosition.x < testPosition.x - Threshold_x || mmPosition.x > testPosition.x + Threshold_x))
+	{
+		result = false;
+		Serial.println("Error on x position.");
+	}
+	if ((mmPosition.y < testPosition.y - Threshold_y || mmPosition.y > testPosition.y + Threshold_y))
+	{
+		result = false;
+		Serial.println("Error on y position.");
+	}
+	if ((mmPosition.z < testPosition.z - Threshold_z || mmPosition.z > testPosition.z + Threshold_z))
+	{
+		result = false;
+		Serial.println("Error on z position.");
+	}
+	if ((mmPosition.yaw < testPosition.yaw - Threshold_yaw || mmPosition.yaw > testPosition.yaw + Threshold_yaw))
+	{
+		result = false;
+		Serial.println("Error on yaw position.");
+	}
+
+	if(result)
+	{
+		Serial.println("GEOMETRY PASSED");
+	}
+	else
+	{
+		Serial.println("GEOMETRY FAILED");
+	}
+
+	return result;
 }
