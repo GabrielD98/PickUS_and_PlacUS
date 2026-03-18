@@ -239,7 +239,6 @@ class Interface(QMainWindow):
 
 	def try_connect(self):
 		try :
-			return
 			self.state_widget.update_scanned_port()
 			port = self.state_widget.get_selected_port()
 			self.data_manager.connect_to_pnp(port)
