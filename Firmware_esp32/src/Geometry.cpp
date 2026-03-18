@@ -57,9 +57,9 @@ position_t stepToMm(position_t steps)
 {
     position_t distance;
 
-    distance.x = (steps.x*MM_REVOLUTION)/(STEPS_REVOLUTION*MICROSTEPPING_X);
-    distance.y = (steps.y*MM_REVOLUTION)/(STEPS_REVOLUTION*MICROSTEPPING_Y);
-    distance.z = CAM_DIAMETER*(cos((steps.z*2*PI)/(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1);
+    distance.x = (steps.x*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_X);
+    distance.y = (steps.y*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_Y);
+    distance.z = CAM_DIAMETER*(cos((steps.z*2.0*PI)/float(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1.0);
     distance.yaw = (steps.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
 
     return distance;
