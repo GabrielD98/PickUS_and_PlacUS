@@ -7,7 +7,7 @@
 
 #define HOME_SPEED 1000
 #define HOME_ACCEL 2000
-#define POSITION_UPDATE_FREQ 10
+#define POSITION_UPDATE_FREQ 100
 
 Controller::Controller()
     : motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR),
