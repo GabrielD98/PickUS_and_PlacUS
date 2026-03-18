@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum, IntFlag
 import numbers
 
-MAX_SPEED = 2000
+MAX_SPEED = 20 #mm/s
 
 
 class CommandId(Enum):
