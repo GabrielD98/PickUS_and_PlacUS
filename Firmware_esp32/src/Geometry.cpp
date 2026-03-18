@@ -68,22 +68,14 @@ position_t stepToCoord(position_t steps)
 velocity_t velocityToStep(float velocity)
 {
     velocity_t stepsPerSec;
-    if(velocity>SPEED_MAX)
-    {
-        velocity = SPEED_MAX;
-    }
-    if(velocity<SPEED_MIN)
-    {
-        velocity = SPEED_MIN;
-    }
+    const float speedAbs = fmin(fabs(velocity), SPEED_MAX);
     
-    stepsPerSec.x = round((velocity*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
-    stepsPerSec.y = round((velocity*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
-    stepsPerSec.z = round((MICROSTEPPING_Z*STEPS_REVOLUTION*acos(1 + velocity/CAM_DIAMETER))/(2*PI));
-    stepsPerSec.yaw = round((velocity*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
+    stepsPerSec.x = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
+    stepsPerSec.y = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
+    // Z has a nonlinear cam profile; use an average mm->steps velocity mapping that stays valid.
+    stepsPerSec.z = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_Z)/(4.0f*CAM_DIAMETER));
+    stepsPerSec.yaw = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
 
 
     return stepsPerSec;
 }
-
-

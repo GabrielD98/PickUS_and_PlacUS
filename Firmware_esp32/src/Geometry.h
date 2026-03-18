@@ -17,7 +17,6 @@
 
 //Speed max
 #define SPEED_MAX 1000.0
-#define SPEED_MIN -1000.0
 
 //Size definitions (mm)
 #define GEAR_RADIUS 8.0

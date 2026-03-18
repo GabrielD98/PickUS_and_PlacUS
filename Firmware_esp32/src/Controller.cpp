@@ -5,7 +5,7 @@
 #define PIECE_PRESSURE_THRESHOLD 80 //TODO: validate value;
 #define NO_PIECE_PRESSURE_THRESHOLD 100 //TODO: validate value;
 
-#define HOME_SPEED 100.0
+#define HOME_SPEED 50.0
 #define POSITION_UPDATE_FREQ 100
 
 const velocity_t homeVelocity = velocityToStep(HOME_SPEED);
