@@ -1,16 +1,18 @@
 #ifndef MOSFET_H
 #define MOSFET_H
 
+#include <stdint.h>
+
 class Mosfet
 {
 public:
-    Mosfet(int pin);
+    Mosfet(uint8_t pin);
     ~Mosfet();
     void on();
     void off();
-    bool getState();
+    bool getState() const;
 private:
-    int pin;    
+    uint8_t pin;
     bool state;
 };
 
