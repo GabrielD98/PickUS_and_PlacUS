@@ -63,9 +63,6 @@ void Controller::update()
         
         case MachineState::READY:
 
-            //request value is constrained and converted into step
-            command.requestedPosition = mmToStep(command.requestedPosition);
-
             switch (command.id)
             {
                 case CommandId::STOP:
@@ -159,6 +156,8 @@ void Controller::update()
 
 void Controller::setTargets(position_t position, float speed)
 {
+    position = mmToStep(position);
+
     long target[4] =
     {
         (long)position.x,
@@ -167,10 +166,19 @@ void Controller::setTargets(position_t position, float speed)
         (long)position.yaw
     };
 
-    motorX.setMaxSpeed(speed);
-    motorY.setMaxSpeed(speed);
-    motorZ.setMaxSpeed(speed);
-    motorYAW.setMaxSpeed(speed);
+    //TODO: create a speed struct/ use someting else
+    position_t convertedSpeed;
+    convertedSpeed.x = speed;
+    convertedSpeed.y = speed;
+    convertedSpeed.z = speed;
+    convertedSpeed.yaw = speed;
+
+    convertedSpeed = mmToStep(convertedSpeed);
+
+    motorX.setMaxSpeed(convertedSpeed.x);
+    motorY.setMaxSpeed(convertedSpeed.y);
+    motorZ.setMaxSpeed(convertedSpeed.z);
+    motorYAW.setMaxSpeed(convertedSpeed.yaw);
     
     motorSystem.moveTo(target);
 }
