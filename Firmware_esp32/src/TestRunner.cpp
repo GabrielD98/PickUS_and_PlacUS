@@ -316,9 +316,9 @@ bool TestRunner::TEST_GEOMETRY(void)
 	testPosition.z = -20;
 	testPosition.yaw = 180;
 
-	position_t stepsPosition = mmToStep(testPosition);
+	position_t stepsPosition = coordToStep(testPosition);
 
-	position_t mmPosition = stepToMm(stepsPosition);
+	position_t mmPosition = stepToCoord(stepsPosition);
 
 	float Threshold_x = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_X);
 	float Threshold_y = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_Y);

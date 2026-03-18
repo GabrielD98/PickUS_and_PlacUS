@@ -38,7 +38,7 @@ position_t dimensionLimits(position_t targetPosition)
     return targetPosition;
 }
 
-position_t mmToStep(position_t distance)
+position_t coordToStep(position_t distance)
 {
     position_t constrainedPosition = dimensionLimits(distance);
 
@@ -53,7 +53,7 @@ position_t mmToStep(position_t distance)
     return steps;
 }
 
-position_t stepToMm(position_t steps)
+position_t stepToCoord(position_t steps)
 {
     position_t distance;
 

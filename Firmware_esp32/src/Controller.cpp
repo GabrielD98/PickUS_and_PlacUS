@@ -143,7 +143,7 @@ void Controller::update()
         currentPosition.z = motorZ.currentPosition();
         currentPosition.yaw = motorYAW.currentPosition();
 
-        currentPosition = stepToMm(currentPosition);
+        currentPosition = stepToCoord(currentPosition);
         
         dataModel_t* dataModel = this->dataModel.get();
         dataModel->position = currentPosition;
@@ -156,7 +156,7 @@ void Controller::update()
 
 void Controller::setTargets(position_t position, float speed)
 {
-    position = mmToStep(position);
+    position = coordToStep(position);
 
     long target[4] =
     {
@@ -173,7 +173,7 @@ void Controller::setTargets(position_t position, float speed)
     convertedSpeed.z = speed;
     convertedSpeed.yaw = speed;
 
-    convertedSpeed = mmToStep(convertedSpeed);
+    convertedSpeed = coordToStep(convertedSpeed);
 
     motorX.setMaxSpeed(convertedSpeed.x);
     motorY.setMaxSpeed(convertedSpeed.y);

@@ -30,7 +30,7 @@
 #define CAM_DIAMETER 24.0 // (mm) // 28.58  
 
 position_t dimensionLimits(position_t targetPosition);
-position_t mmToStep(position_t distance);
-position_t stepToMm(position_t step);
+position_t coordToStep(position_t distance);
+position_t stepToCoord(position_t step);
 
 #endif
