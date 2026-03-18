@@ -175,7 +175,7 @@ class StorageWindow(QMainWindow):
 			print(f"Invalid input for the yaw position delta. Must be a float, is instead : {yaw_value}")
 			return None
 
-		return Position(x_value, y_value, z_value, yaw_value)
+		return Position(float(x_value), float(y_value), float(z_value), float(yaw_value))
 
 
 
