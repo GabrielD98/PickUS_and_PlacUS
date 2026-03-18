@@ -16,7 +16,7 @@
 #define P_YAW_MIN 0
 
 //Size definitions (mm)
-#define GEAR_RADIUS 8
+#define GEAR_RADIUS 8.0
 
 //Motor steps definitions 
 #define STEPS_REVOLUTION 200
@@ -26,8 +26,8 @@
 #define MICROSTEPPING_YAW 4
 
 //Distance per revolution
-#define MM_REVOLUTION 2*PI*GEAR_RADIUS
-#define CAM_DIAMETER 24 // (mm) // 28.58  
+#define MM_REVOLUTION (2.0*PI*GEAR_RADIUS)
+#define CAM_DIAMETER 24.0 // (mm) // 28.58  
 
 position_t dimensionLimits(position_t targetPosition);
 position_t mmToStep(position_t distance);
