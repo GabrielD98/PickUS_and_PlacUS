@@ -41,6 +41,8 @@ private :
     HomingState homingState;
     PickPlaceState pickPlaceState;
 
+    uint64_t lastPositionUpdateMS;
+
     void setTargets(position_t position, float speed);
     void goHome();
     void picking();

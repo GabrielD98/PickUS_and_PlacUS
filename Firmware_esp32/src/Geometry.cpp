@@ -46,7 +46,7 @@ position_t mmToStep(position_t distance)
     
     steps.x = round((constrainedPosition.x*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
     steps.y = round((constrainedPosition.y*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
-    steps.z = round((MICROSTEPPING_Z*STEPS_REVOLUTION*acos(1 + constrainedPosition.z/CAM_DIAMETER))/2*PI);
+    steps.z = round((MICROSTEPPING_Z*STEPS_REVOLUTION*acos(1 + constrainedPosition.z/CAM_DIAMETER))/(2*PI));
     steps.yaw = round((constrainedPosition.yaw*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
 
     return steps;

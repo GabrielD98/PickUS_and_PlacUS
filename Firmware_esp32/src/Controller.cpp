@@ -1,4 +1,5 @@
 #include "Controller.h"
+#include "Geometry.h"
 
 #define STEP_PER_HOME_LOOP -1
 #define PIECE_PRESSURE_THRESHOLD 80 //TODO: validate value;
@@ -6,6 +7,7 @@
 
 #define HOME_SPEED 1000
 #define HOME_ACCEL 2000
+#define POSITION_UPDATE_FREQ 10
 
 Controller::Controller()
     : motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR),
@@ -35,6 +37,8 @@ Controller::Controller()
     machineState = MachineState::READY;
     homingState = HomingState::HOMING_X;
     pickPlaceState = PickPlaceState::INIT;
+
+    lastPositionUpdateMS = millis();
 }
 
 Controller::~Controller()
@@ -48,7 +52,7 @@ void Controller::update()
 
     if(command.id == CommandId::STOP)
     {
-        machineState == MachineState::READY;
+        machineState = MachineState::READY;
     }
 
     switch (machineState)
@@ -58,6 +62,9 @@ void Controller::update()
             break;
         
         case MachineState::READY:
+
+            //request value is constrained and converted into step
+            command.requestedPosition = mmToStep(command.requestedPosition);
 
             switch (command.id)
             {
@@ -131,16 +138,23 @@ void Controller::update()
     
     }
 
-    position_t currentPosition;
-    currentPosition.x = motorX.currentPosition();
-    currentPosition.y = motorY.currentPosition();
-    currentPosition.z = motorZ.currentPosition();
-    currentPosition.yaw = motorYAW.currentPosition();
+    if((millis() - lastPositionUpdateMS) >= 1000/POSITION_UPDATE_FREQ)
+    {
+        position_t currentPosition;
+        currentPosition.x = motorX.currentPosition();
+        currentPosition.y = motorY.currentPosition();
+        currentPosition.z = motorZ.currentPosition();
+        currentPosition.yaw = motorYAW.currentPosition();
 
-    dataModel_t* dataModel = this->dataModel.get();
-    dataModel->position = currentPosition;
-    dataModel->state = machineState;
-    this->dataModel.release();
+        currentPosition = stepToMm(currentPosition);
+        
+        dataModel_t* dataModel = this->dataModel.get();
+        dataModel->position = currentPosition;
+        dataModel->state = machineState;
+        this->dataModel.release();
+        
+        lastPositionUpdateMS = millis();
+    }
 }
 
 void Controller::setTargets(position_t position, float speed)
@@ -272,11 +286,13 @@ void Controller::executePickPlace(PickPlaceMode mode)
 
         if(pickPlaceState == PickPlaceState::GOING_UP)
         {
-            position_t currentPosition = dataModel.get()->position;
-            dataModel.release();
+            position_t currentStepPosition;
+            currentStepPosition.x = motorX.currentPosition();
+            currentStepPosition.y = motorY.currentPosition();
+            currentStepPosition.z = 0;
+            currentStepPosition.yaw = motorYAW.currentPosition();
 
-            currentPosition.z = 0;
-            setTargets(currentPosition,motorZ.maxSpeed());
+            setTargets(currentStepPosition,motorZ.maxSpeed());
 
         }
 
