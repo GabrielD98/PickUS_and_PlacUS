@@ -45,8 +45,6 @@ private :
 
     void setTargets(position_t position, float speed);
     void goHome();
-    void picking();
-    void placing();
     void executePickPlace(PickPlaceMode mode);
 };
 
