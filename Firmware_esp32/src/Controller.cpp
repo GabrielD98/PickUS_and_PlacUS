@@ -1,12 +1,26 @@
 #include "Controller.h"
+#include "Geometry.h"
+
+#define STEP_PER_HOME_LOOP -1
+#define PIECE_PRESSURE_THRESHOLD 80 //TODO: validate value;
+#define NO_PIECE_PRESSURE_THRESHOLD 100 //TODO: validate value;
+
+#define HOME_SPEED 1000
+#define HOME_ACCEL 2000
+#define POSITION_UPDATE_FREQ 100
 
 Controller::Controller()
+    : motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR),
+      motorY(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR),
+      motorZ(AccelStepper::DRIVER, PIN_DZ_STEP, PIN_DZ_DIR),
+      motorYAW(AccelStepper::DRIVER, PIN_DYAW_STEP, PIN_DYAW_DIR),
+      limSwitchX(PIN_LIMSWITCH_X,true),
+      limSwitchY(PIN_LIMSWITCH_Y,true),
+      limSwitchZ(PIN_LIMSWITCH_Z,true),
+      valve(PIN_VALVE),
+      pump(PIN_PUMP),
+      pressureSensor(PIN_PSENSOR_CLK,PIN_PSENSOR_DATA)
 {
-    motorX = AccelStepper(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR);
-    motorY = AccelStepper(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR);
-    motorZ = AccelStepper(AccelStepper::DRIVER, PIN_DZ_STEP, PIN_DZ_DIR);
-    motorYAW = AccelStepper(AccelStepper::DRIVER, PIN_DYAW_STEP, PIN_DYAW_DIR);
-
     // Enable stepper drivers (active LOW)
     pinMode(PIN_DX_EN, OUTPUT);   digitalWrite(PIN_DX_EN, LOW);
     pinMode(PIN_DY_EN, OUTPUT);   digitalWrite(PIN_DY_EN, LOW);
@@ -16,145 +30,288 @@ Controller::Controller()
     motorSystem.addStepper(motorX);
     motorSystem.addStepper(motorY);
     motorSystem.addStepper(motorZ);
-    motorSystem.addStepper(motorYAW); 
+    motorSystem.addStepper(motorYAW);
+
+    pressureSensor.init(); //TODO create a controller init
+
+    machineState = MachineState::READY;
+    homingState = HomingState::HOMING_X;
+    pickPlaceState = PickPlaceState::INIT;
+
+    lastPositionUpdateMS = millis();
 }
 
 Controller::~Controller()
 {
-
 }
 
 void Controller::update()
 {
-    CommandId command_id = dataModel.get()->command.id;    
+    command_t command =  dataModel.get()->command;
     dataModel.release();
-    MachineState state_;
-    long initHeight = 0;
 
-    switch(command_id){
-        case CommandId::STOP: // STOP
-            state_ = MachineState::READY;
-            break;
-
-        case CommandId::MOVE: // MOVE
-            setTargets();
-            if (motorSystem.run())
-            {
-                state_ = MachineState::MOVING;
-            }
-            else
-            {
-                state_ = MachineState::READY;
-            }
-            break;
-
-        case CommandId::PICK: // PICK
-
-            initHeight = motorZ.currentPosition();
-            setTargets();
-            if(motorSystem.run())
-            {
-                state_ = MachineState::PICKING;
-            }
-            else if (first)
-            {
-                ValveState = !ValveState;
-                digitalWrite(PIN_VALVE, ValveState);
-                dataModel.get()->position.z = initHeight;
-                dataModel.release();
-                first = !first;
-            }
-            else
-            {
-                first = true; 
-                state_ = MachineState::READY;
-            }
-            break;
-
-        case CommandId::PLACE: // PLACE
-            
-            initHeight = motorZ.currentPosition();
-            setTargets();
-            if(motorSystem.run())
-            {
-                state_ = MachineState::PLACING;
-            }
-            else if (first)
-            {
-                ValveState = !ValveState;
-                digitalWrite(PIN_VALVE, ValveState);
-                dataModel.get()->position.z = initHeight;
-                dataModel.release();
-                first = !first;
-            }
-            else
-            {
-                first = true; 
-                state_ = MachineState::READY;
-            }
-            break;
-
-        case CommandId::HOME: // HOME
-            
-            setTargets();
-            // Run till encounter limit-switches, then update absolute coordinates
-            if (motorSystem.run())
-            {
-                state_ = MachineState::MOVING;
-            }
-            else
-            {
-                state_ = MachineState::READY;
-            }
-            break;
-
-        case CommandId::EMPTY: // EMPTY
-            if (motorSystem.run())
-            {
-            }
-            else 
-            {
-                state_ = MachineState::READY;
-            }
-            break;
-
-        default:
-        state_ = MachineState::READY;
-            break;
-        
+    if(command.id == CommandId::STOP)
+    {
+        machineState = MachineState::READY;
     }
 
-    position_t newPos;
-    newPos.x = motorX.currentPosition(); //New x position 
-    newPos.y = motorY.currentPosition(); //New y position
-    newPos.z = motorZ.currentPosition(); //New z position
-    newPos.yaw = motorYAW.currentPosition(); //New yaw position 
+    switch (machineState)
+    {
+        case MachineState::ERROR:
+            //TODO
+            break;
+        
+        case MachineState::READY:
 
-    dataModel.get()->position = newPos;
-    dataModel.release();
-    dataModel.get()->state = state_;
-    dataModel.release();
+            switch (command.id)
+            {
+                case CommandId::STOP:
+                    break;
+                    
+                case CommandId::MOVE:
+                    machineState = MachineState::MOVING;
+                    setTargets(command.requestedPosition,command.velocity);
+                    break;
+
+                case CommandId::PICK:
+                    setTargets(command.requestedPosition,command.velocity);
+                    machineState = MachineState::PICKING;
+                    break;
+
+                case CommandId::PLACE:
+                    setTargets(command.requestedPosition,command.velocity);
+                    machineState = MachineState::PLACING;
+                    break;
+
+                case CommandId::HOME:
+                    machineState = MachineState::HOMING;
+                    break;
+
+                case CommandId::EMPTY:
+                    break;
+
+            }
+    break;
+    
+    case MachineState::MOVING:
+
+        if(!motorSystem.run())
+        {
+            machineState = MachineState::READY;
+        }
+        break;
+    
+    case MachineState::PLACING:
+
+        executePickPlace(PickPlaceMode::PLACE);
+
+        if(pickPlaceState == PickPlaceState::DONE)
+        {
+            machineState = MachineState::READY;
+            pickPlaceState = PickPlaceState::INIT;
+        }
+        break;
+    
+    case MachineState::PICKING:
+
+        executePickPlace(PickPlaceMode::PICK);
+
+        if(pickPlaceState == PickPlaceState::DONE)
+        {
+            machineState = MachineState::READY;
+            pickPlaceState = PickPlaceState::INIT;
+        }
+        break;
+    
+    case MachineState::HOMING:
+
+        goHome();
+        if(homingState == HomingState::HOMING_DONE)
+        {
+            machineState = MachineState::READY;
+            homingState = HomingState::HOMING_X;
+        }
+        break;
+    
+    }
+
+    if((millis() - lastPositionUpdateMS) >= 1000/POSITION_UPDATE_FREQ)
+    {
+        position_t currentPosition;
+        currentPosition.x = motorX.currentPosition();
+        currentPosition.y = motorY.currentPosition();
+        currentPosition.z = motorZ.currentPosition();
+        currentPosition.yaw = motorYAW.currentPosition();
+
+        currentPosition = stepToCoord(currentPosition);
+        
+        dataModel_t* dataModel = this->dataModel.get();
+        dataModel->position = currentPosition;
+        dataModel->state = machineState;
+        this->dataModel.release();
+        
+        lastPositionUpdateMS = millis();
+    }
 }
 
-void Controller::setTargets()
-{ 
-    float speed = dataModel.get()->command.velocity; // Set the variable speed to the requested velocity in the command 
-    dataModel.release();
-    position_t position = dataModel.get()->command.requestedPosition; // Sets the variable to the position requested by command 
-    dataModel.release();
+void Controller::setTargets(position_t position, float speed)
+{
+    position = coordToStep(position);
 
     long target[4] =
     {
-        static_cast<long>(position.x),
-        static_cast<long>(position.y),
-        static_cast<long>(position.z),
-        static_cast<long>(position.yaw)
+        (long)position.x,
+        (long)position.y,
+        (long)position.z,
+        (long)position.yaw
     };
 
-    motorX.setMaxSpeed(speed);
-    motorY.setMaxSpeed(speed);
-    motorZ.setMaxSpeed(speed);
-    motorYAW.setMaxSpeed(speed);
+    velocity_t convertedSpeed = velocityToStep(speed);
+
+    motorX.setMaxSpeed(convertedSpeed.x);
+    motorY.setMaxSpeed(convertedSpeed.y);
+    motorZ.setMaxSpeed(convertedSpeed.z);
+    motorYAW.setMaxSpeed(convertedSpeed.yaw);
     
     motorSystem.moveTo(target);
+}
+
+
+void Controller::goHome()
+{
+    switch (homingState)
+    {
+    case HomingState::HOMING_X:
+
+        if(limSwitchX.isTriggered())
+        {
+            motorX.setCurrentPosition(0);
+            homingState = HomingState::HOMING_Y;
+        }
+        else
+        {
+            motorX.setMaxSpeed(HOME_SPEED);
+            motorX.setAcceleration(HOME_ACCEL);
+            motorX.move(STEP_PER_HOME_LOOP);
+            motorX.run();
+        }
+        break;
+
+    case HomingState::HOMING_Y:
+
+        if(limSwitchY.isTriggered())
+        {
+            motorY.setCurrentPosition(0);
+            homingState = HomingState::HOMING_Z;
+        }
+        else
+        {
+            motorY.setMaxSpeed(HOME_SPEED);
+            motorY.setAcceleration(HOME_ACCEL);
+            motorY.move(STEP_PER_HOME_LOOP);
+            motorY.run();
+        }
+        break;
+
+    case HomingState::HOMING_Z:
+
+        if(limSwitchZ.isTriggered())
+        {
+            motorZ.setCurrentPosition(0);
+            homingState = HomingState::HOMING_YAW;
+        }
+        else
+        {
+            motorZ.setMaxSpeed(HOME_SPEED);
+            motorZ.setAcceleration(HOME_ACCEL);
+            motorZ.move(STEP_PER_HOME_LOOP);
+            motorZ.run();
+        }
+        break;
+        
+    case HomingState::HOMING_YAW:
+
+        motorYAW.setCurrentPosition(0);
+        homingState = HomingState::HOMING_DONE;
+        break;
+
+    case HomingState::HOMING_DONE:
+        break;
+    }
+}
+
+
+void Controller::executePickPlace(PickPlaceMode mode)
+{
+    switch (pickPlaceState)
+    {
+    case PickPlaceState::INIT:
+
+        if (mode == PickPlaceMode::PICK)
+        {
+            pump.on();
+            valve.on();
+        }
+        else
+        {
+            valve.off();
+        }
+
+        pickPlaceState = PickPlaceState::GOING_DOWN;
+        break;
+
+    case PickPlaceState::GOING_DOWN:
+
+        if (!motorSystem.run())
+            pickPlaceState = PickPlaceState::CONTACT;
+        break;
+
+    case PickPlaceState::CONTACT:
+
+        if (mode == PickPlaceMode::PICK)
+        {
+            valve.off();
+            if(pressureSensor.getPressureKPa() < PIECE_PRESSURE_THRESHOLD) //TODO: Add timeout
+            {
+                pickPlaceState = PickPlaceState::GOING_UP;
+            }
+        }
+        else
+        {
+            valve.on();
+            if(pressureSensor.getPressureKPa() > NO_PIECE_PRESSURE_THRESHOLD) //TODO: Add timeout
+            {
+                pickPlaceState = PickPlaceState::GOING_UP;
+            }
+        }
+
+        if(pickPlaceState == PickPlaceState::GOING_UP)
+        {
+            position_t currentStepPosition;
+            currentStepPosition.x = motorX.currentPosition();
+            currentStepPosition.y = motorY.currentPosition();
+            currentStepPosition.z = 0;
+            currentStepPosition.yaw = motorYAW.currentPosition();
+
+            setTargets(currentStepPosition,motorZ.maxSpeed());
+
+        }
+
+        break;
+
+    case PickPlaceState::GOING_UP:
+
+        if (!motorSystem.run())
+        {
+            pickPlaceState = PickPlaceState::DONE;
+        }
+        if (mode == PickPlaceMode::PLACE)
+        {
+            valve.off(); pump.off();
+        }
+        break;
+
+    case PickPlaceState::DONE:
+        break;
+    }
 }
