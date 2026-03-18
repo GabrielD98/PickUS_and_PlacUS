@@ -15,6 +15,7 @@ void setup()
 {
 	
 	Serial.begin(115200);
+	delay(3000);
 	while (!Serial) { delay(10); } // Block until host opens the serial port
 	if(ENABLE_TEST)
 	{
@@ -78,7 +79,8 @@ void setup()
 
 
 void loop()
-{}
+{
+}
 
 
 /**

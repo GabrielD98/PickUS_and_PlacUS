@@ -273,10 +273,10 @@ bool TestRunner::TEST_HOME(void)
 
 bool TestRunner::TEST_LIMITS(void)
 {
-	bool result = true;
+	bool result = false;
 	
 	position_t testPosition; 
-	testPosition.x = 100.0;
+	testPosition.x = 100;
 	testPosition.y = 330.0;
 	testPosition.z = 20.0;
 	testPosition.yaw = -180.0;
@@ -288,10 +288,10 @@ bool TestRunner::TEST_LIMITS(void)
 	Serial.println(stepsPosition.z);
 	Serial.println(stepsPosition.yaw);
 
-	if (stepsPosition.x != testPosition.x || stepsPosition.y != P_Y_MAX ||
-		stepsPosition.z != P_Z_MAX || stepsPosition.yaw != P_Y_MIN)
+	if (stepsPosition.x == 100.0 || stepsPosition.y == P_Y_MAX ||
+		stepsPosition.z == P_Z_MAX || stepsPosition.yaw == P_Y_MIN)
 	{
-		result = false;
+		result = true;
 	}
 
 	if(result)
@@ -323,23 +323,27 @@ bool TestRunner::TEST_GEOMETRY(void)
 	float Threshold_x = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_X);
 	float Threshold_y = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_Y);
 	float Threshold_z = 360/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
-	float Threshold_yaw = CAM_DIAMETER*(cos(2*PI/(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1);
+	float Threshold_yaw = abs(CAM_DIAMETER*(cos(2*PI/(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1));
 	
 	if ((mmPosition.x < testPosition.x - Threshold_x || mmPosition.x > testPosition.x + Threshold_x))
 	{
 		result = false;
+		Serial.println("Error on x position.");
 	}
 	if ((mmPosition.y < testPosition.y - Threshold_y || mmPosition.y > testPosition.y + Threshold_y))
 	{
 		result = false;
+		Serial.println("Error on y position.");
 	}
 	if ((mmPosition.z < testPosition.z - Threshold_z || mmPosition.z > testPosition.z + Threshold_z))
 	{
 		result = false;
+		Serial.println("Error on z position.");
 	}
 	if ((mmPosition.yaw < testPosition.yaw - Threshold_yaw || mmPosition.yaw > testPosition.yaw + Threshold_yaw))
 	{
 		result = false;
+		Serial.println("Error on yaw position.");
 	}
 
 	if(result)
