@@ -1,9 +1,9 @@
+#ifndef GEOMETRY_H
+#define GEOMETRY_H
+
 #include <Arduino.h>
 #include "../lib/data.hpp"
 #include <cmath>
-
-#ifndef GEOMETRY_H
-#define GEOMETRY_H
 
 //Positions definitions (mm)
 #define P_X_MAX 306.39
