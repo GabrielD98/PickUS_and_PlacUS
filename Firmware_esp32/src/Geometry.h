@@ -29,8 +29,9 @@
 #define MICROSTEPPING_YAW 4
 
 //Distance per revolution
-#define MM_REVOLUTION (2.0*PI*GEAR_RADIUS)
+#define MM_REVOLUTION 40.0
 #define CAM_DIAMETER 24.0 // (mm) // 28.58  
+#define CAM_RADIUS (CAM_DIAMETER / 2.0)
 
 position_t dimensionLimits(position_t targetPosition);
 position_t coordToStep(position_t distance);

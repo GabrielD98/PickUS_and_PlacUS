@@ -322,8 +322,8 @@ bool TestRunner::TEST_GEOMETRY(void)
 
 	float Threshold_x = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_X);
 	float Threshold_y = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_Y);
-	float Threshold_z = 360/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
-	float Threshold_yaw = abs(CAM_DIAMETER*(cos(2*PI/(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1));
+	float Threshold_z = abs(CAM_RADIUS*(cos(2*PI/(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1));
+	float Threshold_yaw = 360/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
 	
 	if ((mmPosition.x < testPosition.x - Threshold_x || mmPosition.x > testPosition.x + Threshold_x))
 	{

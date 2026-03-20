@@ -186,7 +186,7 @@ void Controller::goHome()
         case HomingState::INIT:
             homingState = HomingState::Z;
             motorZ.setMaxSpeed(homeVelocity.z / 10.0f);
-            motorZ.setSpeed(HOME_DIRECTION * (homeVelocity.z / 10.0f));
+            motorZ.setSpeed(HOME_DIRECTION * (homeVelocity.z / 2.0f));
             break;
 
         case HomingState::Z:
