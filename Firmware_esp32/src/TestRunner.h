@@ -2,6 +2,7 @@
 #define TESTRUNNER_H
 
 #include "Controller.h"
+#include "TestMove.h"
 
 class TestRunner {
 public:
