@@ -59,7 +59,7 @@ class SliceInfoWidget(QWidget):
     def slice(self):
         
         commands = self.slicer.slice(self.pieces,
-                                          Position(0,0,0,0),    #TODO calbiration pos of PCB
+                                          self.calibration_pos,    #TODO calbiration pos of PCB
                                           Position(0,0,0,0),   #TODO offset du z
                                           50)
         

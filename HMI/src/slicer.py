@@ -60,7 +60,7 @@ class Slicer :
             position=None,
             piece=None
         ))
-
+        print(offset)
         z_mask = Position(1,1,0,1)
         for piece in pieces:
             
@@ -100,7 +100,7 @@ class Slicer :
             commands.append(Command(
                 commandId=CommandId.MOVE,
                 velocity=speed,
-                position= (piece.position*z_mask)+ offset,
+                position= (piece.position+ offset)*z_mask,
                 piece=piece
             ))
 
@@ -117,7 +117,7 @@ class Slicer :
             commands.append(Command(
                 commandId=CommandId.MOVE,
                 velocity=speed,
-                position= (piece.position*z_mask)+ offset,
+                position= (piece.position+ offset)*z_mask,
                 piece=piece
             ))          
             
