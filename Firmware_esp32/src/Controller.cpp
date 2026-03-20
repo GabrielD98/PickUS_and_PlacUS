@@ -186,7 +186,7 @@ void Controller::goHome()
         case HomingState::INIT:
             homingState = HomingState::Z;
             motorZ.setMaxSpeed(homeVelocity.z / 10.0f);
-            motorZ.setSpeed(HOME_DIRECTION * (homeVelocity.z / 10.0f));
+            motorZ.setSpeed(HOME_DIRECTION * (homeVelocity.z / 2.0f));
             break;
 
         case HomingState::Z:
@@ -273,7 +273,7 @@ void Controller::executePickPlace(PickPlaceMode mode)
             valve.off();
             if(pressureSensor.getPressureKPa() < PIECE_PRESSURE_THRESHOLD) //TODO: Add timeout
             {
-                pickPlaceState = PickPlaceState::GOING_UP;
+                pickPlaceState = PickPlaceState::DONE;
             }
         }
         else
@@ -281,37 +281,17 @@ void Controller::executePickPlace(PickPlaceMode mode)
             valve.on();
             if(pressureSensor.getPressureKPa() > NO_PIECE_PRESSURE_THRESHOLD) //TODO: Add timeout
             {
-                pickPlaceState = PickPlaceState::GOING_UP;
+                pickPlaceState = PickPlaceState::DONE;
             }
-        }
-
-        if(pickPlaceState == PickPlaceState::GOING_UP)
-        {
-            position_t currentStepPosition;
-            currentStepPosition.x = motorX.currentPosition();
-            currentStepPosition.y = motorY.currentPosition();
-            currentStepPosition.z = 0;
-            currentStepPosition.yaw = motorYAW.currentPosition();
-
-            setTargets(currentStepPosition,motorZ.maxSpeed());
-
         }
 
         break;
 
-    case PickPlaceState::GOING_UP:
-
-        if (!motorSystem.run())
-        {
-            pickPlaceState = PickPlaceState::DONE;
-        }
+    case PickPlaceState::DONE:
         if (mode == PickPlaceMode::PLACE)
         {
             valve.off(); pump.off();
         }
-        break;
-
-    case PickPlaceState::DONE:
         break;
     }
 }

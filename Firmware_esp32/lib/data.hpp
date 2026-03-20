@@ -63,7 +63,6 @@ enum class PickPlaceState : uint8_t
 	INIT = 0,
 	GOING_DOWN = 1,
 	CONTACT = 2,
-	GOING_UP = 3,
 	DONE = 4,
 };
 

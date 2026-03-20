@@ -46,7 +46,7 @@ position_t coordToStep(position_t distance)
     
     steps.x = round((constrainedPosition.x*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
     steps.y = round((constrainedPosition.y*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
-    steps.z = round((MICROSTEPPING_Z*STEPS_REVOLUTION*acos(1 + constrainedPosition.z/CAM_DIAMETER))/(2*PI));
+    steps.z = round((MICROSTEPPING_Z*STEPS_REVOLUTION*acos(1 + constrainedPosition.z/CAM_RADIUS))/(2*PI));
     steps.yaw = round((constrainedPosition.yaw*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
 
 
@@ -59,7 +59,7 @@ position_t stepToCoord(position_t steps)
 
     distance.x = (steps.x*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_X);
     distance.y = (steps.y*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_Y);
-    distance.z = CAM_DIAMETER*(cos((steps.z*2.0*PI)/float(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1.0);
+    distance.z = CAM_RADIUS*(cos((steps.z*2.0*PI)/float(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1.0);
     distance.yaw = (steps.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
 
     return distance;
@@ -73,7 +73,7 @@ velocity_t velocityToStep(float velocity)
     stepsPerSec.x = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
     stepsPerSec.y = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
     // Z has a nonlinear cam profile; use an average mm->steps velocity mapping that stays valid.
-    stepsPerSec.z = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_Z)/(4.0f*CAM_DIAMETER));
+    stepsPerSec.z = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_Z)/(4.0f*CAM_RADIUS));
     stepsPerSec.yaw = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
 
 
