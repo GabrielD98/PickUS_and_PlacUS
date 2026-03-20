@@ -22,15 +22,16 @@ import utils
 from data import Command, Piece, Position
 from slicer import Slicer
 from storage import Storage
-
+from gui.gui_data_manager import GuiDataManager
 
 class SliceInfoWidget(QWidget):
 
-    def __init__(self):
+    def __init__(self, calibration_pos:Position):
         super().__init__()
         self.slicer = Slicer()
+        self.calibration_pos = calibration_pos
+        self.dataManager = GuiDataManager()
         self.storage = Storage()
-        self.commands:List[Command] = []
         self.pieces:List[Piece] = None
 
 
@@ -57,14 +58,14 @@ class SliceInfoWidget(QWidget):
 
     def slice(self):
         
-        self.commands = self.slicer.slice(self.pieces,
+        commands = self.slicer.slice(self.pieces,
                                           Position(0,0,0,0),    #TODO calbiration pos of PCB
-                                          Position(0,0,-1,0),   #TODO offset du z
-                                          1)
+                                          Position(0,0,0,0),   #TODO offset du z
+                                          50)
         
-
+        self.dataManager.set_pnp_commands(commands)
         utils.clearLayout(self.scrollLayout)
-        for command in self.commands:
+        for command in commands:
             position = command.position
 
             commandInfo = f"Command : {command.commandId} | " 
@@ -73,7 +74,7 @@ class SliceInfoWidget(QWidget):
                 piece_info = f"Piece : {command.piece.package} | "
             position_info = ""
             if command.piece is not None:
-                position_info = f"Position : {position.x}  {position.x}  {position.x}  {position.x} | "
+                position_info = f"Position : {position.x}  {position.y}  {position.z}  {position.yaw} | "
             speed_info = f"Speed : {command.velocity}"
 
 
