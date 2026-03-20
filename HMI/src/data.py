@@ -77,13 +77,25 @@ class Position:
     
     def __mul__(self, other):
         """Allows a position to be multiplied by a scalar"""
-        if not isinstance(other, numbers.Number) and not isinstance(other, bool):
-            return NotImplemented
-        x = self.x * other
-        y = self.y * other
-        z = self.z * other
-        yaw = self.yaw * other
-        return Position(x, y, z, yaw)
+        # Case 1: Multiplication by another Position (Component-wise)
+        if isinstance(other, Position):
+            return Position(
+                self.x * other.x,
+                self.y * other.y,
+                self.z * other.z,
+                self.yaw * other.yaw
+            )
+
+        # Case 2: Multiplication by a scalar (int, float, bool)
+        if isinstance(other, (numbers.Number, bool)):
+            return Position(
+                self.x * other,
+                self.y * other,
+                self.z * other,
+                self.yaw * other
+            )
+
+        return NotImplemented
 
     def __rmul__(self, other):
         """Allows a position to be multiplied by a scalar"""
