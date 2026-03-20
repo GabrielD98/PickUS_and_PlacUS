@@ -1,6 +1,64 @@
 # PickUS and PlacUS
 
-A 4-axis (X, Y, Z, Yaw) PCB pick-and-place machine built for the S4 robotics project at Université de Sherbrooke. The machine uses stepper motors, a vacuum pump/valve system, and a pressure sensor to pick and place SMD components onto a PCB.
+A 4-axis (X, Y, Z, Yaw) PCB pick-and-place machine for automated SMD component assembly. Built for the S4 robotics project at Université de Sherbrooke.
+
+## Table of Contents
+
+1. [About](#about)
+2. [Features](#features)
+3. [Tech Stack](#tech-stack)
+4. [Project Structure](#project-structure)
+5. [Quick Start](#quick-start)
+6. [Roadmap](#roadmap)
+7. [Contributing](#contributing)
+8. [License](#license)
+9. [Contact](#contact)
+
+---
+
+## About
+
+### Problem
+Manual SMD component placement onto PCBs is time-consuming and error-prone. Small labs and educational institutions need an affordable pick-and-place machine for fast prototyping.
+
+### Solution
+PickUS and PlacUS is an open-source, 4-axis automated pick-and-place machine that:
+- Picks SMD components using a vacuum pump system
+- Places them onto PCBs with positional accuracy
+- Uses stepper motors for precise X, Y, Z, and rotational (Yaw) control
+- Integrates with KiCad placement files for automated workflows
+
+### Audience
+Ideal for robotics project teams, PCB assembly labs, and makers who need to automate component placement without high capital investment.
+
+---
+
+## Features
+
+- **4-Axis Control**: X, Y, Z positioning + Yaw rotation for flexible placement
+- **Vacuum Pick System**: Pneumatic pump and valve for reliable component pickup
+- **Pressure Sensing**: Real-time feedback to detect successful component pickup
+- **End-Stop Protection**: Z-axis limit switch to prevent collision damage
+- **ESP32-S3 Controller**: Over-the-air updateable firmware with multiple I/O options
+- **Python HMI**: Cross-platform graphical interface for machine control
+- **KiCad Integration**: Direct import of `.pos` placement files for batch production
+- **Modular Design**: Separate electrical, firmware, and HMI components
+
+---
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Microcontroller | ESP32-S3 (32-bit, dual-core, 240 MHz) |
+| Motor Control | Stepper drivers (NEMA-17 steppers on X,Y,Z and NEMA_8 on YAW) |
+| Firmware | C++ with PlatformIO / Arduino framework |
+| Motor Library | [AccelStepper](https://github.com/waspinator/AccelStepper) |
+| Communication | UART (serial) at 115200 baud |
+| HMI | Python 3 + PyQt5/PySimpleGUI |
+| Serial Library | `pyserial` |
+| PCB Design | KiCad 8+ |
+| Schematic | `circuitPNP/` main board + `PCB_test/` test board |
 
 ---
 
@@ -8,135 +66,98 @@ A 4-axis (X, Y, Z, Yaw) PCB pick-and-place machine built for the S4 robotics pro
 
 ```
 PickUS_and_PlacUS/
-├── Electrical/         # KiCad schematics and PCB layouts
-├── Firmware_esp32/     # ESP32-S3 firmware (PlatformIO / Arduino framework)
-└── HMI/                # Python host interface (PC-side controller)
+├── Electrical/              # KiCad schematics and PCB layouts
+│   ├── circuitPNP/          # Main control board
+│   ├── PCB_test/            # Test board for validation
+│   └── README.md            # Electrical recreation guide
+├── Firmware_esp32/          # ESP32-S3 firmware (PlatformIO)
+│   ├── src/                 # C++ source files
+│   ├── lib/                 # Libraries (AccelStepper, etc.)
+│   ├── test/                # Unit tests
+│   ├── include/             # Header files
+│   └── platformio.ini       # PlatformIO config
+└── HMI/                     # Python host interface
+    ├── src/                 # Main HMI modules
+    │   ├── gui/             # GUI components
+    │   ├── communication.py # Serial protocol
+    │   ├── controller.py    # Command orchestration
+    │   ├── main.py          # Entry point
+    │   └── ...
+    └── tests/               # Unit and integration tests
 ```
 
 ---
 
-## Firmware (ESP32-S3)
+## Quick Start
 
-### Prerequisites
+Each subsystem has its own detailed README:
 
-- [PlatformIO](https://platformio.org/) (VS Code extension recommended)
-- ESP32-S3 DevKitC-1 board
-
-### Setup & Flash
-
-1. Open `Firmware_esp32/` as a PlatformIO project.
-2. Build and upload:
-   ```
-   pio run --target upload
-   ```
-3. Open the serial monitor at **115200 baud**:
-   ```
-   pio device monitor
-   ```
-
-### Pin Mapping (`BoardConfig.h`)
-
-| Signal         | Pin |
-|----------------|-----|
-| Motor X DIR/STEP/EN | 6 / 7 / 15 |
-| Motor Y DIR/STEP/EN | 16 / 17 / 18 |
-| Motor Z DIR/STEP/EN | 3 / 46 / 11 |
-| Motor YAW DIR/STEP/EN | 12 / 13 / 14 |
-| Vacuum pump    | 5   |
-| Valve          | 4   |
-| Limit switch Z | 37  |
-| Pressure sensor CLK/DATA | 2 / 1 |
-| CAN TX/RX      | 47 / 48 |
-
-### Key Modules
-
-| Module | Description |
-|--------|-------------|
-| `Controller` | Drives the four stepper motors using AccelStepper/MultiStepper; calls `update()` every loop iteration. |
-| `DataModel` | Thread-safe shared state between the control task and the communication task. |
-| `communication` | UART serial protocol for receiving commands from the HMI. |
-| `pressureSensor` | Reads the pressure sensor over bit-bang SPI to detect when a component is picked. |
-
-### Command IDs
-
-| Command | Value | Description |
-|---------|-------|-------------|
-| `STOP`  | 0 | Stop all motors |
-| `MOVE`  | 1 | Move to a target position (x, y, z, yaw) at a given velocity |
-| `PICK`  | 2 | Pick a component (lower Z, activate pump) |
-| `PLACE` | 3 | Place a component (lower Z, open valve) |
-| `HOME`  | 4 | Run homing sequence |
-| `EMPTY` | 5 | No-op / idle command |
-
-### Machine States
-
-| State | Description |
-|-------|-------------|
-| `READY` | Idle, waiting for a command |
-| `MOVING` | Executing a MOVE command |
-| `PICKING` | Executing a PICK sequence |
-| `PLACING` | Executing a PLACE sequence |
-| `ERROR` | Fault condition |
-| `DISCONNECTED` | No active connection from the HMI |
+- **[Firmware_esp32/](Firmware_esp32/)** — ESP32-S3 firmware setup and configuration
+- **[HMI/](HMI/)** — Python host interface installation and usage
+- **[Electrical/](Electrical/)** — PCB design and electrical recreation guide
 
 ---
 
-## HMI (Python)
+## Getting Started
 
-The HMI runs on a PC and communicates with the ESP32 over USB serial.
+### For Developers
 
-### Prerequisites
+1. Clone this repository
+2. Navigate to the subsystem folder of interest (Firmware, HMI, or Electrical)
+3. Follow the README in that folder for detailed setup instructions
 
-```
-pip install pyserial
-```
+### Project Overview
 
-### Running the HMI
-
-```
-cd HMI/src
-python main.py
-```
-
-By default `main.py` connects to **COM19** at **115200 baud**. Edit the port in `main.py` before running:
-
-```python
-test.connectionToMachine("COM19", 115200)  # change COM19 to your port
-```
-
-### Key Modules
-
-| Module | Description |
-|--------|-------------|
-| `Controller` | Orchestrates communication, state tracking, and command queuing. Runs the control loop in a background thread. |
-| `Communication` | Low-level UART wrapper around `pyserial` (`open`, `close`, `sendData`, `receiveData`). |
-| `FileInterpreter` | Parses a KiCad `.pos` placement file and returns a list of `Piece` objects. |
-| `Slicer` | Takes the list of pieces and generates an ordered list of `Command` objects (pick → move → place) for each component. |
-| `Storage` | Tracks which components are available in the feeder trays. |
-
-### Typical Workflow
-TODO
-### Running the Tests
-
-```
-cd HMI/tests
-python run_test.py
-```
+| Subsystem | Technology | Purpose |
+|-----------|-----------|---------|
+| **Firmware_esp32** | C++ with PlatformIO | Real-time motor control, sensor reading, and command execution |
+| **HMI** | Python 3 + PyQt5 | Cross-platform UI for machine operation and KiCad file import |
+| **Electrical** | KiCad 8+ | Circuit design and PCB layouts |
 
 ---
 
-## Electrical
+## Roadmap
 
-KiCad schematics and PCB layouts are located in `Electrical/`:
-
-- `circuitPNP/` — main control board schematic and PCB
-- `PCB_test/` — test board for validating the pick and place
+- [ ] Multi-head support for parallel placement
+- [ ] Vision-based component alignment
+- [ ] Auto feeder implementation
+- [ ] Machine learning for optimal pick order optimization
 
 ---
 
-## Dependencies
+## Contributing
 
-| Component | Dependency |
-|-----------|------------|
-| Firmware | [AccelStepper](https://github.com/waspinator/AccelStepper) (`waspinator/AccelStepper@^1.64`) |
-| HMI | `pyserial` |
+Contributions are welcome!
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Commit your changes: `git commit -m "Add your feature"`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Open a pull request
+
+Please ensure all tests pass before submitting a PR.
+
+---
+
+## License
+
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+
+---
+
+## Contact
+
+**Project Maintainers**: S4 Robotics Team  
+**Institution**: Université de Sherbrooke  
+**Email**: [your-email@example.com]  
+**Repository**: [https://github.com/GabrielD98/PickUS_and_PlacUS](https://github.com/GabrielD98/PickUS_and_PlacUS)
+
+---
+
+## Acknowledgments
+
+- [PlatformIO](https://platformio.org/) for embedded development tools
+- [KiCad](https://www.kicad.org/) for PCB design
+- [AccelStepper Library](https://www.airspayce.com/mikem/arduino/AccelStepper/) for motor control
+- Université de Sherbrooke robotics program
+- All contributors and testers
