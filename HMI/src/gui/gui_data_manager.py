@@ -51,7 +51,11 @@ class GuiDataManager:
     def start_pnp(self):
         if self.blocked:
             return
+        self.controller.requestTransition(TransitionRequest.TO_RUNNING)
         self.controller.queueCommands(self.commands)
+        print(self.commands)
+        print("STARTING THE SLICE")
+        
 
 
     def pause_pnp(self):

@@ -100,7 +100,7 @@ class Interface(QMainWindow):
 
 
 		slice_layout = QHBoxLayout()
-		self.slice_widget = SliceInfoWidget()
+		self.slice_widget = SliceInfoWidget(self.calibration_pos)
 		slice_layout.addWidget(self.slice_widget)
 		left_layout.addLayout(slice_layout)
 

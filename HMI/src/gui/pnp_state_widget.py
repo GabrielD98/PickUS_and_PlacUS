@@ -62,6 +62,7 @@ class PnPStateWidget(QWidget):
         self.position = self.dataManager.get_gripper_position()
         self.position_label.setText(f"Position : {self.position.x:.2f}, {self.position.y:.2f},"
                                      + f" {self.position.z:.2f}, {self.position.yaw:.2f}")
+        print("STATE : ", self.dataManager.controller.getState())
         
 
     def scan_serial_ports(self) -> List[str]:

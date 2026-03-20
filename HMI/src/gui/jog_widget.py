@@ -296,6 +296,9 @@ class JogWidget(QWidget):
             print(f"Invalid input for the yaw value. Must be an interger, is instead : {yaw_value}")
             return
         
+        current_pos = self.data_manager.get_gripper_position()
+        self.move_gripper(target=Position(current_pos.x, current_pos.y, 0, current_pos.yaw))
+        self.move_gripper(target=Position(float(x_value), float(y_value), 0, float(yaw_value)))
         self.move_gripper(target=Position(float(x_value), float(y_value), float(z_value), float(yaw_value)))
 
 

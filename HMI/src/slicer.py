@@ -5,7 +5,7 @@ from storage import Storage
 from data import *
 
 #TODO ficiher de constante?
-Z_SPEED = 1.0 #cm/s
+Z_SPEED = 10.0 #mm/s
 
 class Slicer :
     """
@@ -53,6 +53,13 @@ class Slicer :
             storage_offset[piece] = Position(0, 0, 0, 0)
 
         commands:List[Command] = []
+
+        commands.append(Command(
+            commandId=CommandId.HOME,
+            velocity=speed,
+            position=None,
+            piece=None
+        ))
 
         for piece in pieces:
             
