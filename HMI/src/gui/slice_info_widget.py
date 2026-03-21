@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+import numpy as np
 import time
 from typing import List
 from PyQt5.QtCore import Qt
@@ -81,6 +83,8 @@ class SliceInfoWidget(QWidget):
             comLabel = QLabel(commandInfo+piece_info+position_info+speed_info)
             self.scrollLayout.addWidget(comLabel)
 
+            self.show_graph()
+
 
     def set_pieces(self, pieces:List[Piece]):
         self.pieces = pieces
@@ -93,3 +97,27 @@ class SliceInfoWidget(QWidget):
         utils.clearLayout(self.scrollLayout)
         self.slice_button.setEnabled(False)
 
+
+    def show_graph(self):
+
+        piece_dict_x:dict[float] = {}
+        piece_dict_y:dict[float] = {}
+
+        for piece in self.pieces:
+            if not piece in piece_dict_x:
+                piece_dict_x[piece] = [piece.position.x]
+                piece_dict_y[piece] = [piece.position.y]
+            else:
+                piece_dict_x[piece].append(piece.position.x)
+                piece_dict_y[piece].append(piece.position.y)
+
+        fig, ax = plt.subplots()
+        #TODO c'est trassh une liste de couleurs de meme 
+        colors = ['blue','red','green']
+        i = 0
+
+        for key in piece_dict_x:
+            ax.plot(piece_dict_x[key],piece_dict_y[key],'o', color = colors[i])
+            i = i+1
+
+        plt.show()

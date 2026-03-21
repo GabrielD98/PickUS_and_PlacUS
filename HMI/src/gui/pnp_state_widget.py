@@ -33,7 +33,8 @@ class PnPStateWidget(QWidget):
         self.dataManager = GuiDataManager()
 
         connection_layout = QHBoxLayout()
-        ports = self.scan_serial_ports()
+        #ports = self.scan_serial_ports()
+        ports = []
         self.port_options = QComboBox(self)
         self.port_options.addItems(ports)
         self.connection_label = QLabel()
