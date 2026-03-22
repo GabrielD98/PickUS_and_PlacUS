@@ -282,16 +282,14 @@ void Controller::executePickPlace(PickPlaceMode mode)
             if(pressureSensor.getPressureKPa() > NO_PIECE_PRESSURE_THRESHOLD) //TODO: Add timeout
             {
                 pickPlaceState = PickPlaceState::DONE;
+                valve.off();
+                pump.off();
             }
         }
 
         break;
 
     case PickPlaceState::DONE:
-        if (mode == PickPlaceMode::PLACE)
-        {
-            valve.off(); pump.off();
-        }
         break;
     }
 }
