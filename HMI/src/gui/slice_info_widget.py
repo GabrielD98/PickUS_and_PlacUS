@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib.patches as patches
 import time
 from typing import List
 from PyQt5.QtCore import Qt
@@ -112,6 +112,10 @@ class SliceInfoWidget(QWidget):
                 piece_dict_y[piece].append(piece.position.y)
 
         fig, ax = plt.subplots()
+        rect = patches.Rectangle((46,-43), width=74, height=-42,
+                         linewidth=2, edgecolor = 'black', facecolor='none')
+        ax.add_patch(rect)
+
         #TODO c'est trassh une liste de couleurs de meme 
         colors = ['blue','red','green']
         i = 0
@@ -120,4 +124,6 @@ class SliceInfoWidget(QWidget):
             ax.plot(piece_dict_x[key],piece_dict_y[key],'o', color = colors[i])
             i = i+1
 
+        ax.set_xlim(40, 140)
+        ax.set_ylim(-100, -30)
         plt.show()
