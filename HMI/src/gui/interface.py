@@ -74,8 +74,10 @@ class Interface(QMainWindow):
 		#FILE READING LAYOUT
 		explore_file = QPushButton("Open .pos file")
 		explore_file.clicked.connect(self.open_file_dialog)
-		self.file_label = QLabel('No File Selected', alignment=Qt.AlignLeft|Qt.AlignVCenter)
+		self.file_label = QLineEdit('No File Selected', alignment=Qt.AlignLeft|Qt.AlignVCenter)
+		self.file_label.setReadOnly(True)
 		self.file_label.setStyleSheet("color: black; background-color: white")
+		
 		self.analyse_button = QPushButton("Analyse")
 		self.analyse_button.clicked.connect(self.analyse_file)
 		self.analyse_button.setEnabled(False)
@@ -86,9 +88,9 @@ class Interface(QMainWindow):
 		left_layout.addLayout(file_layout, 1)
 
 
-		#FILE READING LAYOUT
+		#STORAGE PIECE LAYOUT
 		self.pieces_layout = QVBoxLayout()
-		left_layout.addLayout(self.pieces_layout, 3)
+		left_layout.addLayout(self.pieces_layout, 1)
 
 		#TODO delete label
 		self.calibrate_button = QPushButton("Calibrate")
@@ -102,7 +104,7 @@ class Interface(QMainWindow):
 		slice_layout = QHBoxLayout()
 		self.slice_widget = SliceInfoWidget(self.calibration_pos)
 		slice_layout.addWidget(self.slice_widget)
-		left_layout.addLayout(slice_layout)
+		left_layout.addLayout(slice_layout, 4)
 
 
 		commands_layout = QHBoxLayout()
@@ -155,7 +157,7 @@ class Interface(QMainWindow):
 
 		if not filename:
 			return
-
+		
 		self.file_path = str(Path(filename))
 		self.file_label.setText(self.file_path)
 		self.analyse_button.setEnabled(True)
@@ -228,6 +230,7 @@ class Interface(QMainWindow):
 		"""This function runs every 500ms when the timer times out."""
 		if not self.connected:
 			#TODO check for disconnection with exeption request. connected should not be local here
+			return
 			self.try_connect()
 			
 		else :

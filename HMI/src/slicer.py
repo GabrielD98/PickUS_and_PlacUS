@@ -60,7 +60,8 @@ class Slicer :
             position=None,
             piece=None
         ))
-
+        print(offset)
+        z_mask = Position(1,1,0,1)
         for piece in pieces:
             
             if piece not in available:
@@ -70,11 +71,13 @@ class Slicer :
             #pick it, move towards the placement zone, and place it
             pick_position = self.storage.components[piece].position
             
+
+            #PICK
             # Move to storage position
             commands.append(Command(
                 commandId=CommandId.MOVE,
                 velocity=speed,
-                position=pick_position + offset + storage_offset[piece],
+                position=(pick_position*z_mask) + storage_offset[piece],
                 piece=piece
             ))
             
@@ -82,7 +85,14 @@ class Slicer :
             commands.append(Command(
                 commandId=CommandId.PICK,
                 velocity=Z_SPEED,
-                position=pick_position + z_offset + offset + storage_offset[piece],
+                position=pick_position + storage_offset[piece],
+                piece=piece
+            ))
+
+            commands.append(Command(
+                commandId=CommandId.MOVE,
+                velocity=speed,
+                position=(pick_position*z_mask) + storage_offset[piece],
                 piece=piece
             ))
             
@@ -90,17 +100,27 @@ class Slicer :
             commands.append(Command(
                 commandId=CommandId.MOVE,
                 velocity=speed,
-                position=piece.position + offset,
+                position= (piece.position+ offset)*z_mask,
                 piece=piece
             ))
+
             
             # Place the piece
             commands.append(Command(
                 commandId=CommandId.PLACE,
                 velocity=Z_SPEED,
-                position=piece.position + z_offset + offset,
+                position=piece.position + offset,
                 piece=piece
             ))
+
+            # Move to placement position
+            commands.append(Command(
+                commandId=CommandId.MOVE,
+                velocity=speed,
+                position= (piece.position+ offset)*z_mask,
+                piece=piece
+            ))          
+            
 
             #updates the new position of the piece in the storage if the storage is not auto
             if not self.storage.components[piece].automatic :

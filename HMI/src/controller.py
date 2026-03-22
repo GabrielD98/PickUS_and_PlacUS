@@ -188,7 +188,7 @@ class Controller:
 			return
 		try:
 			machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
-			print("reception : ", machineState, x, y, z, yaw)
+			#print("reception : ", machineState, x, y, z, yaw)
 			with self.mutex:
 				self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
 		except (struct.error, ValueError):
@@ -407,7 +407,7 @@ class Controller:
 			
 			handler = state_handlers.get(currentState)
 			commandToSend = handler() if handler else Command(CommandId.EMPTY, 0, None, None)
-			print(commandToSend)
+			#print(commandToSend)
 			
 			self._sendCommand(commandToSend)
 			self._updateMachineInfo()
