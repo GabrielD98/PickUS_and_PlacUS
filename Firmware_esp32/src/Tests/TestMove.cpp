@@ -2,9 +2,11 @@
 
 TestMove::TestMove()
 {
+	Controller controller;
+	testCtrl = &controller;
 }
 
-bool TestMove::runTest()
+bool TestMove::run()
 {
     position_t testPosition;
 	testPosition.x = 100;
@@ -12,19 +14,19 @@ bool TestMove::runTest()
 	testPosition.z = 100;
 	testPosition.yaw = 100;
 
-	dataModel_t* dataModel = ctrl->dataModel.get();
+	dataModel_t* dataModel = testCtrl->dataModel.get();
 	dataModel->command.id = CommandId::MOVE;
 	dataModel->command.requestedPosition = testPosition;
 	dataModel->command.velocity = 200;
-	ctrl->dataModel.release();
+	testCtrl->dataModel.release();
 
-	ctrl->update();
+	testCtrl->update();
 
-	dataModel = ctrl->dataModel.get();
+	dataModel = testCtrl->dataModel.get();
 	dataModel->command.id = CommandId::EMPTY;
 	dataModel->command.requestedPosition = testPosition;
 	dataModel->command.velocity = 200;
-	ctrl->dataModel.release();
+	testCtrl->dataModel.release();
 
 	uint8_t loopCount = 0;
 
@@ -34,12 +36,12 @@ bool TestMove::runTest()
 		loopCount++;
 		if(loopCount == 200)
 		{
-			dataModel = ctrl->dataModel.get();
+			dataModel = testCtrl->dataModel.get();
 			machineState = dataModel->state;
-			ctrl->dataModel.release();
+			testCtrl->dataModel.release();
 			loopCount = 0;
 		}
-		ctrl->update();
+		testCtrl->update();
 	}
 	return true;
 }

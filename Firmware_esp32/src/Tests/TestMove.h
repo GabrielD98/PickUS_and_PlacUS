@@ -1,17 +1,15 @@
 #ifndef TESTMOVE_H
 #define TESTMOVE_H
 
-#include "Controller.h"
+#include "../Controller.h"
 
 class TestMove
 {
 public:
     TestMove();
-    bool runTest();
+    bool run();
 private:
-    Controller* ctrl;
+    Controller* testCtrl;
 };
-
-
 
 #endif
