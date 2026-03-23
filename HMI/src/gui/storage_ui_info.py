@@ -1,3 +1,4 @@
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
 	QVBoxLayout,
@@ -38,16 +39,24 @@ class StorageUiInfo(QWidget):
         self.state_label = QLabel("state : -")
         self.quantity_label = QLabel("quantity : -")
         self.automatic_label = QLabel("automatic : -")
+        
+        self.name_label.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        self.state_label.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
 
 
         self.active_widget = QWidget()
         self.active_layout = QHBoxLayout()
-        self.active_layout.setSpacing(30)
+        self.active_layout.setSpacing(0)
         self.active_layout.addWidget(self.name_label)
         self.active_layout.addWidget(self.state_label)
         self.active_layout.addWidget(self.quantity_label)
         self.active_layout.addWidget(self.automatic_label)
         self.active_widget.setLayout(self.active_layout)
+
+        self.name_label.setMinimumWidth(10)
+        self.state_label.setMinimumWidth(10)
+        self.quantity_label.setMinimumWidth(10)
+        self.name_label.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred)
 
 
         #Layout when the piece is not added yet 
@@ -57,8 +66,8 @@ class StorageUiInfo(QWidget):
         addition_label.setStyleSheet("color: red;") 
         self.inactive_widget.setLayout(self.inactive_layout)
 
-        self.inactive_layout.addWidget(QLabel(self.name), 4)
-        self.inactive_layout.addWidget(addition_label, 4)
+        self.inactive_layout.addWidget(QLabel(self.name))
+        self.inactive_layout.addWidget(addition_label)
 
         self.stacked_widget.addWidget(self.inactive_widget)
         self.stacked_widget.addWidget(self.active_widget)

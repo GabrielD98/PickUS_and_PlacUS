@@ -14,7 +14,9 @@ from PyQt5.QtWidgets import (
 	QLabel,
 	QFrame,
 	QPlainTextEdit,
-	QInputDialog
+	QInputDialog,
+	QScrollArea
+
 )
 from PyQt5 import QtWidgets
 from pathlib import Path
@@ -55,6 +57,7 @@ class Interface(QMainWindow):
 	def initialize_gui(self) :
 		
 		self.setWindowTitle("PickUS & PlacUS")
+		self.setMinimumSize(800, 600)
 
 
 		#testting
@@ -68,6 +71,8 @@ class Interface(QMainWindow):
 		right_layout = QVBoxLayout()
 		global_layout.addLayout(left_layout, 2)
 		global_layout.addLayout(right_layout, 1)
+		global_layout.setStretch(0, 2) # Left side
+		global_layout.setStretch(1, 1) # Right side
 
 
 
@@ -90,7 +95,18 @@ class Interface(QMainWindow):
 
 		#STORAGE PIECE LAYOUT
 		self.pieces_layout = QVBoxLayout()
-		left_layout.addLayout(self.pieces_layout, 1)
+
+		scroll = QScrollArea(self)	
+		left_layout.addWidget(scroll, 2)
+		scroll.setWidgetResizable(True)
+		scroll.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
+		self.pieces_layout.setAlignment(Qt.AlignTop)
+		scrollContent = QWidget(scroll)
+		scrollContent.setLayout(self.pieces_layout)
+		scrollContent.setMinimumWidth(100) 
+		scrollContent.setMinimumHeight(100)
+		scroll.setWidget(scrollContent)
 
 		#TODO delete label
 		self.calibrate_button = QPushButton("Calibrate")
@@ -103,8 +119,10 @@ class Interface(QMainWindow):
 
 		slice_layout = QHBoxLayout()
 		self.slice_widget = SliceInfoWidget(self.calibration_pos)
+		self.slice_widget.setMinimumHeight(100) # Allow it to be smaller
+		self.slice_widget.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred)
 		slice_layout.addWidget(self.slice_widget)
-		left_layout.addLayout(slice_layout, 4)
+		left_layout.addLayout(slice_layout, 5)
 
 
 		commands_layout = QHBoxLayout()
@@ -204,10 +222,11 @@ class Interface(QMainWindow):
 			storage_info = StorageUiInfo(piece, button)
 			button.clicked.connect(lambda _, info=storage_info: 
 						  self.add_piece_to_storage(info))
-
+			
 			layout.addWidget(storage_info, 4)
 			layout.addWidget(button, 1)
 			self.pieces_layout.addLayout(layout)
+		self.pieces_layout.addStretch(1)
 
 
 
@@ -230,7 +249,6 @@ class Interface(QMainWindow):
 		"""This function runs every 500ms when the timer times out."""
 		if not self.connected:
 			#TODO check for disconnection with exeption request. connected should not be local here
-			return
 			self.try_connect()
 			
 		else :
