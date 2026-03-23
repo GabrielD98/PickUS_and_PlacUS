@@ -97,15 +97,12 @@ class Interface(QMainWindow):
 		self.pieces_layout = QVBoxLayout()
 
 		scroll = QScrollArea(self)	
-		left_layout.addWidget(scroll, 2)
+		left_layout.addWidget(scroll, 4)
 		scroll.setWidgetResizable(True)
-		scroll.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
 		self.pieces_layout.setAlignment(Qt.AlignTop)
 		scrollContent = QWidget(scroll)
 		scrollContent.setLayout(self.pieces_layout)
-		scrollContent.setMinimumWidth(100) 
-		scrollContent.setMinimumHeight(100)
 		scroll.setWidget(scrollContent)
 
 		#TODO delete label
@@ -114,7 +111,7 @@ class Interface(QMainWindow):
 		self.calibrate_button.setEnabled(False)
 		calibration_layout = QHBoxLayout()
 		calibration_layout.addWidget(self.calibrate_button)
-		left_layout.addLayout(calibration_layout, 2)
+		left_layout.addLayout(calibration_layout, 4)
 
 
 		slice_layout = QHBoxLayout()
@@ -122,7 +119,7 @@ class Interface(QMainWindow):
 		self.slice_widget.setMinimumHeight(100) # Allow it to be smaller
 		self.slice_widget.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred)
 		slice_layout.addWidget(self.slice_widget)
-		left_layout.addLayout(slice_layout, 5)
+		left_layout.addLayout(slice_layout, 10)
 
 
 		commands_layout = QHBoxLayout()
@@ -249,6 +246,7 @@ class Interface(QMainWindow):
 		"""This function runs every 500ms when the timer times out."""
 		if not self.connected:
 			#TODO check for disconnection with exeption request. connected should not be local here
+			return
 			self.try_connect()
 			
 		else :
