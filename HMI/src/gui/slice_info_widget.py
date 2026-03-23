@@ -138,8 +138,13 @@ class SliceInfoWidget(QWidget):
                 piece_dict_x[piece].append(piece.position.x)
                 piece_dict_y[piece].append(piece.position.y)
 
+        pcb_height = -70.0
+        pcb_width = 90.0
+        pcb_offset_x = 40.5
+        pcb_offset_y = -25.0
+
         fig, ax = plt.subplots()
-        rect = patches.Rectangle((46,-43), width=74, height=-42,
+        rect = patches.Rectangle((pcb_offset_x,pcb_offset_y), width=pcb_width, height=pcb_height, #TODO Offsets hard-codes
                          linewidth=2, edgecolor = 'black', facecolor='none')
         self.tabs.ax.add_patch(rect)
 
@@ -150,8 +155,5 @@ class SliceInfoWidget(QWidget):
         for key in piece_dict_x:
             self.tabs.ax.plot(piece_dict_x[key],piece_dict_y[key],'o', color = colors[i])
             i = i+1
-
-        self.tabs.ax.set_xlim(40, 140)
-        self.tabs.ax.set_ylim(-100, -30)
 
         self.tabs.canvas.draw()
