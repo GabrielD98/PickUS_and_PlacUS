@@ -58,6 +58,14 @@ class Interface(QMainWindow):
 		
 		self.setWindowTitle("PickUS & PlacUS")
 		self.setMinimumSize(800, 600)
+		self.setObjectName("MainWindow")
+		self.setStyleSheet("""
+			#MainWindow {
+				background-image: url(../data/marble.jpg);
+				background-position: center; /* Optional: centers the image */
+			}
+		""")
+
 
 
 		#testting
