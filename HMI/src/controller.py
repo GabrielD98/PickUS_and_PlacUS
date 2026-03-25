@@ -352,13 +352,17 @@ class Controller:
 		
 		Continuously sends STOP commands to halt machine operation.
 		Can transition to RUNNING or IDLE state on request.
-		
 		Returns:
 			Command:
 				STOP command to halt machine execution.
 		"""
-		self._check_and_transition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING)
-		self._check_and_transition(TransitionRequest.TO_IDLE, ControllerState.IDLE)
+
+		if self._check_and_transition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING):
+			self._commands.insert(0, self._lastCommand)
+			
+		if self._check_and_transition(TransitionRequest.TO_IDLE, ControllerState.IDLE):
+			self._commands = [] 
+
 		return Command(CommandId.STOP, 0, None, None)
 
 

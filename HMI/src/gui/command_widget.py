@@ -26,69 +26,75 @@ class CommandWidget(QWidget):
 
         #TODO utiliser des enum de data maybe
         self.on = False 
-        self.in_pause = False
         self.data_manager = GuiDataManager()
-
         layout = QHBoxLayout()
         self.setLayout(layout)
-        self.start_button = QPushButton("Start")
-        self.pause_button = QPushButton("Pause")
 
-        self.start_button.clicked.connect(self.toggle_start)
-        self.pause_button.clicked.connect(self.toggle_pause)
-        self.pause_button.setEnabled(False)
+        self.stacked_widget = QStackedWidget()
+        self.on_active_widget = QWidget()
+        self.on_pause_widget = QWidget()
+        self.on_active_layout = QHBoxLayout()
+        self.on_pause_layout = QHBoxLayout()
+        self.on_active_widget.setLayout(self.on_active_layout)
+        self.on_pause_widget.setLayout(self.on_pause_layout)
+        layout.addWidget(self.stacked_widget)
+        self.stacked_widget.setCurrentIndex(0)
+        
 
-        layout.addWidget(self.start_button)
-        layout.addWidget(self.pause_button)
+        self.main_control_button = QPushButton("Start")
+        self.continue_button = QPushButton("Continue")
+        self.stop_button = QPushButton("Stop")
+
+        self.main_control_button.clicked.connect(self.toggle_start)
+        self.continue_button.clicked.connect(self.unpause)
+        self.stop_button.clicked.connect(self.stop)
+
+        self.on_active_layout.addWidget(self.main_control_button)
+        self.on_pause_layout.addWidget(self.continue_button)
+        self.on_pause_layout.addWidget(self.stop_button)
+        self.stacked_widget.addWidget(self.on_active_widget)
+        self.stacked_widget.addWidget(self.on_pause_widget)
 
 
 
 
     def start(self):
         self.on = True
-        self.start_button.setText("Stop")
-        self.pause_button.setEnabled(True)
+        self.main_control_button.setText("Pause")
         self.data_manager.start_pnp()
 
 
 
 
-    def stop(self):
-        self.on = False
-        self.start_button.setText("Start")
-        self.pause_button.setEnabled(False)
-        self.unpause() #reset le pause button, a voir ak la logique globale TODO
+    def pause(self):
+        self.data_manager.pause_pnp()
+        self.stacked_widget.setCurrentIndex(1)
+        #self.unpause() #reset le pause button, a voir ak la logique globale TODO
     
 
 
 
-    def pause(self):
-        self.in_pause = True
-        self.pause_button.setText("Continue")
-        self.data_manager.pause_pnp()
+    def stop(self):
+        self.on = False
+        self.stacked_widget.setCurrentIndex(0)
+        self.main_control_button.setText("Start")
+        self.data_manager.transition_to_idle()
 
 
 
 
     def unpause(self):
-        self.in_pause = False
-        self.pause_button.setText("Pause")
         self.data_manager.continue_pnp()
+        self.stacked_widget.setCurrentIndex(0)
 
 
 
 
     def toggle_start(self):
         if self.on: 
-            self.stop()
+            self.pause()
         else:
             self.start()
 
 
 
-
-    def toggle_pause(self):
-        if self.in_pause:
-            self.unpause()
-        else:
-            self.pause()
