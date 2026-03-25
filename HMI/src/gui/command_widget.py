@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import time
 from typing import List
 from PyQt5.QtCore import Qt
@@ -18,6 +19,10 @@ from PyQt5.QtWidgets import (
 )
 import utils
 from gui.gui_data_manager import GuiDataManager
+from gui.button import Button
+
+
+
 
 class CommandWidget(QWidget):
 
@@ -31,7 +36,7 @@ class CommandWidget(QWidget):
 
         layout = QHBoxLayout()
         self.setLayout(layout)
-        self.start_button = QPushButton("Start")
+        self.start_button = Button("Start")
         self.pause_button = QPushButton("Pause")
 
         self.start_button.clicked.connect(self.toggle_start)
@@ -40,6 +45,31 @@ class CommandWidget(QWidget):
 
         layout.addWidget(self.start_button)
         layout.addWidget(self.pause_button)
+
+
+        #Button styles
+        self.start_color = "#4CAF50"
+
+        self.start_button.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50; /* Green */
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                font-size: 24px;
+                border-radius: 10px;
+            }
+            QPushButton:hover {
+                background-color: #45a049; /* Darker green on hover */
+            }
+            QPushButton:pressed {
+                background-color: #3e8e41; /* Even darker green when pressed */
+                border-style: inset;
+            }
+        """)
+        self.start_button.commitStyleSheet()
 
 
 
