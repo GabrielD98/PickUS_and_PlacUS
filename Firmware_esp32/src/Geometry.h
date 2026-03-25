@@ -6,9 +6,9 @@
 #include <cmath>
 
 //Positions definitions (mm)
-#define P_X_MAX 306.39
+#define P_X_MAX 304.80
 #define P_X_MIN 0
-#define P_Y_MAX 304.80
+#define P_Y_MAX 306.39
 #define P_Y_MIN 0
 #define P_Z_MAX 0 // 60.33
 #define P_Z_MIN -24

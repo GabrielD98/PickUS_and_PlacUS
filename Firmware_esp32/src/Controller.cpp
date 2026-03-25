@@ -2,7 +2,7 @@
 #include "Geometry.h"
 
 #define HOME_DIRECTION -1.0f
-#define PIECE_PRESSURE_THRESHOLD 80 //TODO: validate value;
+#define PIECE_PRESSURE_THRESHOLD 90 //TODO: validate value;
 #define NO_PIECE_PRESSURE_THRESHOLD 100 //TODO: validate value;
 
 #define HOME_SPEED 50.0
