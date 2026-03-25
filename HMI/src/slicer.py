@@ -112,6 +112,7 @@ class Slicer :
                 position=piece.position + offset,
                 piece=piece
             ))
+            print(f"MOVE {piece.package} , {piece.position}, {offset}")
 
             # Move to placement position
             commands.append(Command(

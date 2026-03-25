@@ -36,6 +36,30 @@ class FileInterpreter:
             return None
 
         pieces = []
+
+        ref = Position(0,0,0,0)
+
+        #Finds the reference component of the PCB
+        for line in file:
+            #ignores comments
+            if line[0] == "#":
+                continue
+            
+            data = line.split() 
+   
+            if data[0] == "J4":
+                #TODO x et y sont inversé, might causes problems
+                #TODO not hard code J4, should be speficied by user
+                ref = Position(x=float(data[POS_Y_INDEX]), 
+                                y=float(data[POS_X_INDEX]),
+                                z=0,
+                                yaw=float(data[ROTATION_INDEX]))
+                print(ref)
+                break
+
+
+
+        file.seek(0)
         for line in file:
             #ignores comments
             if line[0] == "#":
@@ -54,10 +78,13 @@ class FileInterpreter:
                 continue
             
             #TODO est ce que le z est managed ici?
-            position = Position(x=float(data[POS_X_INDEX]), 
-                                y=float(data[POS_Y_INDEX]),
+            position = Position(x=float(data[POS_Y_INDEX]), 
+                                y=float(data[POS_X_INDEX]),
                                 z=0,
                                 yaw=float(data[ROTATION_INDEX]))
+            
+            position = position - ref
+            print(position)
             
             #TODO add a way to interpret value in kicad
             piece = Piece(position=position, package=data[PACKAGE_INDEX], type=type, value="")

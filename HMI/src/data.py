@@ -75,6 +75,16 @@ class Position:
         yaw = self.yaw + other.yaw
         return Position(x, y, z, yaw)
     
+    def __sub__(self, other):
+        """Alows two position to be substracted together"""
+        if not isinstance(other, Position):
+            return NotImplemented
+        x = self.x - other.x
+        y = self.y - other.y
+        z = self.z - other.z
+        yaw = self.yaw - other.yaw
+        return Position(x, y, z, yaw)
+    
     def __mul__(self, other):
         """Allows a position to be multiplied by a scalar"""
         # Case 1: Multiplication by another Position (Component-wise)

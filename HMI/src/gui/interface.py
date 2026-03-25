@@ -246,7 +246,6 @@ class Interface(QMainWindow):
 		"""This function runs every 500ms when the timer times out."""
 		if not self.connected:
 			#TODO check for disconnection with exeption request. connected should not be local here
-			return
 			self.try_connect()
 			
 		else :
