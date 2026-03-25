@@ -48,10 +48,9 @@ class FileInterpreter:
             data = line.split() 
    
             if data[0] == "J4":
-                #TODO x et y sont inversé, might causes problems
                 #TODO not hard code J4, should be speficied by user
-                ref = Position(x=float(data[POS_Y_INDEX]), 
-                                y=float(data[POS_X_INDEX]),
+                ref = Position(x=float(data[POS_X_INDEX]), 
+                                y=float(data[POS_Y_INDEX]),
                                 z=0,
                                 yaw=float(data[ROTATION_INDEX]))
                 print(ref)
@@ -78,8 +77,8 @@ class FileInterpreter:
                 continue
             
             #TODO est ce que le z est managed ici?
-            position = Position(x=float(data[POS_Y_INDEX]), 
-                                y=float(data[POS_X_INDEX]),
+            position = Position(x=float(data[POS_X_INDEX]), 
+                                y=float(data[POS_Y_INDEX]),
                                 z=0,
                                 yaw=float(data[ROTATION_INDEX]))
             
