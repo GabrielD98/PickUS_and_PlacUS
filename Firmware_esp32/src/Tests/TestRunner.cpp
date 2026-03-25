@@ -7,6 +7,7 @@ TestRunner::TestRunner(Controller* ctrl) : ctrl(ctrl)
 bool TestRunner::runTests()
 {
     bool pass = true;
+	// Unwanted tests are to be put in commentary
 	pass &= TEST_LIMITS();
 	pass &= TEST_GEOMETRY();
     pass &= TEST_MOVE();
