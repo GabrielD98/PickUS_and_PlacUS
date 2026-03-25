@@ -47,28 +47,8 @@ class CommandWidget(QWidget):
         layout.addWidget(self.pause_button)
 
 
-        #Button styles
-        self.start_color = "#4CAF50"
-
-        self.start_button.setStyleSheet("""
-            QPushButton {
-                background-color: #4CAF50; /* Green */
-                border: none;
-                color: white;
-                padding: 15px 32px;
-                text-align: center;
-                text-decoration: none;
-                font-size: 24px;
-                border-radius: 10px;
-            }
-            QPushButton:hover {
-                background-color: #45a049; /* Darker green on hover */
-            }
-            QPushButton:pressed {
-                background-color: #3e8e41; /* Even darker green when pressed */
-                border-style: inset;
-            }
-        """)
+        self.start_button.qss_style.background_color =  "#018849"
+        self.start_button.qss_style.font_size = "21"
         self.start_button.commitStyleSheet()
 
 

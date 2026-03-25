@@ -68,7 +68,6 @@ class Button(QPushButton):
             # Setup animation
             
         )
-        self._color = QColor("#3498db")
         self.update_style()
         self.animation = QPropertyAnimation(self, b"color")
         self.animation.setDuration(300) # 300ms transition
@@ -85,39 +84,37 @@ class Button(QPushButton):
 
 
     @color.setter
-    def color(self, val):
-        self.qss_style.current_color = val
+    def color(self, val:QColor):
+        self.qss_style.current_color = val.name()
         self.update_style()
 
 
 
 
     def update_style(self):
-        style = self.qss_style
-
         self.setStyleSheet(f"""
             /* Base state for all buttons */
             QPushButton {{
-                background-color: {style.current_color}; 
-                color: {style.txt_color};
-                border-radius: {style.border_radius};
-                padding: {style.padding};
-                font-size: {style.font_size};
-                font-weight: {style.font_weight};
-                border: {style.border};
+                background-color: {self.qss_style.current_color}; 
+                color: {self.qss_style.txt_color};
+                border-radius: {self.qss_style.border_radius};
+                padding: {self.qss_style.padding};
+                font-size: {self.qss_style.font_size};
+                font-weight: {self.qss_style.font_weight};
+                border: {self.qss_style.border};
                 
             }}
             /* Pressed state (mouse click) */
             QPushButton:pressed {{
-                background-color: {style.pressed_color}; 
-                /*padding-top: {style.padding_top_pressed}; 
-                padding-bottom: {style.padding_bot_pressed};*/
+                background-color: {self.qss_style.pressed_color}; 
+                /*padding-top: {self.qss_style.padding_top_pressed}; 
+                padding-bottom: {self.qss_style.padding_bot_pressed};*/
             }}
 
             /* Disabled state */
             QPushButton:disabled {{
-                background-color: {style.disabled_color}; 
-                color: {style.disabled_text_color};
+                background-color: {self.qss_style.disabled_color}; 
+                color: {self.qss_style.disabled_text_color};
             }}
         """)
 
