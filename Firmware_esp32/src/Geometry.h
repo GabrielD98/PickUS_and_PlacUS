@@ -25,7 +25,7 @@
 #define STEPS_REVOLUTION 200
 #define MICROSTEPPING_X 16
 #define MICROSTEPPING_Y 16
-#define MICROSTEPPING_Z 1
+#define MICROSTEPPING_Z 4
 #define MICROSTEPPING_YAW 4
 
 //Distance per revolution
