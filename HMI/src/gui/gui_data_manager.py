@@ -2,7 +2,7 @@ import time
 
 from controller import Controller
 from typing import List
-from data import MAX_SPEED, Command, CommandId, Position, TransitionRequest, MachineState
+from data import MAX_SPEED, Command, CommandId, ControllerState, Position, TransitionRequest, MachineState
 import threading
 #TODO cettte class probablement useless, a voir si on switch direct vers le controller. Jle grade pour simplifier
 
@@ -34,6 +34,10 @@ class GuiDataManager:
 
     def get_gripper_position(self) -> Position:
         return self.controller.getState()[2]
+    
+
+    def get_controller_state(self) -> ControllerState:
+        return self.controller.getState()[0]
     
 
     def queue_command(self, command:Command):

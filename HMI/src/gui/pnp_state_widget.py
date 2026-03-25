@@ -42,23 +42,27 @@ class PnPStateWidget(QWidget):
         connection_layout.addWidget(self.port_options, 4)
         connection_layout.addWidget(self.connection_label, 2)
 
-        self.state_label = QLabel("State : -")
-        self.state_label.setAlignment(Qt.AlignCenter) 
+        self.machine_state_label = QLabel("Machine State : -")
+        self.machine_state_label.setAlignment(Qt.AlignCenter) 
+        self.controller_state_label = QLabel("Controller State : -")
+        self.controller_state_label.setAlignment(Qt.AlignCenter) 
         self.position = Position(0,0,0,0)
-        self.position_label = QLabel(f"Position : {self.position.x}, {self.position.y},"
-                                     + f" {self.position.z}, {self.position.yaw}")
+        self.position_label = QLabel(f"Position : -, -, -, -")
         self.position_label.setAlignment(Qt.AlignCenter) 
         
 
         layout.addLayout(connection_layout)
-        layout.addWidget(self.state_label)
+        layout.addWidget(self.machine_state_label)
+        layout.addWidget(self.controller_state_label)
         layout.addWidget(self.position_label)
         self.setLayout(layout)
         
 
     def update_state(self):
         state = self.dataManager.get_machine_state()
-        self.state_label.setText(f"State : {state}")
+        self.machine_state_label.setText(f"Machine State : {state}")
+        state = self.dataManager.get_controller_state()
+        self.controller_state_label.setText(f"Controller State : {state}")
         self.position = self.dataManager.get_gripper_position()
         self.position_label.setText(f"Position : {self.position.x:.2f}, {self.position.y:.2f},"
                                      + f" {self.position.z:.2f}, {self.position.yaw:.2f}")
