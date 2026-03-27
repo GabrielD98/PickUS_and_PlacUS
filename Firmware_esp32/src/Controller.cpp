@@ -44,10 +44,6 @@ Controller::Controller()
     lastPositionUpdateMS = millis();
 }
 
-Controller::~Controller()
-{
-}
-
 void Controller::update()
 {
     command_t command =  dataModel.get()->command;
