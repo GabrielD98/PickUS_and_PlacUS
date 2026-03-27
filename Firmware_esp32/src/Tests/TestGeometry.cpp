@@ -21,7 +21,7 @@ bool TestGeometry::run()
 	// Thresholds are given from a single motor step, converted in their output unit (Millimeters for x, y, z ; Degrees for yaw)
 	float Threshold_x = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_X);
 	float Threshold_y = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_Y);
-	float Threshold_z = abs(CAM_RADIUS*(cos((STEPS_REVOLUTION*MICROSTEPPING_Z/4.0 - 1)*2.0*PI/float(STEPS_REVOLUTION*MICROSTEPPING_Z)))); // Greatest jump in the z axis for a single step
+	float Threshold_z = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_Z); // Greatest jump in the z axis for a single step
 	float Threshold_yaw = 360/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
 	
 	if ((mmPosition.x < testPosition.x - Threshold_x || mmPosition.x > testPosition.x + Threshold_x))
