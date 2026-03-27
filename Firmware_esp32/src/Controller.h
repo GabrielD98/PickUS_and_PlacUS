@@ -46,6 +46,7 @@ private :
     AccelStepper motorYAW;
     MultiStepper motorSystem;
 
+public :
     Mosfet valve;
     Mosfet pump;
     PressureSensor pressureSensor;
@@ -69,7 +70,7 @@ private :
     /**
      * @brief Set target positions and desired speed to all motors.
      * 
-     * @param position 
+     * @param position
      * @param speed 
      */
     void setTargets(position_t position, float speed);

@@ -17,6 +17,7 @@ void setup()
 	Serial.begin(115200);
 	delay(3000);
 	while (!Serial) { delay(10); } // Block until host opens the serial port
+	/*
 	if(ENABLE_TEST)
 	{
 		xTaskCreatePinnedToCore(
@@ -73,13 +74,16 @@ void setup()
 			1
 		);
 	}
-	
+	*/
+	ctrl.pump.on();
 
 }
 
 
 void loop()
 {
+	delay(100);
+	Serial.println(ctrl.pressureSensor.getPressureKPa());
 }
 
 
