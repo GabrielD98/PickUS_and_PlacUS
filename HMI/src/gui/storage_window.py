@@ -1,3 +1,5 @@
+import json
+
 from PyQt5.QtCore import QSize, Qt,  QEvent
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
@@ -111,9 +113,16 @@ class StorageWindow(QMainWindow):
 		self.auto_checkbox.stateChanged.connect(self.on_state_changed)
 		
 		self.calibration_layout = QVBoxLayout()
-		calibrate_button = QPushButton("Calibrate")
-		calibrate_button.clicked.connect(self.open_calibration_tab)
-		self.calibration_layout.addWidget(calibrate_button)
+		info_label = QLabel("Place the tip of the gripper on the first commponent of the storage")
+		self.calibration_layout.addWidget(info_label)
+		self.jog_widget = JogWidget(isMain=False)
+		self.calibration_layout.addWidget(self.jog_widget)
+		self.load_json_button = QPushButton("Load Previous Calibration")
+		self.load_json_button.clicked.connect(lambda : self.load_previous_calibration())
+		self.calibration_layout.addWidget(self.load_json_button)
+		#calibrate_button = QPushButton("Calibrate")
+		#calibrate_button.clicked.connect(self.open_calibration_tab)
+		#self.calibration_layout.addWidget(calibrate_button)
 
 		self.inputs_layout.addWidget(piece_label)
 		self.inputs_layout.addLayout(quantity_layout)
@@ -124,6 +133,19 @@ class StorageWindow(QMainWindow):
 		self.inputs_layout.addLayout(self.calibration_layout)
 
 
+
+
+	def load_previous_calibration(self):
+
+		with open('../data/calib.json', 'r') as file:
+			data = json.load(file)
+
+		key = self.piece_name
+		if key in data:
+			self.jog_widget.x_entry.setText(data[key]["x"])
+			self.jog_widget.y_entry.setText(data[key]["y"])
+			self.jog_widget.z_entry.setText(data[key]["z"])
+			self.jog_widget.yaw_entry.setText(data[key]["yaw"])
 
 
 	def open_calibration_tab(self):
