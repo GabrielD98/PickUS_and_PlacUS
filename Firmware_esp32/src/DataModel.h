@@ -1,3 +1,11 @@
+/**
+ * @file dataModel.h
+ * @author PickusAndPlacus
+ * @brief 
+ * @version
+ * @date
+ */
+
 #ifndef DATAMODEL_H
 #define DATAMODEL_H
 

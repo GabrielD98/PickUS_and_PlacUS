@@ -1,3 +1,11 @@
+/**
+ * @file pressureSensor.h
+ * @author PickusAndPlacus
+ * @brief 
+ * @version
+ * @date
+ */
+
 #ifndef PRESSURESENSOR_H
 #define PRESSURESENSOR_H
 
@@ -12,7 +20,6 @@ class PressureSensor
 	public:
 		/**
 		 * @brief 
-		 * 
 		 * @param clkPin 
 		 * @param dataPin 
 		 */
@@ -20,13 +27,11 @@ class PressureSensor
 		
 		/**
 		 * @brief 
-		 * 
 		 */
 		void init();
 
 		/**
 		 * @brief
-		 * 
 		 * @return 
 		 */
 		float getPressureKPa();
@@ -34,26 +39,22 @@ class PressureSensor
 	private:
 		/**
 		 * @brief
-		 * 
 		 * @return 
 		 */
 		long getRawPressure();
 
 		/**
 		 * @brief 
-		 * 
 		 */
 		uint8_t clkPin;
 
 		/**
 		 * @brief 
-		 * 
 		 */
 		uint8_t dataPin;
 
 		/**
 		 * @brief 
-		 * 
 		 */
 		long zeroValue;
 

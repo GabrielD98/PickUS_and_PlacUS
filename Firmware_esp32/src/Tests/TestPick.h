@@ -1,3 +1,11 @@
+/**
+ * @file testpick.h
+ * @author PickusAndPlacus
+ * @brief 
+ * @version
+ * @date
+ */
+
 #ifndef TESTPICK_H
 #define TESTPICK_H
 
@@ -18,7 +26,6 @@ public:
     /**
      * @brief Targets a test position to go to, then command to pick.
      * Updates the machine state at a certain loop count.
-     * 
      * @return true if passed, else false.
      */
     bool run();
