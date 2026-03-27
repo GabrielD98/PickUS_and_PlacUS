@@ -16,7 +16,7 @@ public:
     TestPlace();
 
     /**
-     * @brief Targets a test position to go to, then command to place.
+     * @brief Targets a test position to go to, then commands to place.
      * Updates the machine state at a certain loop count.
      * 
      * @return true if passed, else false.
