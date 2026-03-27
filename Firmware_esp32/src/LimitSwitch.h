@@ -3,17 +3,36 @@
 
 #include <Arduino.h>
 
+/**
+ * @brief Allow to verify from its output if this specific switch is triggered.
+ * Store the digital pin's identifier associated to the switch's output.
+ */
 class LimitSwitch
 {
 public:
+    /**
+     * @brief Associate the switch to a type (pullup or pulldown) and the switch'soutput to a pin.
+     * 
+     * @param pin Digital pin connected to the limit switch's output.
+     * @param activeLOW True for a pullup, false for a  pulldown.
+     */
     LimitSwitch(uint8_t pin, bool activeLOW = true);
 
-    /** Returns true when the switch is triggered. */
+    /**
+     * @brief Returns true for a pullup switch if the pin state is LOW.
+     */
     bool isTriggered() const;
 
 private:
-    uint8_t _pin;
-    bool    _activeLOW;
+    /**
+     * @brief Asssociated digital pin identifier.
+     */
+    uint8_t pin;
+
+    /**
+     * @brief True if the switch's activation opens the circuit, else false.
+     */
+    bool activeLOW;
 };
 
 #endif // LIMITSWITCH_H

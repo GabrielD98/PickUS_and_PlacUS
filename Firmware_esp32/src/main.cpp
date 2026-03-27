@@ -2,7 +2,7 @@
 #include "../lib/data.hpp"
 #include "BoardConfig.h"
 #include "Controller.h"
-#include "TestRunner.h"
+#include "Tests/TestRunner.h"
 
 Controller ctrl;
 TestRunner testRunner(&ctrl);
