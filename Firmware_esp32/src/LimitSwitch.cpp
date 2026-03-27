@@ -10,6 +10,6 @@ LimitSwitch::LimitSwitch(uint8_t pin, bool activeLOW)
 
 bool LimitSwitch::isTriggered() const
 {
-    bool pin = digitalRead(pin);
-    return activeLOW ? !pin : pin;
+    bool pinRead = digitalRead(this->pin);
+    return activeLOW ? !pinRead : pinRead;
 }

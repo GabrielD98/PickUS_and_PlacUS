@@ -4,8 +4,8 @@
 #define HOME_DIRECTION_X -1.0f
 #define HOME_DIRECTION_Y -1.0f
 #define HOME_DIRECTION_Z 1.0f
-#define PIECE_PRESSURE_THRESHOLD 90 //TODO: validate value;
-#define NO_PIECE_PRESSURE_THRESHOLD 100 //TODO: validate value;
+#define PIECE_PRESSURE_THRESHOLD 80 //TODO: validate value;
+#define NO_PIECE_PRESSURE_THRESHOLD 90 //TODO: validate value;
 
 #define HOME_SPEED 50.0
 #define POSITION_UPDATE_FREQ 100
