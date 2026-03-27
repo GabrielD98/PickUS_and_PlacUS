@@ -31,13 +31,19 @@ class PnPStateWidget(QWidget):
 
         layout = QVBoxLayout()
         self.dataManager = GuiDataManager()
+        self.connected = False 
 
         connection_layout = QHBoxLayout()
+        self.connect_button = QPushButton("Connect")
+        self.connect_button.clicked.connect(self.toggle_connect)
+        self.connect_button.setEnabled(False)
+
         ports = self.scan_serial_ports()
         self.port_options = QComboBox(self)
         self.port_options.addItems(ports)
         self.connection_label = QLabel()
         self.connection_label.setStyleSheet("background-color: red; border-radius: 10px; max-width: 20px; max-height: 20px;")
+        connection_layout.addWidget(self.connect_button)
         connection_layout.addWidget(QLabel("Port : "), 1)
         connection_layout.addWidget(self.port_options, 4)
         connection_layout.addWidget(self.connection_label, 2)
@@ -47,7 +53,7 @@ class PnPStateWidget(QWidget):
         self.controller_state_label = QLabel("Controller State : -")
         self.controller_state_label.setAlignment(Qt.AlignCenter) 
         self.position = Position(0,0,0,0)
-        self.position_label = QLabel(f"Position : -, -, -, -")
+        self.position_label = QLabel(f"Position : -")
         self.position_label.setAlignment(Qt.AlignCenter) 
         
 
@@ -59,6 +65,14 @@ class PnPStateWidget(QWidget):
         
 
     def update_state(self):
+
+        if not self.dataManager.is_connected:
+            if self.connected:
+                self.set_disconnected()
+
+        elif not self.connected:
+            self.set_connected()
+
         state = self.dataManager.get_machine_state()
         self.machine_state_label.setText(f"Machine State : {state}")
         state = self.dataManager.get_controller_state()
@@ -70,18 +84,26 @@ class PnPStateWidget(QWidget):
         
 
     def scan_serial_ports(self) -> List[str]:
+        #TODO should be outside of main thread
         ports = QSerialPortInfo.availablePorts()
         open_ports:List[str] = []
         for port in ports:
             if port.isBusy() == False:
                 open_ports.append(port.portName())
-        
         return open_ports
     
 
 
     def update_scanned_port(self) :
         ports = self.scan_serial_ports()
+
+        if ports:
+            if  not self.connect_button.isEnabled():
+                self.connect_button.setEnabled(True)
+        else :
+            if  self.connect_button.isEnabled():
+                self.connect_button.setEnabled(False)
+
         self.port_options.clear()
         self.port_options.addItems(ports)
 
@@ -91,7 +113,27 @@ class PnPStateWidget(QWidget):
 
 
     def set_connected(self):
+        self.connected = True
         self.connection_label.setStyleSheet("background-color: green; border-radius: 10px; max-width: 20px; max-height: 20px;")
 
     def set_disconnected(self):
+        self.connected = False
+        self.machine_state_label.setText("Machine State : -")
+        self.controller_state_label.setText("Controller State : -")
+        self.position_label.setText("Position : -")
         self.connection_label.setStyleSheet("background-color: red; border-radius: 10px; max-width: 20px; max-height: 20px;")
+
+
+    def toggle_connect(self):
+        
+        if self.dataManager.is_port_open(): 
+            self.connect_button.setText("Connect")
+            self.dataManager.disconnect()
+            self.set_disconnected()
+        else :
+            try:
+                self.dataManager.connect_to_pnp(self.get_selected_port())
+                self.set_connected()
+                self.connect_button.setText("Disconnect")
+            except Exception as e:
+                print(e)

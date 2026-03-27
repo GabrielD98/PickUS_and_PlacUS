@@ -43,7 +43,6 @@ import random
 class Interface(QMainWindow):
 	def __init__(self):
 		super().__init__()	
-		self.connected = False
 		self.calibration_pos = Position(-1,-1,-1,-1)
 		self.storage_window:StorageWindow = None
 		self.data_manager = GuiDataManager()
@@ -153,10 +152,15 @@ class Interface(QMainWindow):
 		self.showMaximized()
 
 		# Set up the update loop
+		
 		self.timer = QTimer(self)
 		self.timer.setInterval(100) # Update every 500 milliseconds
 		self.timer.timeout.connect(self.update_gui) 
 		self.timer.start() 
+
+
+
+		
 
 
 
@@ -212,7 +216,6 @@ class Interface(QMainWindow):
 
 	def update_piece_list(self):
 
-
 		for piece in self.pieces:
 			layout = QHBoxLayout()
 			button = QPushButton("Add to Storage")
@@ -244,10 +247,14 @@ class Interface(QMainWindow):
 
 	def update_gui(self):
 		"""This function runs every 500ms when the timer times out."""
-		if not self.connected:
+		if not self.data_manager.is_connected():
+			if not self.data_manager.is_port_open():
+				self.state_widget.update_scanned_port()
 			#TODO check for disconnection with exeption request. connected should not be local here
+			else :	
+				self.state_widget.set_disconnected()
 			
-			self.try_connect()
+			
 			
 		else :
 			self.state_widget.update_state()
@@ -261,12 +268,10 @@ class Interface(QMainWindow):
 			self.state_widget.update_scanned_port()
 			port = self.state_widget.get_selected_port()
 			self.data_manager.connect_to_pnp(port)
-			self.connected = True
 			self.state_widget.set_connected()
-			#print("connection successful")
+			print("connection successful")
 		except Exception as e :
-			pass
-			#print(f"failed connection to PnP : {e}")
+			print(f"failed connection to PnP : {e}")
 
 		
 
@@ -274,6 +279,7 @@ class Interface(QMainWindow):
 	
 	def closeEvent(self, event: QEvent):
 		"""Override the default close event handler."""
-		
+		if self.timer.isActive():
+			self.timer.stop()
 		self.deleteLater()	
 		self.data_manager.disconnect()

@@ -4,6 +4,9 @@ import threading
 from storage import Storage
 from communication import Communication
 from data import Position, Command, CommandId, ControllerState, MachineState, TransitionRequest
+import time
+
+RESPONSE_TIMOUT = 200 #ms
 
 
 
@@ -49,6 +52,8 @@ class Controller:
 		self._closeEvent = threading.Event()
 		self._comThread = None
 		self._controllerRequestTransitionField = 0
+		self._time_since_last_response:float = -1
+		self._connected = False
 		self.mutex = threading.Lock()
 
 
@@ -128,8 +133,11 @@ class Controller:
 			baudrate (int):
 				port speed
 		"""
+
+		self._time_since_last_response = time.time() * 1000
 		self._com = Communication(comPort, baudrate)
 		self._com.open()
+		self._closeEvent = threading.Event()
 		self._comThread = threading.Thread(target=self._controlLoop)
 		self._comThread.start()
 
@@ -143,10 +151,22 @@ class Controller:
 		"""
 		if self._com is not None:
 			self._com.close()
+			self._com = None
+		
+		if self._comThread is not None:
 			self._closeEvent.set()
 			self._comThread.join()
+			self._comThread = None
+
+		self._connected = False
 
 
+
+	def isConnected(self):
+		return self._connected
+
+	def isPortOpen(self):
+		return self._comThread is not None
 
 
 	def _sendCommand(self, command:Command):
@@ -185,17 +205,23 @@ class Controller:
 		bytesBuffer = self._com.receiveData(size)
 
 		if bytesBuffer is None or len(bytesBuffer) < size:
+			if (time.time()*1000) - self._time_since_last_response > RESPONSE_TIMOUT:
+				self._connected = False
 			return
 		try:
 			machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
-			#print("reception : ", machineState, x, y, z, yaw)
+			print("reception : ", machineState, x, y, z, yaw)
 			with self.mutex:
 				self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
+				
 		except (struct.error, ValueError):
 			# Discard invalid/garbage data and resync
 			if self._com.isPortOpen():
 				self._com.ser.reset_input_buffer()
 			return
+		
+		self._connected =  True
+		self._time_since_last_response = time.time() * 1000
 
 
 
@@ -415,6 +441,8 @@ class Controller:
 			
 			self._sendCommand(commandToSend)
 			self._updateMachineInfo()
+
+			#TODO no magic number, and calc the time taken to do previous operations maybe?
 			self._closeEvent.wait(timeout=0.05)
 
 
