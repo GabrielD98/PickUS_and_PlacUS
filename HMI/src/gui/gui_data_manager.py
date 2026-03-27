@@ -92,6 +92,8 @@ class GuiDataManager:
 
         time.sleep(0.5)
         while not self.get_machine_state() == MachineState.READY:
+            if not self.controller.isConnected():
+                break
             time.sleep(0.5)
 
         if ending_function is not None:
@@ -105,6 +107,8 @@ class GuiDataManager:
 
     def go_home(self, ending_function):
         if self.blocked :
+            return
+        if not self.controller.isConnected():
             return
         home_thread = threading.Thread(target=self.homing_thread,  args=(ending_function,))
         home_thread.start()
@@ -126,3 +130,10 @@ class GuiDataManager:
 
     def disconnect(self):
         self.controller.disconnectionFromMachine()
+
+
+    def is_connected(self):
+        return self.controller.isConnected()
+    
+    def is_port_open(self):
+        return self.controller.isPortOpen()
