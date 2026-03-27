@@ -1,41 +1,41 @@
 #include "Geometry.h"
 
-position_t dimensionLimits(position_t targetPosition)
+position_t dimensionLimits(position_t targetPositions)
 {
-    if (targetPosition.x > P_X_MAX)
+    if (targetPositions.x > P_X_MAX)
     {
-        targetPosition.x = P_X_MAX;
+        targetPositions.x = P_X_MAX;
     }
-    if (targetPosition.x < P_X_MIN)
+    if (targetPositions.x < P_X_MIN)
     {
-        targetPosition.x = P_X_MIN;
+        targetPositions.x = P_X_MIN;
     }
-    if (targetPosition.y > P_Y_MAX)
+    if (targetPositions.y > P_Y_MAX)
     {
-        targetPosition.y = P_Y_MAX;
+        targetPositions.y = P_Y_MAX;
     }
-    if (targetPosition.y < P_Y_MIN)
+    if (targetPositions.y < P_Y_MIN)
     {
-        targetPosition.y = P_Y_MIN;
+        targetPositions.y = P_Y_MIN;
     }
-    if (targetPosition.z > P_Z_MAX)
+    if (targetPositions.z > P_Z_MAX)
     {
-        targetPosition.z = P_Z_MAX;
+        targetPositions.z = P_Z_MAX;
     }
-    if (targetPosition.z < P_Z_MIN)
+    if (targetPositions.z < P_Z_MIN)
     {
-        targetPosition.z = P_Z_MIN;
+        targetPositions.z = P_Z_MIN;
     }
-    if (targetPosition.yaw > P_YAW_MAX)
+    if (targetPositions.yaw > P_YAW_MAX)
     {
-        targetPosition.yaw = P_YAW_MAX;
+        targetPositions.yaw = P_YAW_MAX;
     }
-    if (targetPosition.yaw < P_YAW_MIN)
+    if (targetPositions.yaw < P_YAW_MIN)
     {
-        targetPosition.yaw = P_YAW_MIN;
+        targetPositions.yaw = P_YAW_MIN;
     }
 
-    return targetPosition;
+    return targetPositions;
 }
 
 position_t coordToStep(position_t distance)
@@ -57,10 +57,10 @@ position_t stepToCoord(position_t steps)
 {
     position_t distance;
 
-    distance.x = (steps.x*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_X);
-    distance.y = (steps.y*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_Y);
-    distance.z = CAM_RADIUS*(cos((steps.z*2.0*PI)/float(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1.0);
-    distance.yaw = (steps.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
+    distance.x = (steps.x*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_X); // mm
+    distance.y = (steps.y*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_Y); // mm
+    distance.z = CAM_RADIUS*(cos((steps.z*2.0*PI)/float(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1.0); // mm
+    distance.yaw = (steps.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW); // degrees
 
     return distance;
 }
