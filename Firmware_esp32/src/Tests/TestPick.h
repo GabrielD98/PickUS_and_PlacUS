@@ -4,8 +4,8 @@
 #include "../Controller.h"
 
 /**
- * @brief Confirms the machine can activate the pump before descending to the board, releases the valve once the nozzle reaches the board,
- * then go back up once a sufficient vaccum is attained.
+ * @brief Confirms the machine can activate the pump and the valve before descending to the board,
+ * releases the valve once the nozzle reaches the board, then go back up once a sufficient vaccum is attained.
  */
 class TestPick
 {
