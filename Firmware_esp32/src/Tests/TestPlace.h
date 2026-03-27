@@ -3,12 +3,29 @@
 
 #include "../Controller.h"
 
+/**
+ * @brief Confirms the machine can activate the valve once the nozzle reaches the board,
+ * then go back up and deactivate the pump.
+ */
 class TestPlace
 {
 public:
+    /**
+     * @brief Instantiate a local controller, independant from the UI.
+     */
     TestPlace();
+
+    /**
+     * @brief Targets a test position to go to, then command to pick.
+     * Updates the machine state at a certain loop count.
+     * 
+     * @return true if passed, else false.
+     */
     bool run();
 private:
+    /**
+     * @brief Pointer to local controller.
+     */
     Controller* testCtrl;
 };
 
