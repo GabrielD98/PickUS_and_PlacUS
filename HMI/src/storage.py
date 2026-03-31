@@ -37,7 +37,7 @@ class Storage :
 
 
 
-    def addComponent(self, piece:Piece, position:Position, deltaPos:Position, rotation:int, 
+    def addComponent(self, piece:Piece, position:Position, deltaPos:Position, 
                       state:StorageState, quantity:int, automatic:bool):
         """
         Adds a component to the storage. This allows the slicer to know wich components will be
@@ -53,7 +53,7 @@ class Storage :
         if piece.package in self.components:
             return
         component = StorageUnit(piece=piece, position=position, deltaPos=deltaPos, state=state, 
-                                quantity=quantity, automatic=automatic, rotation=rotation)
+                                quantity=quantity, automatic=automatic)
         self.components[piece] = component
 
 

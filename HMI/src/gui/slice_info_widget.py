@@ -74,7 +74,8 @@ class SliceInfoWidget(QWidget):
                 piece_info = f"Piece : {command.piece.package} | "
             position_info = ""
             if command.piece is not None:
-                position_info = f"Position : {position.x}  {position.y}  {position.z}  {position.yaw} | "
+                position_info = (f"Position : {round(position.x, 2)}  " 
+                f"{round(position.y, 2)}  {round(position.z, 2)}  {round(position.yaw, 2)} | ")
             speed_info = f"Speed : {command.velocity}"
 
 

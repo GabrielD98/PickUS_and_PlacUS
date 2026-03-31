@@ -111,7 +111,6 @@ class CalibrationWindow(QMainWindow):
         self.position.yaw = position.yaw
         
         print("calibration ended successfully")
-        print(self.position)
         self.deleteLater()
         
 

@@ -187,7 +187,6 @@ class StorageUnit:
     state : StorageState    
     quantity : int          
     automatic : bool     
-    rotation : int    
 
 
 @dataclass

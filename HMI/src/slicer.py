@@ -60,7 +60,6 @@ class Slicer :
             position=None,
             piece=None
         ))
-        print(offset)
         z_mask = Position(1,1,0,1)
         yaw_mask = Position(1,1,1,0)
         for piece in pieces:
@@ -97,7 +96,7 @@ class Slicer :
                 piece=piece
             ))
 
-            rotation = Position(0, 0, 0, (pick_position.yaw - piece.position.yaw))
+            rotation = Position(0, 0, 0, (piece.position.yaw -pick_position.yaw))
             
             # Move to placement position
             commands.append(Command(
@@ -115,7 +114,6 @@ class Slicer :
                 position= (piece.position + offset)*yaw_mask + rotation,
                 piece=piece
             ))
-            print(f"MOVE {piece.package} , {piece.position}, {offset}")
 
             # Move to placement position
             commands.append(Command(

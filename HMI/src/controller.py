@@ -210,7 +210,7 @@ class Controller:
 			return
 		try:
 			machineState, x, y, z, yaw = struct.unpack(format, bytesBuffer[:size])
-			print("reception : ", machineState, x, y, z, yaw)
+			#print("reception : ", machineState, x, y, z, yaw)
 			with self.mutex:
 				self._latestMachineInfo = (MachineState(machineState), Position(x, y, z, yaw))
 				

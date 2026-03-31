@@ -296,6 +296,7 @@ class StorageWindow(QMainWindow):
 		rotation = int(self.rotation_options.currentText())
 		deltaPos = Position(0,0,0,0)
 		position= self.data_manager.get_gripper_position()
+		position.yaw = rotation
 
 		if not automatic:
 			deltaPos = self.get_delta_pos()
@@ -303,8 +304,7 @@ class StorageWindow(QMainWindow):
 				return
 
 
-		self.storage.addComponent(self.widget_info.piece, position, deltaPos, 
-							rotation, state, quantity, automatic)
+		self.storage.addComponent(self.widget_info.piece, position, deltaPos, state, quantity, automatic)
 
 		self.widget_info.update_all(self.piece_name, state, quantity, automatic)
 		print("piece added successfully")

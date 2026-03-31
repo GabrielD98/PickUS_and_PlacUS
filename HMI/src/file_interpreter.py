@@ -53,7 +53,6 @@ class FileInterpreter:
                                 y=float(data[POS_Y_INDEX]),
                                 z=0,
                                 yaw=float(data[ROTATION_INDEX]))
-                print(ref)
                 break
 
 
@@ -83,7 +82,6 @@ class FileInterpreter:
                                 yaw=float(data[ROTATION_INDEX]))
             
             position = position - ref
-            print(position)
             
             #TODO add a way to interpret value in kicad
             piece = Piece(position=position, package=data[PACKAGE_INDEX], type=type, value="")
