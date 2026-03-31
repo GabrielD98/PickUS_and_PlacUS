@@ -11,7 +11,8 @@ from PyQt5.QtWidgets import (
 	QLineEdit, 
 	QInputDialog,
 	QComboBox,
-	QCheckBox
+	QCheckBox,
+    QDesktopWidget
 )
 
 
@@ -57,6 +58,7 @@ class CalibrationWindow(QMainWindow):
         global_layout.addWidget(self.load_json_button)
         global_layout.addWidget(self.save_json_button)
         global_layout.addWidget(self.calibrate_button)
+        self.center()
 
 
     def load_previous_calibration(self):
@@ -87,6 +89,16 @@ class CalibrationWindow(QMainWindow):
         with open(CALIB_PATH, "w") as file:
             json.dump(data, file, indent=4)
 
+
+
+    def center(self):
+        """Calculates the screen center and moves the window there."""
+        self.adjustSize() 
+
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
             
     
     def set_calibration_position(self):
