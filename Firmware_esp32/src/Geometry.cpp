@@ -26,14 +26,6 @@ position_t dimensionLimits(position_t targetPositions)
     {
         targetPositions.z = P_Z_MIN;
     }
-    if (targetPositions.yaw > P_YAW_MAX)
-    {
-        targetPositions.yaw = P_YAW_MAX;
-    }
-    if (targetPositions.yaw < P_YAW_MIN)
-    {
-        targetPositions.yaw = P_YAW_MIN;
-    }
 
     return targetPositions;
 }
