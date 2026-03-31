@@ -12,8 +12,6 @@
 #define P_Y_MIN 0
 #define P_Z_MAX 0
 #define P_Z_MIN -24
-#define P_YAW_MAX 360 // degrees
-#define P_YAW_MIN 0 // degrees
 
 //Maximum speed (mm/s)
 #define SPEED_MAX 1000.0
