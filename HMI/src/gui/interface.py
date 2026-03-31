@@ -154,7 +154,7 @@ class Interface(QMainWindow):
 		# Set up the update loop
 		
 		self.timer = QTimer(self)
-		self.timer.setInterval(100) # Update every 500 milliseconds
+		self.timer.setInterval(100) # Update every 100 milliseconds
 		self.timer.timeout.connect(self.update_gui) 
 		self.timer.start() 
 

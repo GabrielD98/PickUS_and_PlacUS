@@ -28,6 +28,7 @@ from gui.gui_data_manager import GuiDataManager
 class StorageWindow(QMainWindow):
 	def __init__(self, parent=None):
 		super().__init__(parent)
+
 		self.setWindowTitle("Storage Manager")
 		self.storage = Storage()
 		self.data_manager = GuiDataManager()
@@ -146,15 +147,14 @@ class StorageWindow(QMainWindow):
 		#calibrate_button.clicked.connect(self.open_calibration_tab)
 		#self.calibration_layout.addWidget(calibrate_button)
 
+
+
 		self.inputs_layout.addWidget(piece_label)
 		self.inputs_layout.addLayout(quantity_layout)
 		self.inputs_layout.addWidget(self.auto_checkbox)
 		self.inputs_layout.addLayout(delta_layout)
 		self.inputs_layout.addLayout(rotation_layout)
 		self.inputs_layout.addLayout(states_layout)
-		self.inputs_layout.addLayout(self.calibration_layout)
-
-		self.inputs_layout.addStretch() # This pushes everything below it to the bottom
 		self.inputs_layout.addLayout(self.calibration_layout)
 		self.center()
 
@@ -287,7 +287,10 @@ class StorageWindow(QMainWindow):
 	def close_window(self):
 		value = self.quantity_entry.text()
 		if not utils.is_int(value):
-			print(f"Invalid input for the quantity. Must be an interger, is instead : {value}")
+			msg = f"Invalid input for the quantity. Must be an interger, is instead : [{value}]"
+			print(msg)
+			error_window = utils.ErrorWindow(error_msg=msg)
+			error_window.show()
 			return
 		
 		quantity = int(value)
