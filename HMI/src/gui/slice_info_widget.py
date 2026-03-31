@@ -1,6 +1,6 @@
 import time
 from typing import List
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
 	QVBoxLayout,
@@ -25,7 +25,8 @@ from storage import Storage
 from gui.gui_data_manager import GuiDataManager
 
 class SliceInfoWidget(QWidget):
-
+    slice_done_signal = pyqtSignal(bool) 
+    
     def __init__(self, calibration_pos:Position):
         super().__init__()
         self.slicer = Slicer()
@@ -74,13 +75,14 @@ class SliceInfoWidget(QWidget):
                 piece_info = f"Piece : {command.piece.package} | "
             position_info = ""
             if command.piece is not None:
-                position_info = (f"Position : {round(position.x, 2)}  " 
+                position_info = (f"Position : {round(position.x, 2)}" 
                 f"{round(position.y, 2)}  {round(position.z, 2)}  {round(position.yaw, 2)} | ")
             speed_info = f"Speed : {command.velocity}"
 
 
             comLabel = QLabel(commandInfo+piece_info+position_info+speed_info)
             self.scrollLayout.addWidget(comLabel)
+            self.slice_done_signal.emit(True)
 
 
     def set_pieces(self, pieces:List[Piece]):

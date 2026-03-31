@@ -45,6 +45,7 @@ class CommandWidget(QWidget):
         self.continue_button = QPushButton("Continue")
         self.stop_button = QPushButton("Stop")
 
+        self.main_control_button.setEnabled(False)
         self.main_control_button.clicked.connect(self.toggle_start)
         self.continue_button.clicked.connect(self.unpause)
         self.stop_button.clicked.connect(self.stop)
@@ -95,6 +96,12 @@ class CommandWidget(QWidget):
             self.pause()
         else:
             self.start()
+
+
+
+
+    def slice_done(self, _):
+        self.main_control_button.setEnabled(True)
 
 
 

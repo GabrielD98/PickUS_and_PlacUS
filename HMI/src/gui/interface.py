@@ -122,7 +122,8 @@ class Interface(QMainWindow):
 
 
 		commands_layout = QHBoxLayout()
-		commands_layout.addWidget(CommandWidget())
+		commandWidget = CommandWidget()
+		commands_layout.addWidget(commandWidget)
 		left_layout.addLayout(commands_layout, 2)
 
 
@@ -150,6 +151,10 @@ class Interface(QMainWindow):
 		
 		self.setCentralWidget(global_widget)
 		self.showMaximized()
+
+
+
+		self.slice_widget.slice_done_signal.connect(commandWidget.slice_done)
 
 		# Set up the update loop
 		
