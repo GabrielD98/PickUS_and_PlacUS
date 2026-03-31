@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
 )
 
 
+from gui.gui_data_manager import GuiDataManager
 from storage import Storage
 from data import *
 from typing import List
@@ -24,12 +25,15 @@ from gui.jog_widget import JogWidget
 import json
 
 
+JSON_KEY = "Calibration"
+
 
 class CalibrationWindow(QMainWindow):
     def __init__(self, parent=None, position:Position = None):
         super().__init__(parent)
 
         self.position = position
+        self.dataManager = GuiDataManager()
 
         self.setWindowTitle("Calibration Window")
         self.jog_widget = JogWidget(isMain=False)
@@ -40,28 +44,48 @@ class CalibrationWindow(QMainWindow):
 
         
         instruction = QLabel("Please put the end of the gripper on the calibration spot, then click 'confirm'")
-        self.calibrate_button = QPushButton("Confirm")
         self.load_json_button = QPushButton("Load Previous Calibration")
+        self.save_json_button = QPushButton("Save Current Calibration")
+        self.calibrate_button = QPushButton("Confirm")
         self.load_json_button.clicked.connect(lambda : self.load_previous_calibration())
+        self.save_json_button.clicked.connect(lambda : self.save_current_calibration())
         self.calibrate_button.clicked.connect(lambda : self.set_calibration_position())
+        
         
         global_layout.addWidget(instruction)
         global_layout.addWidget(self.jog_widget)
         global_layout.addWidget(self.load_json_button)
+        global_layout.addWidget(self.save_json_button)
         global_layout.addWidget(self.calibrate_button)
 
 
     def load_previous_calibration(self):
 
-        with open('../data/calib.json', 'r') as file:
+        with open(CALIB_PATH, 'r') as file:
             data = json.load(file)
 
-        key = "Calibration"
+        key = JSON_KEY
         if key in data:
             self.jog_widget.x_entry.setText(data[key]["x"])
             self.jog_widget.y_entry.setText(data[key]["y"])
             self.jog_widget.z_entry.setText(data[key]["z"])
             self.jog_widget.yaw_entry.setText(data[key]["yaw"])
+
+
+
+    def save_current_calibration(self):
+        with open(CALIB_PATH, "r") as file:
+            data = json.load(file)
+
+
+        position = self.dataManager.get_gripper_position()
+        data[JSON_KEY]["x"] = str(position.x)
+        data[JSON_KEY]["y"] = str(position.y)
+        data[JSON_KEY]["z"] = str(position.z)
+        data[JSON_KEY]["yaw"] = str(position.yaw)
+
+        with open(CALIB_PATH, "w") as file:
+            json.dump(data, file, indent=4)
 
             
     

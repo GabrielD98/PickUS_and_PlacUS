@@ -23,6 +23,8 @@ from data import Position
 from gui.gui_data_manager import GuiDataManager
 from PyQt5.QtSerialPort import QSerialPortInfo
 import serial.tools.list_ports
+import serial.tools.list_ports
+from typing import List
 
 class PnPStateWidget(QWidget):
 
@@ -84,14 +86,23 @@ class PnPStateWidget(QWidget):
         
 
     def scan_serial_ports(self) -> List[str]:
-        #TODO should be outside of main thread
-        ports = QSerialPortInfo.availablePorts()
-        open_ports:List[str] = []
+        ports = serial.tools.list_ports.comports()
+        # Check by Manufacturer Name
         for port in ports:
-            if port.isBusy() == False:
-                open_ports.append(port.portName())
-        return open_ports
-    
+            if port.manufacturer and "Espressif" in port.manufacturer:
+                return [port.device]
+            
+            # Check by USB Vendor ID (Espressif is 0x303A)
+            if port.vid == 0x303A:
+                return [port.device]
+                
+            # Fallback: check description for 'USB Serial' (Common for S3)
+            if "USB Serial" in port.description:
+                return [port.device]
+            
+        return []
+
+
 
 
     def update_scanned_port(self) :

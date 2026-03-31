@@ -13,7 +13,8 @@ from PyQt5.QtWidgets import (
 	QLineEdit, 
 	QInputDialog,
 	QComboBox,
-	QCheckBox
+	QCheckBox,
+	QDesktopWidget
 )
 
 from storage import Storage
@@ -45,12 +46,34 @@ class StorageWindow(QMainWindow):
 		global_widget.setLayout(global_layout)
 
 		self.inputs_layout = QVBoxLayout()
-		self.inputs_layout.setSpacing(50)
+		self.inputs_layout.setSpacing(30)
+
+
+		self.save_json_button = QPushButton("Save Current Calibration")
+		self.save_json_button.clicked.connect(lambda : self.save_current_calibration())
+		
+		self.load_json_button = QPushButton("Load Previous Calibration")
+		self.load_json_button.clicked.connect(lambda : self.load_previous_calibration())
+		
 		button = QPushButton("Confirm")
 		button.clicked.connect(lambda : self.close_window())
 		global_layout.addLayout(self.inputs_layout)
+		global_layout.addWidget(self.save_json_button)
+		global_layout.addWidget(self.load_json_button)
 		global_layout.addWidget(button)
+
 		
+
+
+	def center(self):
+		"""Calculates the screen center and moves the window there."""
+		self.adjustSize() 
+
+		qr = self.frameGeometry()
+		cp = QDesktopWidget().availableGeometry().center()
+		qr.moveCenter(cp)
+		self.move(qr.topLeft())
+
 
 
 
@@ -117,9 +140,8 @@ class StorageWindow(QMainWindow):
 		self.calibration_layout.addWidget(info_label)
 		self.jog_widget = JogWidget(isMain=False)
 		self.calibration_layout.addWidget(self.jog_widget)
-		self.load_json_button = QPushButton("Load Previous Calibration")
-		self.load_json_button.clicked.connect(lambda : self.load_previous_calibration())
-		self.calibration_layout.addWidget(self.load_json_button)
+
+
 		#calibrate_button = QPushButton("Calibrate")
 		#calibrate_button.clicked.connect(self.open_calibration_tab)
 		#self.calibration_layout.addWidget(calibrate_button)
@@ -132,12 +154,35 @@ class StorageWindow(QMainWindow):
 		self.inputs_layout.addLayout(states_layout)
 		self.inputs_layout.addLayout(self.calibration_layout)
 
+		self.inputs_layout.addStretch() # This pushes everything below it to the bottom
+		self.inputs_layout.addLayout(self.calibration_layout)
+		self.center()
+
+
+
+	def save_current_calibration(self):
+		with open(CALIB_PATH, "r") as file:
+			data = json.load(file)
+
+
+		position = self.data_manager.get_gripper_position()
+
+
+		if self.piece_name not in data:
+			data[self.piece_name] = {}
+		data[self.piece_name]["x"] = str(position.x)
+		data[self.piece_name]["y"] = str(position.y)
+		data[self.piece_name]["z"] = str(position.z)
+		data[self.piece_name]["yaw"] = str(position.yaw)
+
+		with open(CALIB_PATH, "w") as file:
+			json.dump(data, file, indent=4)
 
 
 
 	def load_previous_calibration(self):
 
-		with open('../data/calib.json', 'r') as file:
+		with open(CALIB_PATH, 'r') as file:
 			data = json.load(file)
 
 		key = self.piece_name

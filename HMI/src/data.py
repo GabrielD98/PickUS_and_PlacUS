@@ -3,6 +3,7 @@ from enum import Enum, IntFlag
 import numbers
 
 MAX_SPEED = 100 #mm/s
+CALIB_PATH = '../data/calib.json'
 
 
 class CommandId(Enum):
