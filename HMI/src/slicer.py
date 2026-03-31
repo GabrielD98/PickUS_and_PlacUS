@@ -62,6 +62,7 @@ class Slicer :
         ))
         print(offset)
         z_mask = Position(1,1,0,1)
+        yaw_mask = Position(1,1,1,0)
         for piece in pieces:
             
             if piece not in available:
@@ -77,7 +78,7 @@ class Slicer :
             commands.append(Command(
                 commandId=CommandId.MOVE,
                 velocity=speed,
-                position=(pick_position*z_mask) + storage_offset[piece],
+                position=((pick_position*z_mask) + storage_offset[piece])*yaw_mask ,
                 piece=piece
             ))
             
@@ -85,22 +86,24 @@ class Slicer :
             commands.append(Command(
                 commandId=CommandId.PICK,
                 velocity=Z_SPEED,
-                position=pick_position + storage_offset[piece],
+                position=(pick_position + storage_offset[piece])*yaw_mask ,
                 piece=piece
             ))
 
             commands.append(Command(
                 commandId=CommandId.MOVE,
                 velocity=speed,
-                position=(pick_position*z_mask) + storage_offset[piece],
+                position=((pick_position*z_mask) + storage_offset[piece])*yaw_mask ,
                 piece=piece
             ))
+
+            rotation = Position(0, 0, 0, (pick_position.yaw - piece.position.yaw))
             
             # Move to placement position
             commands.append(Command(
                 commandId=CommandId.MOVE,
                 velocity=speed,
-                position= (piece.position+ offset)*z_mask,
+                position= (piece.position+ offset)*z_mask*yaw_mask + rotation,
                 piece=piece
             ))
 
@@ -109,7 +112,7 @@ class Slicer :
             commands.append(Command(
                 commandId=CommandId.PLACE,
                 velocity=Z_SPEED,
-                position=piece.position + offset,
+                position= (piece.position + offset)*yaw_mask + rotation,
                 piece=piece
             ))
             print(f"MOVE {piece.package} , {piece.position}, {offset}")
@@ -118,7 +121,7 @@ class Slicer :
             commands.append(Command(
                 commandId=CommandId.MOVE,
                 velocity=speed,
-                position= (piece.position+ offset)*z_mask,
+                position= (piece.position+ offset)*z_mask*yaw_mask,
                 piece=piece
             ))          
             
