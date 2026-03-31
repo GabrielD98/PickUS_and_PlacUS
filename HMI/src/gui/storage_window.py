@@ -161,19 +161,46 @@ class StorageWindow(QMainWindow):
 
 
 	def save_current_calibration(self):
+		
+		value = self.quantity_entry.text()
+		if not utils.is_int(value):
+			print(f"Invalid input for the quantity. Must be an interger, is instead : {value}")
+			return
+		
+		automatic = self.auto_checkbox.isChecked()
+		state = self.states_options.currentIndex()
+		rotation = self.rotation_options.currentIndex()
+		deltaPos = Position(0,0,0,0)
+		position= self.data_manager.get_gripper_position()
+
+		if not automatic:
+			deltaPos = self.get_delta_pos()
+
 		with open(CALIB_PATH, "r") as file:
 			data = json.load(file)
 
-
-		position = self.data_manager.get_gripper_position()
-
-
 		if self.piece_name not in data:
 			data[self.piece_name] = {}
-		data[self.piece_name]["x"] = str(position.x)
-		data[self.piece_name]["y"] = str(position.y)
-		data[self.piece_name]["z"] = str(position.z)
-		data[self.piece_name]["yaw"] = str(position.yaw)
+		if "deltaPos" not in data[self.piece_name]:
+			data[self.piece_name]["deltaPos"] = {}
+
+		if "position" not in data[self.piece_name]:
+			data[self.piece_name]["position"] = {}
+
+
+		data[self.piece_name]["quantity"] = value
+		data[self.piece_name]["automatic"] = automatic
+		data[self.piece_name]["state"] = state
+		data[self.piece_name]["rotation"] = rotation
+		data[self.piece_name]["deltaPos"]["x"] = str(round(deltaPos.x, 2))
+		data[self.piece_name]["deltaPos"]["y"] = str(round(deltaPos.y, 2))
+		data[self.piece_name]["deltaPos"]["z"] = str(round(deltaPos.z, 2))
+		data[self.piece_name]["deltaPos"]["yaw"] = str(round(deltaPos.yaw, 2))
+		data[self.piece_name]["position"]["x"] = str(round(position.x, 2))
+		data[self.piece_name]["position"]["y"] = str(round(position.y, 2))
+		data[self.piece_name]["position"]["z"] = str(round(position.z, 2))
+		data[self.piece_name]["position"]["yaw"] = str(round(position.yaw, 2))
+		
 
 		with open(CALIB_PATH, "w") as file:
 			json.dump(data, file, indent=4)
@@ -186,11 +213,21 @@ class StorageWindow(QMainWindow):
 			data = json.load(file)
 
 		key = self.piece_name
-		if key in data:
-			self.jog_widget.x_entry.setText(data[key]["x"])
-			self.jog_widget.y_entry.setText(data[key]["y"])
-			self.jog_widget.z_entry.setText(data[key]["z"])
-			self.jog_widget.yaw_entry.setText(data[key]["yaw"])
+		if not key in data:
+			return
+		
+		self.quantity_entry.setText(data[key]["quantity"] )
+		self.auto_checkbox.setChecked(bool(data[key]["automatic"]))
+		self.states_options.setCurrentIndex(data[key]["state"])
+		self.rotation_options.setCurrentIndex(data[key]["rotation"])
+		self.delta_entry_x.setText(data[key]["deltaPos"]["x"])
+		self.delta_entry_y.setText(data[key]["deltaPos"]["y"])
+		self.delta_entry_z.setText(data[key]["deltaPos"]["z"])
+		self.delta_entry_yaw.setText(data[key]["deltaPos"]["yaw"])
+		self.jog_widget.x_entry.setText(data[key]["position"]["x"])
+		self.jog_widget.y_entry.setText(data[key]["position"]["y"])
+		self.jog_widget.z_entry.setText(data[key]["position"]["z"])
+		self.jog_widget.yaw_entry.setText(data[key]["position"]["yaw"])
 
 
 	def open_calibration_tab(self):

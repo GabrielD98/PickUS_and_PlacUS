@@ -79,10 +79,10 @@ class CalibrationWindow(QMainWindow):
 
 
         position = self.dataManager.get_gripper_position()
-        data[JSON_KEY]["x"] = str(position.x)
-        data[JSON_KEY]["y"] = str(position.y)
-        data[JSON_KEY]["z"] = str(position.z)
-        data[JSON_KEY]["yaw"] = str(position.yaw)
+        data[JSON_KEY]["x"] = str(round(position.x, 2))
+        data[JSON_KEY]["y"] = str(round(position.y, 2))
+        data[JSON_KEY]["z"] = str(round(position.z, 2))
+        data[JSON_KEY]["yaw"] = str(round(position.yaw, 2))
 
         with open(CALIB_PATH, "w") as file:
             json.dump(data, file, indent=4)
