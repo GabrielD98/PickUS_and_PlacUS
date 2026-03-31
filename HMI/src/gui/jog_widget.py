@@ -123,6 +123,8 @@ class JogWidget(QWidget):
         if (isMain):
             mode_on_layout.addStretch()
             mode_on_layout.addWidget(deactivate)
+        else :
+            self.data_manager.transition_to_manual()
 
         speed_layout.addWidget(self.speed_label)
         speed_layout.addWidget(self.speed_slider)
