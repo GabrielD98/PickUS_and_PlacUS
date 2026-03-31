@@ -160,10 +160,6 @@ class Interface(QMainWindow):
 
 
 
-		
-
-
-
 
 
 	def open_file_dialog(self):
@@ -204,7 +200,6 @@ class Interface(QMainWindow):
 
 
 
-
 	def get_all_unique_piece(self, pieces:List[Piece]) -> List[Piece]:
 		unique_pieces:dict[Piece:Piece] = {}
 		for piece in pieces:
@@ -214,8 +209,8 @@ class Interface(QMainWindow):
     
 
 
-	def update_piece_list(self):
 
+	def update_piece_list(self):
 		for piece in self.pieces:
 			layout = QHBoxLayout()
 			button = QPushButton("Add to Storage")
@@ -235,6 +230,8 @@ class Interface(QMainWindow):
 		self.storage_window = StorageWindow()
 		self.storage_window.set_inputs(info)
 		self.storage_window.show()
+
+
 
 
 	def start_calibration(self):

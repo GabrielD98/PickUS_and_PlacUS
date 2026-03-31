@@ -117,6 +117,10 @@ class StorageWindow(QMainWindow):
 		self.calibration_layout.addWidget(info_label)
 		self.jog_widget = JogWidget(isMain=False)
 		self.calibration_layout.addWidget(self.jog_widget)
+
+		self.save_json_button = QPushButton("Save Current Calibration")
+		self.save_json_button.clicked.connect(lambda : self.save_current_calibration())
+		self.calibration_layout.addWidget(self.save_json_button)
 		self.load_json_button = QPushButton("Load Previous Calibration")
 		self.load_json_button.clicked.connect(lambda : self.load_previous_calibration())
 		self.calibration_layout.addWidget(self.load_json_button)
@@ -134,10 +138,29 @@ class StorageWindow(QMainWindow):
 
 
 
+	def save_current_calibration(self):
+		with open(CALIB_PATH, "r") as file:
+			data = json.load(file)
+
+
+		position = self.data_manager.get_gripper_position()
+
+
+		if self.piece_name not in data:
+			data[self.piece_name] = {}
+		data[self.piece_name]["x"] = str(position.x)
+		data[self.piece_name]["y"] = str(position.y)
+		data[self.piece_name]["z"] = str(position.z)
+		data[self.piece_name]["yaw"] = str(position.yaw)
+
+		with open(CALIB_PATH, "w") as file:
+			json.dump(data, file, indent=4)
+
+
 
 	def load_previous_calibration(self):
 
-		with open('../data/calib.json', 'r') as file:
+		with open(CALIB_PATH, 'r') as file:
 			data = json.load(file)
 
 		key = self.piece_name
