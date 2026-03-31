@@ -52,11 +52,15 @@ class CalibrationWindow(QMainWindow):
         self.save_json_button.clicked.connect(lambda : self.save_current_calibration())
         self.calibrate_button.clicked.connect(lambda : self.set_calibration_position())
         
-        
+        json_layout = QHBoxLayout()
+        json_layout.setSpacing(30)
+        json_layout.addWidget(self.save_json_button)
+        json_layout.addWidget(self.load_json_button)   
+
+        global_layout.setSpacing(20)
         global_layout.addWidget(instruction)
         global_layout.addWidget(self.jog_widget)
-        global_layout.addWidget(self.load_json_button)
-        global_layout.addWidget(self.save_json_button)
+        global_layout.addLayout(json_layout)
         global_layout.addWidget(self.calibrate_button)
         self.center()
 

@@ -59,8 +59,13 @@ class StorageWindow(QMainWindow):
 		button = QPushButton("Confirm")
 		button.clicked.connect(lambda : self.close_window())
 		global_layout.addLayout(self.inputs_layout)
-		global_layout.addWidget(self.save_json_button)
-		global_layout.addWidget(self.load_json_button)
+
+		json_layout = QHBoxLayout()
+		json_layout.setSpacing(30)
+		json_layout.addWidget(self.save_json_button)
+		json_layout.addWidget(self.load_json_button)
+
+		global_layout.addLayout(json_layout)
 		global_layout.addWidget(button)
 
 		
