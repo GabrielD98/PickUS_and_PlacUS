@@ -1,81 +1,69 @@
 #include "Geometry.h"
 
-position_t dimensionLimits(position_t targetPositions)
+positionCartesian_t dimensionLimits(positionCartesian_t targetPosition)
 {
-    if (targetPositions.x > P_X_MAX)
-    {
-        targetPositions.x = P_X_MAX;
-    }
-    if (targetPositions.x < P_X_MIN)
-    {
-        targetPositions.x = P_X_MIN;
-    }
-    if (targetPositions.y > P_Y_MAX)
-    {
-        targetPositions.y = P_Y_MAX;
-    }
-    if (targetPositions.y < P_Y_MIN)
-    {
-        targetPositions.y = P_Y_MIN;
-    }
-    if (targetPositions.z > P_Z_MAX)
-    {
-        targetPositions.z = P_Z_MAX;
-    }
-    if (targetPositions.z < P_Z_MIN)
-    {
-        targetPositions.z = P_Z_MIN;
-    }
-    if (targetPositions.yaw > P_YAW_MAX)
-    {
-        targetPositions.yaw = P_YAW_MAX;
-    }
-    if (targetPositions.yaw < P_YAW_MIN)
-    {
-        targetPositions.yaw = P_YAW_MIN;
-    }
+    if (targetPosition.x > P_X_MAX){
+        targetPosition.x = P_X_MAX;}
+    if (targetPosition.x < P_X_MIN){
+        targetPosition.x = P_X_MIN;}
 
-    return targetPositions;
+    if (targetPosition.y > P_Y_MAX){
+        targetPosition.y = P_Y_MAX;}
+    if (targetPosition.y < P_Y_MIN){
+        targetPosition.y = P_Y_MIN;}
+
+    if (targetPosition.z > P_Z_MAX){
+        targetPosition.z = P_Z_MAX;}
+    if (targetPosition.z < P_Z_MIN){
+        targetPosition.z = P_Z_MIN;}
+
+    if (targetPosition.yaw > P_YAW_MAX){
+        targetPosition.yaw = P_YAW_MAX;}
+    if (targetPosition.yaw < P_YAW_MIN){
+        targetPosition.yaw = P_YAW_MIN;}
+
+    return targetPosition;
 }
 
-position_t coordToStep(position_t distance)
-{
-    position_t constrainedPosition = dimensionLimits(distance);
 
-    position_t steps;
+positionStep_t coordToStep(positionCartesian_t positionCartesian)
+{
+    positionCartesian_t constrainedPosition = dimensionLimits(positionCartesian);
+
+    positionStep_t positionStep;
     
-    steps.x = round((constrainedPosition.x*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
-    steps.y = round((constrainedPosition.y*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
-    steps.z = round((MICROSTEPPING_Z*STEPS_REVOLUTION*acos(1 + constrainedPosition.z/CAM_RADIUS))/(2*PI));
-    steps.yaw = round((constrainedPosition.yaw*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
+    positionStep.x = round((constrainedPosition.x*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
+    positionStep.y = round((constrainedPosition.y*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
+    positionStep.z = round((MICROSTEPPING_Z*STEPS_REVOLUTION*acos(1 + constrainedPosition.z/CAM_RADIUS))/(2*PI));
+    positionStep.yaw = round((constrainedPosition.yaw*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
 
-
-    return steps;
+    return positionStep;
 }
 
-position_t stepToCoord(position_t steps)
+
+positionCartesian_t stepToCoord(positionStep_t positionStep)
 {
-    position_t distance;
+    positionCartesian_t positionCartesian;
 
-    distance.x = (steps.x*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_X); // mm
-    distance.y = (steps.y*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_Y); // mm
-    distance.z = CAM_RADIUS*(cos((steps.z*2.0*PI)/float(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1.0); // mm
-    distance.yaw = (steps.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW); // degrees
+    positionCartesian.x = (positionStep.x*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_X); // mm
+    positionCartesian.y = (positionStep.y*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_Y); // mm
+    positionCartesian.z = CAM_RADIUS*(cos((positionStep.z*2.0*PI)/float(STEPS_REVOLUTION*MICROSTEPPING_Z)) - 1.0); // mm
+    positionCartesian.yaw = (positionStep.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW); // degrees
 
-    return distance;
+    return positionCartesian;
 }
 
-velocity_t velocityToStep(float velocity)
+
+velocityStep_t velocityToStep(float velocityCartesian)
 {
-    velocity_t stepsPerSec;
-    const float speedAbs = fmin(fabs(velocity), SPEED_MAX);
+    velocityStep_t stepsPerSec;
+    const float speedAbs = fmin(fabs(velocityCartesian), SPEED_MAX);
     
     stepsPerSec.x = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
     stepsPerSec.y = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
-    // Z has a nonlinear cam profile; use an average mm->steps velocity mapping that stays valid.
-    stepsPerSec.z = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_Z)/(4.0f*CAM_RADIUS));
+    // Z has a nonlinear cam profile; using an average mm->steps velocity mapping instead.
+    stepsPerSec.z = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_Z)/(4.0*CAM_RADIUS));
     stepsPerSec.yaw = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
-
 
     return stepsPerSec;
 }

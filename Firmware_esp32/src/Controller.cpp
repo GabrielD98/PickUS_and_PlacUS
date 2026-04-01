@@ -1,26 +1,27 @@
 #include "Controller.h"
 #include "Geometry.h"
 
-#define HOME_DIRECTION -1.0f
-#define PIECE_PRESSURE_THRESHOLD 90 //TODO: validate value;
-#define NO_PIECE_PRESSURE_THRESHOLD 100 //TODO: validate value;
+#define HOME_DIRECTION -1.0                 // Negative to go backward, toward the origin
+#define PIECE_PRESSURE_THRESHOLD 90         // kPa //TODO: validate value;
+#define NO_PIECE_PRESSURE_THRESHOLD 100     // kPa //TODO: validate value;
 
-#define HOME_SPEED 50.0
-#define POSITION_UPDATE_FREQ 100
+#define HOME_SPEED 50.0             // steps/s
+#define POSITION_UPDATE_FREQ 100    // ms
 
-const velocity_t homeVelocity = velocityToStep(HOME_SPEED);
+const velocityStep_t homingVelocityStep = velocityToStep(HOME_SPEED);
+
 
 Controller::Controller()
     : motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR),
       motorY(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR),
       motorZ(AccelStepper::DRIVER, PIN_DZ_STEP, PIN_DZ_DIR),
       motorYAW(AccelStepper::DRIVER, PIN_DYAW_STEP, PIN_DYAW_DIR),
-      limSwitchX(PIN_LIMSWITCH_X,true),
-      limSwitchY(PIN_LIMSWITCH_Y,true),
-      limSwitchZ(PIN_LIMSWITCH_Z,true),
+      limSwitchX(PIN_LIMSWITCH_X, true),
+      limSwitchY(PIN_LIMSWITCH_Y, true),
+      limSwitchZ(PIN_LIMSWITCH_Z, true),
       valve(PIN_VALVE),
       pump(PIN_PUMP),
-      pressureSensor(PIN_PSENSOR_CLK,PIN_PSENSOR_DATA)
+      pressureSensor(PIN_PSENSOR_CLK, PIN_PSENSOR_DATA)
 {
     // Enable stepper drivers (active LOW)
     pinMode(PIN_DX_EN, OUTPUT);   digitalWrite(PIN_DX_EN, LOW);
@@ -42,15 +43,19 @@ Controller::Controller()
     lastPositionUpdateMS = millis();
 }
 
+
 void Controller::update()
 {
-    command_t command =  dataModel.get()->command;
+    // Storing the command listed in the shared chain of data for safe and free usage
+    command_t command = dataModel.get()->command;
     dataModel.release();
+
 
     if(command.id == CommandId::STOP)
     {
         machineState = MachineState::READY;
     }
+
 
     switch (machineState)
     {
@@ -67,16 +72,16 @@ void Controller::update()
                     
                 case CommandId::MOVE:
                     machineState = MachineState::MOVING;
-                    setTargets(command.requestedPosition,command.velocity);
+                    setTargets(command.requestedPosition, command.velocityCartesian);
                     break;
 
                 case CommandId::PICK:
-                    setTargets(command.requestedPosition,command.velocity);
+                    setTargets(command.requestedPosition, command.velocityCartesian);
                     machineState = MachineState::PICKING;
                     break;
 
                 case CommandId::PLACE:
-                    setTargets(command.requestedPosition,command.velocity);
+                    setTargets(command.requestedPosition, command.velocityCartesian);
                     machineState = MachineState::PLACING;
                     break;
 
@@ -87,10 +92,11 @@ void Controller::update()
 
                 case CommandId::EMPTY:
                     break;
-
+                    
             }
     break;
     
+
     case MachineState::MOVING:
 
         if(!motorSystem.run())
@@ -99,6 +105,7 @@ void Controller::update()
         }
         break;
     
+
     case MachineState::PLACING:
 
         executePickPlace(PickPlaceMode::PLACE);
@@ -110,6 +117,7 @@ void Controller::update()
         }
         break;
     
+
     case MachineState::PICKING:
 
         executePickPlace(PickPlaceMode::PICK);
@@ -121,6 +129,7 @@ void Controller::update()
         }
         break;
     
+
     case MachineState::HOMING:
 
         goHome();
@@ -130,21 +139,25 @@ void Controller::update()
             homingState = HomingState::INIT;
         }
         break;
-    
+        
     }
 
-    if((millis() - lastPositionUpdateMS) >= 1000/POSITION_UPDATE_FREQ)
-    {
-        position_t currentPosition;
-        currentPosition.x = motorX.currentPosition();
-        currentPosition.y = motorY.currentPosition();
-        currentPosition.z = motorZ.currentPosition();
-        currentPosition.yaw = motorYAW.currentPosition();
 
-        currentPosition = stepToCoord(currentPosition);
+    // Limiting information updating rate
+    if((millis() - lastPositionUpdateMS) >= 1000 / POSITION_UPDATE_FREQ)
+    {
+        positionStep_t currentPositionStep;
+        currentPositionStep.x = motorX.currentPosition();
+        currentPositionStep.y = motorY.currentPosition();
+        currentPositionStep.z = motorZ.currentPosition();
+        currentPositionStep.yaw = motorYAW.currentPosition();
+
+        positionCartesian_t currentPositionCartesian;
+
+        currentPositionCartesian = stepToCoord(currentPositionStep);
         
         dataModel_t* dataModel = this->dataModel.get();
-        dataModel->position = currentPosition;
+        dataModel->position = currentPositionCartesian;
         dataModel->state = machineState;
         this->dataModel.release();
         
@@ -152,25 +165,28 @@ void Controller::update()
     }
 }
 
-void Controller::setTargets(position_t position, float speed)
+
+void Controller::setTargets(positionCartesian_t positionCartesian, float velocityCartesian)
 {
-    position = coordToStep(position);
+    positionStep_t positionStep;
+    positionStep = coordToStep(positionCartesian);
 
     long target[4] =
     {
-        (long)position.x,
-        (long)position.y,
-        (long)position.z,
-        (long)position.yaw
+        (long)positionStep.x,
+        (long)positionStep.y,
+        (long)positionStep.z,
+        (long)positionStep.yaw
     };
 
-    velocity_t convertedSpeed = velocityToStep(speed);
+    velocityStep_t velocityStep = velocityToStep(velocityCartesian);
 
-    motorX.setMaxSpeed(convertedSpeed.x);
-    motorY.setMaxSpeed(convertedSpeed.y);
-    motorZ.setMaxSpeed(convertedSpeed.z);
-    motorYAW.setMaxSpeed(convertedSpeed.yaw);
+    motorX.setMaxSpeed(velocityStep.x);
+    motorY.setMaxSpeed(velocityStep.y);
+    motorZ.setMaxSpeed(velocityStep.z);
+    motorYAW.setMaxSpeed(velocityStep.yaw);
     
+    // Assign targets to their axis corresponding AccelStepper object through MultiStepper
     motorSystem.moveTo(target);
 }
 
@@ -181,17 +197,19 @@ void Controller::goHome()
     {
         case HomingState::INIT:
             homingState = HomingState::Z;
-            motorZ.setMaxSpeed(homeVelocity.z / 10.0f);
-            motorZ.setSpeed(HOME_DIRECTION * (homeVelocity.z / 2.0f));
+            motorZ.setMaxSpeed(homingVelocityStep.z / 10.0);
+            motorZ.setSpeed(HOME_DIRECTION * (homingVelocityStep.z / 2.0));
             break;
 
-        case HomingState::Z:
+            
+            // Homing Z-axis first in order to avoid collisions with the nozzle
+            case HomingState::Z:
             if(limSwitchZ.isTriggered())
             {
                 motorZ.setCurrentPosition(0);
                 homingState = HomingState::X;
-                motorX.setMaxSpeed(homeVelocity.x);
-                motorX.setSpeed(HOME_DIRECTION * homeVelocity.x);
+                motorX.setMaxSpeed(homingVelocityStep.x);
+                motorX.setSpeed(HOME_DIRECTION * homingVelocityStep.x);
             }
             else
             {
@@ -199,19 +217,21 @@ void Controller::goHome()
             }
             break;
 
+
         case HomingState::X:
             if(limSwitchX.isTriggered())
             {
                 motorX.setCurrentPosition(0);
                 homingState = HomingState::Y;
-                motorY.setMaxSpeed(homeVelocity.y);
-                motorY.setSpeed(HOME_DIRECTION * homeVelocity.y);
+                motorY.setMaxSpeed(homingVelocityStep.y);
+                motorY.setSpeed(HOME_DIRECTION * homingVelocityStep.y);
             }
             else
             {
                 motorX.runSpeed();
             }
             break;
+
 
         case HomingState::Y:
             if(limSwitchY.isTriggered())
@@ -225,15 +245,17 @@ void Controller::goHome()
             }
             break;
 
+
         case HomingState::YAW:
 
             motorYAW.setCurrentPosition(0);
             homingState = HomingState::HOMING_DONE;
             break;
 
+
         case HomingState::HOMING_DONE:
             break;
-        }
+    }
 }
 
 
@@ -245,6 +267,9 @@ void Controller::executePickPlace(PickPlaceMode mode)
 
         if (mode == PickPlaceMode::PICK)
         {
+            // Activating pump and closing valve to accumulate maximum pump vacuum after contact.
+            // Also, valve needs to be closed during pcb components approach in order to avoid
+            // displacing pieces before contact.
             pump.on();
             valve.on();
         }
@@ -256,16 +281,19 @@ void Controller::executePickPlace(PickPlaceMode mode)
         pickPlaceState = PickPlaceState::GOING_DOWN;
         break;
 
+
     case PickPlaceState::GOING_DOWN:
 
         if (!motorSystem.run())
             pickPlaceState = PickPlaceState::CONTACT;
         break;
 
+
     case PickPlaceState::CONTACT:
 
         if (mode == PickPlaceMode::PICK)
         {
+            // Opening valve to use maximum pump vacuum on pcb components
             valve.off();
             if(pressureSensor.getPressureKPa() < PIECE_PRESSURE_THRESHOLD) //TODO: Add timeout
             {
@@ -278,14 +306,16 @@ void Controller::executePickPlace(PickPlaceMode mode)
             if(pressureSensor.getPressureKPa() > NO_PIECE_PRESSURE_THRESHOLD) //TODO: Add timeout
             {
                 pickPlaceState = PickPlaceState::DONE;
-                valve.off();
                 pump.off();
+                valve.off();
             }
         }
 
         break;
 
+
     case PickPlaceState::DONE:
         break;
+
     }
 }

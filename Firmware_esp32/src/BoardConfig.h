@@ -1,9 +1,9 @@
 /**
  * @file boardconfig.h
  * @author PickusAndPlacus
- * @brief Hardware abstraction layer defining GPIO pin assignments
- * @version
- * @date
+ * @brief Hardware abstraction layer defining GPIO pin assignments.
+ * @version 1.0
+ * @date 17/04/2026
  */
 
 #ifndef BOARDCONFIG_H

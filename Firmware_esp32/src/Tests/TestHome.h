@@ -1,9 +1,9 @@
 /**
  * @file testhome.h
  * @author PickusAndPlacus
- * @brief 
- * @version
- * @date
+ * @brief Class to execute an homing test.
+ * @version 1.0
+ * @date 17/04/2026
  */
 
 #ifndef TESTHOME_H

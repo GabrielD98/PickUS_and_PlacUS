@@ -1,9 +1,9 @@
 /**
  * @file testrunner.h
  * @author PickusAndPlacus
- * @brief 
- * @version
- * @date
+ * @brief Class to manage integration tests on the ESP.
+ * @version 1.0
+ * @date 17/04/2026
  */
 
 #ifndef TESTRUNNER_H

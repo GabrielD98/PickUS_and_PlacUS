@@ -1,10 +1,10 @@
 /**
  * @file geometry.h
  * @author PickusAndPlacus
- * @brief Physical parameters to delimit the machine's workspace
- * and convert distances to step count.
- * @version
- * @date
+ * @brief File that gathers physical parameters to delimit the machine's workspace,
+ * functions that converts distances to step count or step count to distances.
+ * @version 1.0
+ * @date 17/04/2026
  */
 
 #ifndef GEOMETRY_H
@@ -42,30 +42,30 @@
 
 /**
  * @brief Clips target positions to the machine's physical workspace.
- * @param targetPositions Raw input target coordinates from UI.
+ * @param targetPosition Raw input target coordinates from UI.
  * @return position_t Coordinates restricted to defined workspace ranges.
  */
-position_t dimensionLimits(position_t targetPositions);
+positionCartesian_t dimensionLimits(positionCartesian_t targetPosition);
 
 /**
  * @brief Converts physical coordinates to motor steps.
- * @param distance Physical coordinates relative to home.
+ * @param positionCartesian Physical coordinates relative to home.
  * @return position_t Calculated step count for each axis.
  */
-position_t coordToStep(position_t distance);
+positionStep_t coordToStep(positionCartesian_t positionCartesian);
 
 /**
  * @brief Converts motor steps to physical coordinates for each axis.
- * @param step Number of steps relative to home position.
+ * @param positionStep Number of steps relative to home position.
  * @return position_t Physical toolhead position.
  */
-position_t stepToCoord(position_t step);
+positionCartesian_t stepToCoord(positionStep_t positionStep);
 
 /**
  * @brief Converts a physical velocity (mm/s) to a corresponding number of steps per seconds.
- * @param velocity Speed (mm/s).
- * @return velocity_t Corresponding number of steps per second for each motor.
+ * @param velocityCartesian Speed (mm/s and degree/s).
+ * @return velocity_t Corresponding number of steps/s for each motor.
  */
-velocity_t velocityToStep(float velocity);
+velocityStep_t velocityToStep(float velocityCartesian);
 
 #endif
