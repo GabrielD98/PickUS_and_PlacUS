@@ -47,8 +47,8 @@ class CommandWidget(QWidget):
         layout.addWidget(self.pause_button)
 
 
-        self.start_button.qss_style.background_color =  "#018849"
-        self.start_button.qss_style.font_size = "21"
+        self.start_button.qss_style.background_color =  "#30E993"
+        self.start_button.qss_style.font_size = "25px"
         self.start_button.commitStyleSheet()
 
 

@@ -154,6 +154,7 @@ class Interface(QMainWindow):
 		pixmap = QPixmap(img)
 		img_label.setPixmap(pixmap)
 		img_label.setScaledContents(True) 
+		img_label.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Expanding)
 		right_layout.addWidget(img_label, 4)
 
 		
