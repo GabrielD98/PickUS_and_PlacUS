@@ -301,6 +301,7 @@ class Controller:
 			nextCommand = self._nextCommand()
 			if nextCommand is not None:
 				commandToSend = nextCommand
+				
 			if commandToSend.commandId == CommandId.PLACE:
 				if commandToSend.piece is not None and commandToSend.piece in self._storage.components:
 					self._storage.components[commandToSend.piece].quantity -= 1

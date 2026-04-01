@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from matplotlib.image import imread
 import time
 from typing import List
 from PyQt5.QtCore import Qt
@@ -109,8 +110,11 @@ class SliceInfoWidget(QWidget):
             self.tabs.scrollLayout.addWidget(comLabel)
 
         self.show_graph()
-            
 
+    def highlight_step(self, index):
+        if index >= 1:
+             self.tabs.scrollLayout.itemAt(index - 1).widget().setStyleSheet("background-color: white; color: black")
+        self.tabs.scrollLayout.itemAt(index).widget().setStyleSheet("background-color: green; color: black") 
 
     def set_pieces(self, pieces:List[Piece]):
         self.pieces = pieces
@@ -144,8 +148,12 @@ class SliceInfoWidget(QWidget):
         pcb_offset_y = -25.0
 
         fig, ax = plt.subplots()
+       # bg = imread("../data/PCB_Background.png")
+       # self.tabs.ax.imshow(bg, extent=[pcb_offset_x, pcb_offset_x + pcb_width,
+       #                              pcb_offset_y + pcb_height, pcb_offset_y],
+       #                 aspect='auto', zorder=0)
         rect = patches.Rectangle((pcb_offset_x,pcb_offset_y), width=pcb_width, height=pcb_height, #TODO Offsets hard-codes
-                         linewidth=2, edgecolor = 'black', facecolor='none')
+                        linewidth=2, edgecolor = 'black', facecolor='none')
         self.tabs.ax.add_patch(rect)
 
         #TODO c'est trassh une liste de couleurs de meme 
