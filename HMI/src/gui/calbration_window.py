@@ -15,15 +15,15 @@ from PyQt5.QtWidgets import (
     QDesktopWidget
 )
 
-
-from gui.gui_data_manager import GuiDataManager
 from storage import Storage
 from data import *
 from typing import List
 import utils
 from gui.storage_ui_info import StorageUiInfo
 from gui.jog_widget import JogWidget
+from controller import Controller
 import json
+
 
 
 JSON_KEY = "Calibration"
@@ -34,7 +34,7 @@ class CalibrationWindow(QMainWindow):
         super().__init__(parent)
 
         self.position = position
-        self.dataManager = GuiDataManager()
+        self.controller = Controller()
 
         self.setWindowTitle("Calibration Window")
         self.jog_widget = JogWidget(isMain=False)
@@ -84,7 +84,7 @@ class CalibrationWindow(QMainWindow):
             data = json.load(file)
 
 
-        position = self.dataManager.get_gripper_position()
+        position = self.controller.get_gripper_position()
         data[JSON_KEY]["x"] = str(round(position.x, 2))
         data[JSON_KEY]["y"] = str(round(position.y, 2))
         data[JSON_KEY]["z"] = str(round(position.z, 2))

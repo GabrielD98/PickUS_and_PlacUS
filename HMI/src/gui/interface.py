@@ -23,7 +23,6 @@ from pathlib import Path
 
 from controller import Controller
 from file_interpreter import FileInterpreter
-from gui.gui_data_manager import GuiDataManager
 from gui.pnp_state_widget import PnPStateWidget
 from slicer import Slicer
 from storage import Storage
@@ -45,7 +44,7 @@ class Interface(QMainWindow):
 		super().__init__()	
 		self.calibration_pos = Position(-1,-1,-1,-1)
 		self.storage_window:StorageWindow = None
-		self.data_manager = GuiDataManager()
+		self.controller = Controller()
 		self.storage = Storage()
 		self.pieces:List[Piece] = []
 		self.file_path = "No file selected"
@@ -249,8 +248,8 @@ class Interface(QMainWindow):
 
 	def update_gui(self):
 		"""This function runs every 500ms when the timer times out."""
-		if not self.data_manager.is_connected():
-			if not self.data_manager.is_port_open():
+		if not self.controller.isConnected():
+			if not self.controller.isPortOpen():
 				self.state_widget.update_scanned_port()
 			#TODO check for disconnection with exeption request. connected should not be local here
 			else :	
@@ -269,7 +268,7 @@ class Interface(QMainWindow):
 		try :
 			self.state_widget.update_scanned_port()
 			port = self.state_widget.get_selected_port()
-			self.data_manager.connect_to_pnp(port)
+			self.controller.connectionToMachine(port, 115200)
 			self.state_widget.set_connected()
 			print("connection successful")
 		except Exception as e :
@@ -284,4 +283,4 @@ class Interface(QMainWindow):
 		if self.timer.isActive():
 			self.timer.stop()
 		self.deleteLater()	
-		self.data_manager.disconnect()
+		self.controller.disconnectionFromMachine()

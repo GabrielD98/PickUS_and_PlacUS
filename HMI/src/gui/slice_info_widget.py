@@ -19,10 +19,10 @@ from PyQt5.QtWidgets import (
 )
 
 import utils
-from data import Command, Piece, Position
+from data import Piece, Position
 from slicer import Slicer
 from storage import Storage
-from gui.gui_data_manager import GuiDataManager
+from controller import Controller
 
 class SliceInfoWidget(QWidget):
     slice_done_signal = pyqtSignal(bool) 
@@ -31,7 +31,7 @@ class SliceInfoWidget(QWidget):
         super().__init__()
         self.slicer = Slicer()
         self.calibration_pos = calibration_pos
-        self.dataManager = GuiDataManager()
+        self.controller = Controller()
         self.storage = Storage()
         self.pieces:List[Piece] = None
 
@@ -64,7 +64,7 @@ class SliceInfoWidget(QWidget):
                                           Position(0,0,0,0),   #TODO offset du z
                                           50)
         
-        self.dataManager.set_pnp_commands(commands)
+        self.controller.set_pnp_commands(commands)
         utils.clearLayout(self.scrollLayout)
         for command in commands:
             position = command.position

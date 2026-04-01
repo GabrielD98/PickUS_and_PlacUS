@@ -43,7 +43,12 @@ class Controller:
 
 
 	def __init__(self):
-		self._storage = Storage() # mutex on Storage?
+
+		if hasattr(self, 'initialized'):
+			return
+		self.initialized = True
+
+		self._storage = Storage() #TODO mutex on Storage?
 		self._com = None
 		self._commands = []
 		self._lastCommand = Command(CommandId.EMPTY,0, None, None)
@@ -56,7 +61,15 @@ class Controller:
 		self._connected = False
 		self.mutex = threading.Lock()
 
+		self.homed = False
+		self.blocked = False
 
+
+
+	def __new__(cls):
+		if not hasattr(cls, 'instance'):
+			cls.instance = super(Controller, cls).__new__(cls)
+		return cls.instance
 
 
 	def queueCommand(self, command: Command):
@@ -103,6 +116,7 @@ class Controller:
 
 	def getState(self) -> tuple[ControllerState, MachineState, Position]:
 		"""
+		Legacy TODO remove
 		Get current controller state, machine state, and position.
 
 		Returns:
@@ -447,4 +461,87 @@ class Controller:
 
 
 
-	
+
+
+
+	def homing_thread(self, ending_function = None):
+		self.blocked = True
+		home_cmd = Command(CommandId.HOME,
+			velocity=0,
+			position=None,
+			piece=None)
+		self.queueCommand(home_cmd)
+
+		time.sleep(0.5)
+		while not self.get_machine_state() == MachineState.READY:
+			if not self.isConnected():
+				break
+			time.sleep(0.5)
+
+		if ending_function is not None:
+			ending_function()
+		self.homed = True
+		self.blocked = False
+
+
+
+
+
+	def go_home(self, ending_function):
+		if self.blocked :
+			return
+		if not self.isConnected():
+			return
+		home_thread = threading.Thread(target=self.homing_thread,  args=(ending_function,))
+		home_thread.start()
+
+
+
+	def get_machine_state(self) -> MachineState:
+		with self.mutex:
+			state = self._latestMachineInfo[0]
+		return state
+
+
+	def get_gripper_position(self) -> Position:
+		with self.mutex:
+			position = self._latestMachineInfo[1]
+		return position
+
+
+	def get_controller_state(self) -> ControllerState:
+		return  self._controllerState
+
+
+
+	def set_pnp_commands(self, command:Command):
+		if self.blocked:
+			return
+		self.commands = command 
+
+    
+	def start_pnp(self):
+		if self.blocked:
+			return
+		self.requestTransition(TransitionRequest.TO_RUNNING)
+		self.queueCommands(self.commands)
+		#print(self.commands)
+		print("STARTING THE SLICE")
+
+
+	def pause_pnp(self):
+		self.requestTransition(TransitionRequest.TO_PAUSE)
+
+	def transition_to_running(self):
+		self.requestTransition(TransitionRequest.TO_RUNNING)
+
+	def transition_to_manual(self):
+		self.requestTransition(TransitionRequest.TO_MANUAL)
+
+	def transition_to_idle(self):
+		self.requestTransition(TransitionRequest.TO_IDLE)
+
+
+	def continue_pnp(self):
+		self.requestTransition(TransitionRequest.TO_RUNNING)
+

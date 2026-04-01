@@ -23,15 +23,14 @@ from typing import List
 import utils
 from gui.storage_ui_info import StorageUiInfo
 from gui.jog_widget import JogWidget
-from gui.gui_data_manager import GuiDataManager
-
+from controller import Controller
 class StorageWindow(QMainWindow):
 	def __init__(self, parent=None):
 		super().__init__(parent)
 
 		self.setWindowTitle("Storage Manager")
 		self.storage = Storage()
-		self.data_manager = GuiDataManager()
+		self.controller = Controller()
 		self.piece:Piece = None
 		self.addition_label:QLabel = None
 		self.piece_name = "Unknown"
@@ -176,7 +175,7 @@ class StorageWindow(QMainWindow):
 		state = self.states_options.currentIndex()
 		rotation = self.rotation_options.currentIndex()
 		deltaPos = Position(0,0,0,0)
-		position= self.data_manager.get_gripper_position()
+		position= self.controller.get_gripper_position()
 
 		if not automatic:
 			deltaPos = self.get_delta_pos()
@@ -303,7 +302,7 @@ class StorageWindow(QMainWindow):
 		state = self.states[self.states_options.currentText()]
 		rotation = int(self.rotation_options.currentText())
 		deltaPos = Position(0,0,0,0)
-		position= self.data_manager.get_gripper_position()
+		position= self.controller.get_gripper_position()
 		position.yaw = rotation
 
 		if not automatic:

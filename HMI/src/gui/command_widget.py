@@ -16,8 +16,7 @@ from PyQt5.QtWidgets import (
     QStackedWidget,
     QSlider
 )
-import utils
-from gui.gui_data_manager import GuiDataManager
+from controller import Controller
 
 class CommandWidget(QWidget):
 
@@ -26,7 +25,7 @@ class CommandWidget(QWidget):
 
         #TODO utiliser des enum de data maybe
         self.on = False 
-        self.data_manager = GuiDataManager()
+        self.controller = Controller()
         layout = QHBoxLayout()
         self.setLayout(layout)
 
@@ -62,13 +61,13 @@ class CommandWidget(QWidget):
     def start(self):
         self.on = True
         self.main_control_button.setText("Pause")
-        self.data_manager.start_pnp()
+        self.controller.start_pnp()
 
 
 
 
     def pause(self):
-        self.data_manager.pause_pnp()
+        self.controller.pause_pnp()
         self.stacked_widget.setCurrentIndex(1)
         #self.unpause() #reset le pause button, a voir ak la logique globale TODO
     
@@ -79,13 +78,13 @@ class CommandWidget(QWidget):
         self.on = False
         self.stacked_widget.setCurrentIndex(0)
         self.main_control_button.setText("Start")
-        self.data_manager.transition_to_idle()
+        self.controller.transition_to_idle()
 
 
 
 
     def unpause(self):
-        self.data_manager.continue_pnp()
+        self.controller.continue_pnp()
         self.stacked_widget.setCurrentIndex(0)
 
 
