@@ -82,6 +82,8 @@ class SliceInfoWidget(QWidget):
         self.tabs = MyTabWidget(self)
         layout.addWidget(self.tabs)
 
+        self.index = 0
+
        
 
     def slice(self):
@@ -111,10 +113,12 @@ class SliceInfoWidget(QWidget):
 
         self.show_graph()
 
-    def highlight_step(self, index):
-        if index >= 1:
-             self.tabs.scrollLayout.itemAt(index - 1).widget().setStyleSheet("background-color: white; color: black")
-        self.tabs.scrollLayout.itemAt(index).widget().setStyleSheet("background-color: green; color: black") 
+    def highlight_step(self):
+        #TODO initialiser index a 0 in start
+        if self.index >= 1:
+             self.tabs.scrollLayout.itemAt(self.index - 1).widget().setStyleSheet("background-color: white; color: black")
+        self.tabs.scrollLayout.itemAt(self.index).widget().setStyleSheet("background-color: green; color: black") 
+        self.index ++ 1 
 
     def set_pieces(self, pieces:List[Piece]):
         self.pieces = pieces
