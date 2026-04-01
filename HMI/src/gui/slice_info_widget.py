@@ -62,7 +62,7 @@ class SliceInfoWidget(QWidget):
         commands = self.slicer.slice(self.pieces,
                                           self.calibration_pos,    #TODO calbiration pos of PCB
                                           Position(0,0,0,0),   #TODO offset du z
-                                          50)
+                                          200)              #TODO wtf is this
         
         self.dataManager.set_pnp_commands(commands)
         utils.clearLayout(self.scrollLayout)

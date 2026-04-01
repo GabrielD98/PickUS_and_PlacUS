@@ -54,12 +54,12 @@ class Slicer :
 
         commands:List[Command] = []
 
-        commands.append(Command(
-            commandId=CommandId.HOME,
-            velocity=speed,
-            position=None,
-            piece=None
-        ))
+        #commands.append(Command(
+        #    commandId=CommandId.HOME,
+        #    velocity=speed,
+        #    position=None,
+        #    piece=None
+        #))
         z_mask = Position(1,1,0,1)
         yaw_mask = Position(1,1,1,0)
         for piece in pieces:
@@ -91,12 +91,18 @@ class Slicer :
 
             commands.append(Command(
                 commandId=CommandId.MOVE,
-                velocity=speed,
+                velocity=Z_SPEED,
                 position=((pick_position*z_mask) + storage_offset[piece])*yaw_mask ,
                 piece=piece
             ))
 
-            rotation = Position(0, 0, 0, (piece.position.yaw -pick_position.yaw))
+            yaw = (piece.position.yaw - pick_position.yaw) % 360 
+            if abs(yaw) > 180:
+                if yaw < 0:
+                    yaw = yaw + 360
+                else:
+                    yaw = yaw - 360
+            rotation = Position(0, 0, 0, yaw)
             
             # Move to placement position
             commands.append(Command(
@@ -119,7 +125,7 @@ class Slicer :
             commands.append(Command(
                 commandId=CommandId.MOVE,
                 velocity=speed,
-                position= (piece.position+ offset)*z_mask*yaw_mask,
+                position= (piece.position+ offset)*z_mask*yaw_mask + rotation,
                 piece=piece
             ))          
             

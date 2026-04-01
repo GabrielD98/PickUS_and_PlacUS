@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
     QStackedWidget,
     QSlider
 )
+from data import MAX_SPEED, Command, CommandId, Position
 import utils
 from gui.gui_data_manager import GuiDataManager
 
@@ -62,6 +63,11 @@ class CommandWidget(QWidget):
     def start(self):
         self.on = True
         self.main_control_button.setText("Pause")
+        
+        current_position = self.data_manager.get_gripper_position()
+        target = current_position * Position(1,1,0,1)
+        command = Command(CommandId.MOVE, MAX_SPEED * 0.5, target, None)
+        self.data_manager.queue_command(command)
         self.data_manager.start_pnp()
 
 
