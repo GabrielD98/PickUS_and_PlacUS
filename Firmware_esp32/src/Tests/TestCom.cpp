@@ -68,10 +68,10 @@ bool TestCom::run(uint32_t durationMs = 15000)
 				break;
 				
 			case CommandId::HOME:
-				dataModel->position.x = 0.0f;
-				dataModel->position.y = 0.0f;
-				dataModel->position.z = 0.0f;
-				dataModel->position.yaw = 0.0f;
+				dataModel->position.x = 0.0;
+				dataModel->position.y = 0.0;
+				dataModel->position.z = 0.0;
+				dataModel->position.yaw = 0.0;
 				break;
 				
 			case CommandId::STOP:

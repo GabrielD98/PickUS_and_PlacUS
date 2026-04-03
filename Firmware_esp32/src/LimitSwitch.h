@@ -1,9 +1,9 @@
 /**
  * @file limitSwitch.h
  * @author PickusAndPlacus
- * @brief 
- * @version
- * @date
+ * @brief Class to control a limit switch output interpretation.
+ * @version 1.0
+ * @date 17/04/2026
  */
 
 #ifndef LIMITSWITCH_H

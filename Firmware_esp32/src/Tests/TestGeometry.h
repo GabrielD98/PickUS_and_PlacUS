@@ -1,9 +1,9 @@
 /**
  * @file testgeometry.h
  * @author PickusAndPlacus
- * @brief 
- * @version
- * @date
+ * @brief Class to execute a conversion test of movement and associated units.
+ * @version 1.0
+ * @date 17/04/2026
  */
 
 #ifndef TESTGEOMETRY_H

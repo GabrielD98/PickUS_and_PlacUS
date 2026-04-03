@@ -1,72 +1,64 @@
 #include "Geometry.h"
 
-position_t dimensionLimits(position_t targetPositions)
+positionCartesian_t dimensionLimits(positionCartesian_t targetPosition)
 {
-    if (targetPositions.x > P_X_MAX)
-    {
-        targetPositions.x = P_X_MAX;
-    }
-    if (targetPositions.x < P_X_MIN)
-    {
-        targetPositions.x = P_X_MIN;
-    }
-    if (targetPositions.y > P_Y_MAX)
-    {
-        targetPositions.y = P_Y_MAX;
-    }
-    if (targetPositions.y < P_Y_MIN)
-    {
-        targetPositions.y = P_Y_MIN;
-    }
-    if (targetPositions.z > P_Z_MAX)
-    {
-        targetPositions.z = P_Z_MAX;
-    }
-    if (targetPositions.z < P_Z_MIN)
-    {
-        targetPositions.z = P_Z_MIN;
-    }
+    if (targetPosition.x > P_X_MAX){
+        targetPosition.x = P_X_MAX;}
+    if (targetPosition.x < P_X_MIN){
+        targetPosition.x = P_X_MIN;}
 
-    return targetPositions;
+    if (targetPosition.y > P_Y_MAX){
+        targetPosition.y = P_Y_MAX;}
+    if (targetPosition.y < P_Y_MIN){
+        targetPosition.y = P_Y_MIN;}
+
+    if (targetPosition.z > P_Z_MAX){
+        targetPosition.z = P_Z_MAX;}
+    if (targetPosition.z < P_Z_MIN){
+        targetPosition.z = P_Z_MIN;}
+
+    return targetPosition;
 }
 
-position_t coordToStep(position_t distance)
-{
-    position_t constrainedPosition = dimensionLimits(distance);
 
-    position_t steps;
+positionStep_t coordToStep(positionCartesian_t positionCartesian)
+{
+    positionCartesian_t constrainedPosition = dimensionLimits(positionCartesian);
+
+    positionStep_t positionStep;
     
-    steps.x = round((constrainedPosition.x*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
-    steps.y = round((constrainedPosition.y*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
-    steps.z = round((constrainedPosition.z*STEPS_REVOLUTION*MICROSTEPPING_Z)/MM_REVOLUTION);
-    steps.yaw = round((constrainedPosition.yaw*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
+    positionStep.x = round((constrainedPosition.x*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
+    positionStep.y = round((constrainedPosition.y*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
+    positionStep.z = round((constrainedPosition.z*STEPS_REVOLUTION*MICROSTEPPING_Z)/MM_REVOLUTION);
+    positionStep.yaw = round((constrainedPosition.yaw*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
 
 
-    return steps;
+    return positionStep;
 }
 
-position_t stepToCoord(position_t steps)
+
+positionCartesian_t stepToCoord(positionStep_t positionStep)
 {
-    position_t distance;
+    positionCartesian_t positionCartesian;
 
-    distance.x = (steps.x*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_X);
-    distance.y = (steps.y*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_Y);
-    distance.z = (steps.z*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_Z);
-    distance.yaw = (steps.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW);
+    positionCartesian.x = (positionStep.x*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_X); // mm
+    positionCartesian.y = (positionStep.y*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_Y); // mm
+    positionCartesian.z = (positionStep.z*MM_REVOLUTION)/float(STEPS_REVOLUTION*MICROSTEPPING_Z); // mm
+    positionCartesian.yaw = (positionStep.yaw*360)/(STEPS_REVOLUTION*MICROSTEPPING_YAW); // degrees
 
-    return distance;
+    return positionCartesian;
 }
 
-velocity_t velocityToStep(float velocity)
+
+velocityStep_t velocityToStep(float velocityCartesian)
 {
-    velocity_t stepsPerSec;
-    const float speedAbs = fmin(fabs(velocity), SPEED_MAX);
+    velocityStep_t stepsPerSec;
+    const float speedAbs = fmin(fabs(velocityCartesian), SPEED_MAX);
     
     stepsPerSec.x = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_X)/MM_REVOLUTION);
     stepsPerSec.y = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_Y)/MM_REVOLUTION);
     stepsPerSec.z = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_Z)/MM_REVOLUTION);
     stepsPerSec.yaw = round((speedAbs*STEPS_REVOLUTION*MICROSTEPPING_YAW)/360);
-
 
     return stepsPerSec;
 }

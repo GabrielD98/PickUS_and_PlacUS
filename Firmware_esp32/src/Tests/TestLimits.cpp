@@ -8,21 +8,21 @@ bool TestLimits::run()
 {
     bool result = false;
 	
-	position_t testPosition; 
+	positionCartesian_t testPosition; 
 	testPosition.x = -100;
 	testPosition.y = 330.0;
 	testPosition.z = 20.0;
 	testPosition.yaw = -180.0;
 
-	position_t stepsPosition = dimensionLimits(testPosition);
+	testPosition = dimensionLimits(testPosition);
 
-	Serial.println(stepsPosition.x);
-	Serial.println(stepsPosition.y);
-	Serial.println(stepsPosition.z);
-	Serial.println(stepsPosition.yaw);
+	Serial.println(testPosition.x);
+	Serial.println(testPosition.y);
+	Serial.println(testPosition.z);
+	Serial.println(testPosition.yaw);
 
-	if (stepsPosition.x == P_X_MIN || stepsPosition.y == P_Y_MAX ||
-		stepsPosition.z == P_Z_MAX || stepsPosition.yaw == P_Y_MIN)
+	if (testPosition.x == P_X_MIN || testPosition.y == P_Y_MAX ||
+		testPosition.z == P_Z_MAX || testPosition.yaw == P_Y_MIN)
 	{
 		result = true;
 	}

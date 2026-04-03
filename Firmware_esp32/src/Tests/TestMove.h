@@ -1,9 +1,9 @@
 /**
  * @file testmove.h
  * @author PickusAndPlacus
- * @brief 
- * @version
- * @date
+ * @brief Class to execute a gantry movement test in 3 axes.
+ * @version 1.0
+ * @date 17/04/2026
  */
 
 #ifndef TESTMOVE_H

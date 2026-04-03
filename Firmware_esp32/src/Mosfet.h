@@ -1,9 +1,9 @@
 /**
  * @file mosfet.h
  * @author PickusAndPlacus
- * @brief 
- * @version
- * @date
+ * @brief Class to control a mosfet as an electrical switch for a physical component.
+ * @version 1.0
+ * @date 17/04/2026
  */
 
 #ifndef MOSFET_H

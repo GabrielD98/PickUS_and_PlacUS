@@ -8,15 +8,15 @@ bool TestGeometry::run()
 {
     bool result = true;
 
-	position_t testPosition; 
+	positionCartesian_t testPosition; 
 	testPosition.x = 100;
 	testPosition.y = 200;
 	testPosition.z = -20;
 	testPosition.yaw = 180;
 
-	position_t stepsPosition = coordToStep(testPosition);
+	positionStep_t stepsPosition = coordToStep(testPosition);
 
-	position_t mmPosition = stepToCoord(stepsPosition);
+	positionCartesian_t mmPosition = stepToCoord(stepsPosition);
 
 	// Thresholds are given from a single motor step, converted in their output unit (Millimeters for x, y, z ; Degrees for yaw)
 	float Threshold_x = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_X);

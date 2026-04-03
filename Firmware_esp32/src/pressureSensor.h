@@ -1,9 +1,9 @@
 /**
  * @file pressureSensor.h
  * @author PickusAndPlacus
- * @brief 
- * @version
- * @date
+ * @brief Class to convert and interpret data from a pressure sensor.
+ * @version 1.0
+ * @date 17/04/2026
  */
 
 #ifndef PRESSURESENSOR_H
@@ -20,8 +20,8 @@ class PressureSensor
 	public:
 		/**
 		 * @brief 
-		 * @param clkPin 
-		 * @param dataPin 
+		 * @param clkPin Sensor clock pin.
+		 * @param dataPin Sensor output pin.
 		 */
 		PressureSensor(uint8_t clkPin, uint8_t dataPin);
 		

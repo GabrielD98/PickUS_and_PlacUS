@@ -4,9 +4,13 @@ DataModel::DataModel()
 {
     dataModel = 
     {
-        {CommandId::EMPTY, 0, {}},  //Command (command, velocity, position)
-        {},                         //Position {0,0,0,0}
-        MachineState::READY         //State 
+        {
+            CommandId::EMPTY,       /// Command id
+            0,                      /// Command velocity (mm/s and degree/ss)
+            {}                      /// Command requested position (mm and degrees) {0,0,0,0})
+        },                      
+        {},                     /// Current position (steps) {0,0,0,0}
+        MachineState::READY     /// State 
     };
 }
 
