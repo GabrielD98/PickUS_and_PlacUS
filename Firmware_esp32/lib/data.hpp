@@ -14,7 +14,6 @@
 /**
  * @brief Contains coordinates of the X, Y and Z-axis, as well as an orientation in YAW.
  * All values are expressed in steps.
- * @return 
  */
 typedef struct __attribute__((packed)) positionStep
 {
@@ -29,7 +28,6 @@ typedef struct __attribute__((packed)) positionStep
 /**
  * @brief Contains coordinates of the X, Y and Z-axis, as well as an orientation in YAW.
  * X, Y and Z-axis are given in millimeters. Yaw is given in degree.
- * @return 
  */
 typedef struct __attribute__((packed)) positionCartesian
 {
@@ -44,7 +42,6 @@ typedef struct __attribute__((packed)) positionCartesian
 /**
  * @brief Contains motor speeds of the X, Y, Z and YAW-axis motors.
  * Values are given in step/s.
- * @return 
  */
 typedef struct __attribute__((packed)) velocityStep
 {
@@ -59,7 +56,6 @@ typedef struct __attribute__((packed)) velocityStep
 /**
  * @brief Contains toolhead translation speeds on the X, Y and Z-axis, as well as rotation speed in YAW.
  * Speeds in X, Y and Z are in millimeter/second, 
- * @return 
  */
 typedef struct __attribute__((packed)) velocityCartesian
 {
