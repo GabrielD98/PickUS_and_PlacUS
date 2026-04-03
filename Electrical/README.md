@@ -44,23 +44,23 @@ The electrical work is split into two KiCad projects:
 
 ```
 Electrical/
-├── circuitPNP/
-│   ├── circuitPNP.kicad_sch      # Main board schematic
-│   ├── circuitPNP.kicad_pcb      # Main board PCB layout
-│   ├── circuitPNP.kicad_pro      # Project file
+├── PNP_MOBO_V1/
+│   ├── PNP_MOBO_V1.kicad_sch      # Main board schematic
+│   ├── PNP_MOBO_V1.kicad_pcb      # Main board PCB layout
+│   ├── PNP_MOBO_V1.kicad_pro      # Project file
 │   ├── fabricationFile.zip       # Gerber, drill, and BOM exports
 │   └── bom/                      # Bill of materials
-├── PCB_test/
+├── PNP_TEST_CIRCUIT_V1/
 |   ├── STENCIL.3mf
-│   ├── PCB_test.kicad_sch        # Test board schematic
-│   ├── PCB_test.kicad_pcb        # Test board PCB layout
-│   └── PCB_test.kicad_pro        # Project file
+│   ├── PNP_TEST_CIRCUIT_V1.kicad_sch        # Test board schematic
+│   ├── PNP_TEST_CIRCUIT_V1.kicad_pcb        # Test board PCB layout
+│   └── PNP_TEST_CIRCUIT_V1.kicad_pro        # Project file
 └── README.md
 ```
 
 ---
 
-## Main Board (`circuitPNP`)
+## Main Board (`PNP_MOBO_V1`)
 
 ### Key Subsystems
 
@@ -73,7 +73,7 @@ Electrical/
 
 ---
 
-## Test Board (`PCB_test`)
+## Test Board (`PNP_TEST_CIRCUIT_V1`)
 
 ### Purpose
 
