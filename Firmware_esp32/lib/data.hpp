@@ -17,10 +17,10 @@
  */
 typedef struct __attribute__((packed)) positionStep
 {
-	float x		=	0;
-	float y		=	0;
-	float z		=	0;
-	float yaw	=	0;
+	long x		=	0;
+	long y		=	0;
+	long z		=	0;
+	long yaw	=	0;
 
 }positionStep_t;
 
