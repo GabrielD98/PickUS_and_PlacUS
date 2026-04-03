@@ -1,6 +1,6 @@
 #include "TestRunner.h"
 
-TestRunner::TestRunner(Controller* ctrl) : ctrl(ctrl)
+TestRunner::TestRunner(Controller* ctrl) : ctrl(ctrl), testCom(ctrl)
 {
 }
 
@@ -8,60 +8,18 @@ bool TestRunner::runTests()
 {
     bool pass = true;
 	// Unwanted tests are to be put in commentary
-	pass &= TEST_LIMITS();
-	pass &= TEST_GEOMETRY();
-    pass &= TEST_MOVE();
-    pass &= TEST_PICK();
-    pass &= TEST_PLACE();
-    pass &= TEST_HOME();
+	pass &= testLimits.run();
+	pass &= testGeometry.run();
+	pass &= testMove.run();
+	pass &= testPick.run();
+	pass &= testPlace.run();
+	pass &= testHome.run();
     return pass;
 }
 
 bool TestRunner::runComTest()
 {
 	bool pass = true;
-    pass &= TEST_communication(15000);
+	pass &= testCom.run(15000);
 	return pass;
-}
-
-bool TestRunner::TEST_communication(uint32_t durationMs)
-{
-	TestCom testCom(ctrl);
-	return testCom.run(durationMs);
-}
-
-bool TestRunner::TEST_MOVE(void)
-{
-	TestMove testMove;
-	return testMove.run();
-}
-
-bool TestRunner::TEST_PICK(void)
-{
-	TestPick testPick;
-	return testPick.run();
-}
-
-bool TestRunner::TEST_PLACE(void)
-{
-	TestPlace testPlace;
-	return testPlace.run();
-}
-
-bool TestRunner::TEST_HOME(void)
-{
-	TestHome testHome;
-	return testHome.run();
-}
-
-bool TestRunner::TEST_LIMITS(void)
-{
-	TestLimits testLimits;
-	return testLimits.run();
-}
-
-bool TestRunner::TEST_GEOMETRY(void)
-{
-	TestGeometry testGeometry;
-	return testGeometry.run();
 }
