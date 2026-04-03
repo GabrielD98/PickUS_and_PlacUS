@@ -26,21 +26,20 @@
 #define PIN_DYAW_STEP 13    /// Step pulse pin for YAW-axis stepper
 #define PIN_DYAW_EN 14      /// Enable pin for YAW-axis stepper (Active LOW)
 
-// --- Actuators ---
+// --- Switches ---
 #define PIN_PUMP 5          /// Vacuum pump pin
 #define PIN_VALVE 4         /// Solenoid valve pin
+#define PIN_LIMSWITCH_X 35  /// Limit switch pin for X-axis origin
+#define PIN_LIMSWITCH_Y 36  /// Limit switch pin for Y-axis origin
+#define PIN_LIMSWITCH_Z 37  /// Limit switch pin for Z-axis origin
 
-// --- Communication ---
+// --- Communication --- //Currently not used but are for expension
 // #define PIN_I2C_SDA 8
 // #define PIN_I2C_SCA 9
 // #define PIN_CANIC_TX 47
 // #define PIN_CANIC_RX 48
 
 // --- Sensors ---
-#define PIN_LIMSWITCH_X 35  /// Limit switch pin for X-axis origin
-#define PIN_LIMSWITCH_Y 36  /// Limit switch pin for Y-axis origin
-#define PIN_LIMSWITCH_Z 37  /// Limit switch pin for Z-axis origin
-
 #define PIN_PSENSOR_CLK 2   /// Pressure sensor clock pin
 #define PIN_PSENSOR_DATA 1  /// Pressure sensor output pin
 
