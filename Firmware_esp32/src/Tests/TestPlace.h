@@ -1,3 +1,11 @@
+/**
+ * @file testplace.h
+ * @author PickusAndPlacus
+ * @brief 
+ * @version
+ * @date
+ */
+
 #ifndef TESTPLACE_H
 #define TESTPLACE_H
 
@@ -18,7 +26,6 @@ public:
     /**
      * @brief Targets a test position to go to, then commands to place.
      * Updates the machine state at a certain loop count.
-     * 
      * @return true if passed, else false.
      */
     bool run();

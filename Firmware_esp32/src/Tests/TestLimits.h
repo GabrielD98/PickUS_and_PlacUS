@@ -1,3 +1,11 @@
+/**
+ * @file testlimits.h
+ * @author PickusAndPlacus
+ * @brief 
+ * @version
+ * @date
+ */
+
 #ifndef TESTLIMITS_H
 #define TESTLIMITS_H
 
@@ -13,7 +21,6 @@ public:
 
     /**
      * @brief Verify if a location exceeding boundaries in all degree of freedom accessible is brought back to the closest boundaries.
-     * 
      * @return true if passed, else false
      */
     bool run();

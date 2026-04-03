@@ -1,3 +1,11 @@
+/**
+ * @file testcom.h
+ * @author PickusAndPlacus
+ * @brief 
+ * @version
+ * @date
+ */
+
 #ifndef TESTCOM_H
 #define TESTCOM_H
 

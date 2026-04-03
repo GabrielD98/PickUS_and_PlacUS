@@ -1,18 +1,25 @@
+/**
+ * @file limitSwitch.h
+ * @author PickusAndPlacus
+ * @brief 
+ * @version
+ * @date
+ */
+
 #ifndef LIMITSWITCH_H
 #define LIMITSWITCH_H
 
 #include <Arduino.h>
 
 /**
- * @brief Allow to verify from its output if this specific switch is triggered.
- * Store the digital pin's identifier associated to the switch's output.
+ * @brief Allows to verify from its output if this specific switch is triggered.
+ * Stores the digital pin's identifier associated to the switch's output.
  */
 class LimitSwitch
 {
 public:
     /**
      * @brief Associate the switch to a type (pullup or pulldown) and the switch'soutput to a pin.
-     * 
      * @param pin Digital pin connected to the limit switch's output.
      * @param activeLOW True for a pullup, false for a  pulldown.
      */

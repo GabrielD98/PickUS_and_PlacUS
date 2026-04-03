@@ -1,3 +1,11 @@
+/**
+ * @file controller.h
+ * @author PickusAndPlacus
+ * @brief 
+ * @version
+ * @date
+ */
+
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
@@ -37,9 +45,7 @@ public :
     DataModel dataModel;
 
 private :
-    /**
-     * @brief Hardware components
-     */
+    // Hardware components
     AccelStepper motorX;
     AccelStepper motorY;
     AccelStepper motorZ;
@@ -54,23 +60,18 @@ private :
     LimitSwitch limSwitchY;
     LimitSwitch limSwitchZ;
 
-    /**
-     * @brief System states
-     */
+    // System states
     MachineState machineState;
     HomingState homingState;
     PickPlaceState pickPlaceState;
 
-    /**
-     * @brief Stores the last time information was updated to the dataModel.
-     */
+    // Stores the last time information was updated to the dataModel.
     uint64_t lastPositionUpdateMS;
 
     /**
      * @brief Set target positions and desired speed to all motors.
-     * 
-     * @param position 
-     * @param speed 
+     * @param position targeted coordinates (mm)
+     * @param speed maximum speed (mm/s)
      */
     void setTargets(position_t position, float speed);
 

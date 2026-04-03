@@ -1,3 +1,11 @@
+/**
+ * @file testgeometry.h
+ * @author PickusAndPlacus
+ * @brief 
+ * @version
+ * @date
+ */
+
 #ifndef TESTGEOMETRY_H
 #define TESTGEOMETRY_H
 
@@ -15,7 +23,6 @@ public:
     /**
      * @brief Converts every coordinates from mm to steps, then converts them back to mm
      * and verify if they are contained inside a treshold.
-     * 
      * @return true if passed, else false.
      */
     bool run();

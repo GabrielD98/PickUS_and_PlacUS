@@ -1,3 +1,11 @@
+/**
+ * @file testmove.h
+ * @author PickusAndPlacus
+ * @brief 
+ * @version
+ * @date
+ */
+
 #ifndef TESTMOVE_H
 #define TESTMOVE_H
 
@@ -17,7 +25,6 @@ public:
     /**
      * @brief Targets a test position to go to, then command to move.
      * Updates the machine state at a certain loop count.
-     * 
      * @return true if passed, else false.
      */
     bool run();
