@@ -5,7 +5,7 @@
 
 /**
  * @brief Confirms the machine can activate the valve once the nozzle reaches the board,
- * then go back up and deactivate the pump.
+ * then go back up and deactivate the pump and the valve.
  */
 class TestPlace
 {
@@ -16,7 +16,7 @@ public:
     TestPlace();
 
     /**
-     * @brief Targets a test position to go to, then command to pick.
+     * @brief Targets a test position to go to, then command to place.
      * Updates the machine state at a certain loop count.
      * 
      * @return true if passed, else false.
