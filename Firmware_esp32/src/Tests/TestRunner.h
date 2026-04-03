@@ -47,24 +47,14 @@ private:
      * @brief Pointer to the controller instanciated in main() in order to allow communication with UI.
      */
     Controller* ctrl;
-
-    /**
-     * @brief Executes the communication testing.
-     * @param durationMs Time limit to perform the test.
-     * @return true if passed, else false.
-     */
-    bool TEST_communication(uint32_t durationMs);
-
-    /**
-     * @brief Executes the test for each controller features.
-     * @return true if passed, else false.
-     */
-    bool TEST_MOVE(void);
-    bool TEST_PICK(void);
-    bool TEST_PLACE(void);
-    bool TEST_HOME(void);
-    bool TEST_LIMITS(void);
-    bool TEST_GEOMETRY(void);
+    
+    TestCom testCom;
+    TestMove testMove;
+    TestPick testPick;
+    TestPlace testPlace;
+    TestHome testHome;
+    TestLimits testLimits;
+    TestGeometry testGeometry;
 };
 
 #endif
