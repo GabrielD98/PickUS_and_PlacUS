@@ -1,11 +1,9 @@
 #include "Controller.h"
 #include "Geometry.h"
 
-#define HOME_DIRECTION_X -1.0f
-#define HOME_DIRECTION_Y -1.0f
-#define HOME_DIRECTION_Z 1.0f
-#define PIECE_PRESSURE_THRESHOLD 80 // kPa
-#define NO_PIECE_PRESSURE_THRESHOLD 90 // kPa
+#define HOME_DIRECTION -1.0f
+#define PIECE_PRESSURE_THRESHOLD 90 //TODO: validate value;
+#define NO_PIECE_PRESSURE_THRESHOLD 100 //TODO: validate value;
 
 #define HOME_SPEED 50.0             // mm/s
 #define POSITION_UPDATE_FREQ 100    // ms
@@ -200,8 +198,8 @@ void Controller::goHome()
     {
         case HomingState::INIT:
             homingState = HomingState::Z;
-            motorZ.setMaxSpeed(homeVelocity.z / 5.0f);
-            motorZ.setSpeed(HOME_DIRECTION_Z * (homeVelocity.z / 2.0f));
+            motorZ.setMaxSpeed(homeVelocity.z / 10.0f);
+            motorZ.setSpeed(HOME_DIRECTION * (homeVelocity.z / 2.0f));
             break;
 
             
@@ -212,7 +210,7 @@ void Controller::goHome()
                 motorZ.setCurrentPosition(0);
                 homingState = HomingState::X;
                 motorX.setMaxSpeed(homeVelocity.x);
-                motorX.setSpeed(HOME_DIRECTION_X * homeVelocity.x);
+                motorX.setSpeed(HOME_DIRECTION * homeVelocity.x);
             }
             else
             {
@@ -227,7 +225,7 @@ void Controller::goHome()
                 motorX.setCurrentPosition(0);
                 homingState = HomingState::Y;
                 motorY.setMaxSpeed(homeVelocity.y);
-                motorY.setSpeed(HOME_DIRECTION_Y * homeVelocity.y);
+                motorY.setSpeed(HOME_DIRECTION * homeVelocity.y);
             }
             else
             {
