@@ -7,7 +7,7 @@
 #define PIECE_PRESSURE_THRESHOLD 80 // kPa
 #define NO_PIECE_PRESSURE_THRESHOLD 90 // kPa
 
-#define HOME_SPEED 50.0             // steps/s
+#define HOME_SPEED 50.0             // mm/s
 #define POSITION_UPDATE_FREQ 100    // ms
 
 const velocityStep_t homingVelocityStep = velocityToStep(HOME_SPEED);
@@ -53,6 +53,7 @@ void Controller::update()
     dataModel.release();
 
 
+    // Confirmation that no stop command is sent to ensure a quick response
     if(command.id == CommandId::STOP)
     {
         machineState = MachineState::READY;
@@ -175,10 +176,10 @@ void Controller::setTargets(positionCartesian_t positionCartesian, float velocit
 
     long target[4] =
     {
-        (long)positionStep.x,
-        (long)positionStep.y,
-        (long)positionStep.z,
-        (long)positionStep.yaw
+        positionStep.x,
+        positionStep.y,
+        positionStep.z,
+        positionStep.yaw
     };
 
     velocityStep_t velocityStep = velocityToStep(velocityCartesian);
@@ -199,7 +200,7 @@ void Controller::goHome()
     {
         case HomingState::INIT:
             homingState = HomingState::Z;
-            motorZ.setMaxSpeed(homeVelocity.z / 10.0f);
+            motorZ.setMaxSpeed(homeVelocity.z / 5.0f);
             motorZ.setSpeed(HOME_DIRECTION_Z * (homeVelocity.z / 2.0f));
             break;
 
