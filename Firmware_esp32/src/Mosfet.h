@@ -58,4 +58,4 @@ private:
     bool state;
 };
 
-#endif // MOSFET_H
+#endif MOSFET_H
