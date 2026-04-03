@@ -6,8 +6,8 @@ PCB design and schematics for the PickUS and PlacUS machine. Includes main contr
 
 The electrical work is split into two KiCad projects:
 
-- `circuitPNP/` — Main control board for the machine
-- `PCB_test/` — Test board for validating pick and place operation
+- `PNP_MOBO_V1/` — Main control board for the machine
+- `PNP_TEST_CIRCUIT_V1/` — Test board for validating pick and place operation
 
 ## Prerequisites
 
@@ -51,6 +51,7 @@ Electrical/
 │   ├── fabricationFile.zip       # Gerber, drill, and BOM exports
 │   └── bom/                      # Bill of materials
 ├── PCB_test/
+|   ├── STENCIL.3mf
 │   ├── PCB_test.kicad_sch        # Test board schematic
 │   ├── PCB_test.kicad_pcb        # Test board PCB layout
 │   └── PCB_test.kicad_pro        # Project file
@@ -70,13 +71,6 @@ Electrical/
 - **End-Stop Connectors**: Limit switch inputs for X, Y, Z axes
 - **Can/I2C Connectors**: Additional expansion headers
 
-### PCB Verification Checklist
-
-- [ ] Correct connector placement for wiring convenience
-- [ ] Adequate copper width for motor and pump current paths
-- [ ] Proper ground return strategy
-- [ ] Decoupling capacitors placed near power pins
-
 ---
 
 ## Test Board (`PCB_test`)
@@ -84,11 +78,6 @@ Electrical/
 ### Purpose
 
 Validate the pick-and-place workflow with a dedicated test board featuring standard footprints.
-
-### Verification Checklist
-
-- [ ] Test footprints are correct and consistent
-- [ ] Silkscreen labels clear for easy debugging
 
 ---
 
@@ -114,11 +103,20 @@ Complete this checklist as you recreate each board:
 
 - Use a version tag in the board title block and filenames (e.g., `v1`, `v2`)
 - Commit schematic and PCB changes together
-- Archive each complete release package in a dedicated folder:
-  - `Gerber/`
-  - `Drill/`
-  - `BOM/`
-  - `Pick-and-place/` (if applicable)
+
+---
+
+## BOM Organization
+
+Recommended workflow:
+
+- **PCB parts:** use the KiCad interactive BOM export (`PNP_MOBO_V1/bom/ibom.html`)
+- **All non-PCB parts (electrical + mechanical):** TODO
+
+## Fabrication Tools
+
+- **For stencil generation:** we use [gerber_to_scad](https://github.com/kirberich/gerber_to_scad)
+- **Purpose:** generate stencil or fabrication geometry from the PCB source files
 
 ---
 
