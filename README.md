@@ -125,32 +125,12 @@ Each subsystem has its own detailed README:
 
 ---
 
-## Contributing
-
-Contributions are welcome!
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Commit your changes: `git commit -m "Add your feature"`
-4. Push to the branch: `git push origin feature/your-feature-name`
-5. Open a pull request
-
-Please ensure all tests pass before submitting a PR.
-
----
-
 ## License
 
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+This project uses a split-license model:
 
----
-
-## Contact
-
-**Project Maintainers**: S4 Robotics Team  
-**Institution**: Université de Sherbrooke  
-**Email**: [your-email@example.com]  
-**Repository**: [https://github.com/GabrielD98/PickUS_and_PlacUS](https://github.com/GabrielD98/PickUS_and_PlacUS)
+- **Software (firmware + HMI source code)**: MIT License ([LICENSE](LICENSE))
+- **Hardware design files** (schematics, PCB layouts, fabrication files): CERN Open Hardware Licence v2 - Permissive ([LICENSE-HARDWARE](LICENSE-HARDWARE))
 
 ---
 
