@@ -1,6 +1,6 @@
 # Firmware (ESP32-S3)
 
-Real-time firmware for motor control, sensor reading, and command execution on the PickUS and PlacUS machine.
+Firmware for motor control, sensor reading, and command execution on the PickUS and PlacUS machine.
 
 ## Prerequisites
 
@@ -64,10 +64,12 @@ The firmware consists of these key modules:
 
 | Module | File | Responsibility |
 |--------|------|---|
-| `Controller` | `Controller.h/cpp` | Drives stepper motors using AccelStepper/MultiStepper; manages motion profiles |
-| `DataModel` | `DataModel.h/cpp` | Thread-safe shared state for control and communication tasks |
-| `Communication` | `main.cpp` | UART serial protocol receiving commands from HMI |
-| `Pressure Sensor` | `pressureSensor.h/cpp` | Reads pressure using a bit-banged clock+data interface (1 bit per clock pulse) to detect component pickup success |
+| `Controller` | `Controller.h/cpp` | Coordinates command handling, motion, homing, pick/place sequences, and machine state updates |
+| `DataModel` | `DataModel.h/cpp` | Thread-safe shared command/position/state buffer between the controller and the communication task |
+| `Communication` | `main.cpp` | UART protocol that receives `command_t` packets and sends back `statusFrame_t` replies |
+| `Geometry` | `Geometry.h/cpp` | Converts between cartesian coordinates and motor steps / velocities |
+| `Mosfet` | `Mosfet.h/cpp` | Controls the vacuum pump and valve outputs |
+| `Pressure Sensor` | `pressureSensor.h/cpp` | Reads and converts the bit-banged pressure sensor signal into kPa |
 | `Limit Switch` | `LimitSwitch.h/cpp` | Monitors X, Y, Z end-stops for homing and safety |
 
 ### Command IDs
@@ -89,8 +91,8 @@ The firmware consists of these key modules:
 | `MOVING` | Executing a MOVE command |
 | `PICKING` | Executing a PICK sequence |
 | `PLACING` | Executing a PLACE sequence |
+| `HOMING` | Executing the homing sequence |
 | `ERROR` | Fault condition detected |
-| `DISCONNECTED` | No active HMI connection |
 
 ---
 
@@ -98,24 +100,35 @@ The firmware consists of these key modules:
 
 ### Run Unit Tests
 
+The firmware includes test hooks controlled by `platformio.ini` build flags:
+
+- `ENABLE_TEST=1` runs the internal test task instead of normal control/communication tasks.
+- `ENABLE_COM_TEST=1` runs the communication test task alongside the test task.
+- Both flags are set to `0` by default for normal firmware operation.
+
 ---
 
 ## Project Structure
 
 ```
 Firmware_esp32/
-├── src/                     # C++ source files
-│   ├── main.cpp
+├── src/                     # Firmware source files
+│   ├── BoardConfig.h
 │   ├── Controller.cpp/h
 │   ├── DataModel.cpp/h
-│   ├── BoardConfig.h
-│   ├── pressureSensor.cpp/h
+│   ├── Geometry.cpp/h
 │   ├── LimitSwitch.cpp/h
-│   └── ...
-├── lib/                     # External libraries
+│   ├── main.cpp
+│   ├── Mosfet.cpp/h
+│   ├── pressureSensor.cpp/h
+│   └── Tests/               # Internal test helpers and scenarios
+├── lib/                     # Shared data types and external libraries
+│   ├── data.hpp
 │   └── AccelStepper/
-├── test/                    # Unit tests
-├── include/                 # Header files
+├── include/                 # Header includes placeholder
+├── output/                  # Generated build/output artifacts
+├── test/                    # PlatformIO test entry point
+│   └── README
 ├── platformio.ini           # PlatformIO configuration
 └── README.md
 ```

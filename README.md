@@ -67,8 +67,8 @@ Ideal for robotics project teams, PCB assembly labs, and makers who need to auto
 ```
 PickUS_and_PlacUS/
 ├── Electrical/              # KiCad schematics and PCB layouts
-│   ├── circuitPNP/          # Main control board
-│   ├── PCB_test/            # Test board for validation
+│   ├── PNP_MOBO_V1/         # Main control board
+│   ├── PNP_TEST_CIRCUIT_V1/ # Test board for validation
 │   └── README.md            # Electrical recreation guide
 ├── Firmware_esp32/          # ESP32-S3 firmware (PlatformIO)
 │   ├── src/                 # C++ source files
