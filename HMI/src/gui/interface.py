@@ -39,6 +39,9 @@ import utils
 import random
 
 
+DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+
+
 
 class Interface(QMainWindow):
 	def __init__(self):
@@ -139,11 +142,11 @@ class Interface(QMainWindow):
 
 
 		img_label = QLabel(self)
-		img = "../data/a_joyful_Julius_C.png"
+		img = DATA_DIR / "a_joyful_Julius_C.png"
 		rand_num = random.randint(1, 20)
 		if rand_num == 1:
-			img = "../data/julius_salad.png"
-		pixmap = QPixmap(img)
+			img = DATA_DIR / "julius_salad.png"
+		pixmap = QPixmap(str(img))
 		img_label.setPixmap(pixmap)
 		img_label.setScaledContents(True) 
 		img_label.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Expanding)
@@ -172,7 +175,7 @@ class Interface(QMainWindow):
 		filename, _ = QFileDialog.getOpenFileName(
 			parent=self,               
 			caption="Select a File",
-			directory="../data/", 
+			directory=str(DATA_DIR), 
 			filter="All Files (*.pos)" 
 		)
 

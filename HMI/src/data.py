@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from enum import Enum, IntFlag
 import numbers
+from pathlib import Path
 
 MAX_SPEED = 100 #mm/s
-CALIB_PATH = '../data/calib.json'
+DATA_DIR = Path(__file__).resolve().parents[1] / 'data'
+CALIB_PATH = str(DATA_DIR / 'calib.json')
 
 
 class CommandId(Enum):
