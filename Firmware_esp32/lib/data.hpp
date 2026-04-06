@@ -133,7 +133,6 @@ enum class PickPlaceState : uint8_t
 
 /**
  * @brief Lists every parameters to define a command from the interface to the controller.
- * @return 
  */
 typedef struct __attribute__((packed)) command
 {
@@ -146,7 +145,6 @@ typedef struct __attribute__((packed)) command
 
 /**
  * @brief Lists every parameters to define a status from the controller to the interface.
- * @return  
  */
 typedef struct __attribute__((packed)) statusFrame
 {

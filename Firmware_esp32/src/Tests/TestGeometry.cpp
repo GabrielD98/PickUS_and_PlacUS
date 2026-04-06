@@ -18,7 +18,8 @@ bool TestGeometry::run()
 
 	positionCartesian_t mmPosition = stepToCoord(stepsPosition);
 
-	// Thresholds are given from a single motor step, converted in their output unit (Millimeters for x, y, z ; Degrees for yaw)
+	// Thresholds are given from a single motor step, converted in their output unit
+	// (Millimeters for x, y, z ; Degrees for yaw)
 	float Threshold_x = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_X);
 	float Threshold_y = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_Y);
 	float Threshold_z = MM_REVOLUTION/(STEPS_REVOLUTION*MICROSTEPPING_Z); // Greatest jump in the z axis for a single step

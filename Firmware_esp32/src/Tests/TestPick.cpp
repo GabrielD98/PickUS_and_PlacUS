@@ -24,8 +24,6 @@ bool TestPick::run()
 
 	dataModel = testCtrl->dataModel.get();
 	dataModel->command.id = CommandId::EMPTY;
-	// dataModel->command.requestedPosition = testPosition;
-	// dataModel->command.velocityCartesian = 50;
 	testCtrl->dataModel.release();
 
 	uint8_t loopCount = 0;
