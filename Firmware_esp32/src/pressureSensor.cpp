@@ -4,6 +4,9 @@
 #include "assert.h"
 
 
+// this code is moslty inspired by code from this url: 
+// https://www.homemade-circuits.com/hx710b-air-pressure-sensor-datasheet-how-to-connect/
+
 PressureSensor::PressureSensor(uint8_t clkPin, uint8_t dataPin)
 {
 	this->clkPin = clkPin;

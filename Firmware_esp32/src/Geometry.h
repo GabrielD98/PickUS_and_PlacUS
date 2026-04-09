@@ -1,3 +1,12 @@
+/**
+ * @file geometry.h
+ * @author PickusAndPlacus
+ * @brief File that gathers physical parameters to delimit the machine's workspace,
+ * functions that converts distances to step count or step count to distances.
+ * @version 1.0
+ * @date 17/04/2026
+ */
+
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
@@ -5,62 +14,56 @@
 #include "../lib/data.hpp"
 #include <cmath>
 
-//Positions definitions (mm)
-#define P_X_MAX 304.80
-#define P_X_MIN 0
-#define P_Y_MAX 306.39
-#define P_Y_MIN 0
-#define P_Z_MAX 0
-#define P_Z_MIN -24
+// Physical travel limits of the machine.
+#define P_X_MAX 304.80      /// Maximum X travel (mm)
+#define P_X_MIN 0           /// Minimum X travel (mm)
+#define P_Y_MAX 306.39      /// Maximum Y travel (mm)
+#define P_Y_MIN 0           /// Minimum Y travel (mm)
+#define P_Z_MAX 0           /// Z zero position (retracted)
+#define P_Z_MIN -24         /// Z maximum descent (mm)
 
-//Maximum speed (mm/s)
-#define SPEED_MAX 1000.0
+#define SPEED_MAX 1000.0    /// Maximum speed for every steppers (mm/s)
 
-//Size definitions (mm)
-#define GEAR_RADIUS 8.0
+// Mechanical properties used for step conversion.
+#define STEPS_REVOLUTION 200                /// (steps)
+#define MM_REVOLUTION 40.0                  /// (mm)
+#define GEAR_RADIUS 8.0                     /// X, Y and Z-axis gears radius (mm)
+#define CAM_DIAMETER 24.0                   /// (mm)
+#define CAM_RADIUS (CAM_DIAMETER / 2.0)     /// (mm)
 
-//Motor steps definitions (microsteps per steps)
-#define STEPS_REVOLUTION 200
-#define MICROSTEPPING_X 16
-#define MICROSTEPPING_Y 16
-#define MICROSTEPPING_Z 4
-#define MICROSTEPPING_YAW 4
+// Microstepping resolution
+#define MICROSTEPPING_X 16                  /// Microsteps per motor step for the X-axis
+#define MICROSTEPPING_Y 16                  /// Microsteps per motor step for the Y-axis
+#define MICROSTEPPING_Z 4                   /// Microsteps per motor step for the Z-axis
+#define MICROSTEPPING_YAW 4                 /// Microsteps per motor step for the YAW-axis
 
-//Distance per revolution (mm)
-#define MM_REVOLUTION 40.0
-#define CAM_DIAMETER 24.0
-#define CAM_RADIUS (CAM_DIAMETER / 2.0)
 
 /**
- * @brief Ensures every targeted positions exceeding the limits are replaced with the closest limits.
- * 
- * @param targetPositions Initial target positions.
- * @return position_t Corrected target positions.
+ * @brief Clips target positions to the machine's physical workspace.
+ * @param targetPosition Raw input target coordinates from UI.
+ * @return position_t Coordinates restricted to defined workspace ranges.
  */
-position_t dimensionLimits(position_t targetPositions);
+positionCartesian_t dimensionLimits(positionCartesian_t targetPosition);
 
 /**
- * @brief Converts a physical coordinate to a corresponding number of steps for each stepper, from origin in home position.
- * 
- * @param distance Coordinates relative to home position.
- * @return position_t Corresponding number of steps for each motor.
+ * @brief Converts physical coordinates to motor steps.
+ * @param positionCartesian Physical coordinates relative to home.
+ * @return position_t Calculated step count for each axis.
  */
-position_t coordToStep(position_t distance);
+positionStep_t coordToStep(positionCartesian_t positionCartesian);
 
 /**
- * @brief Converts a number of steps to a corresponding physical coordinate for each stepper, from origin in home position.
- * 
- * @param step Number of steps relative to home position.
- * @return position_t Corresponding coordinates.
+ * @brief Converts motor steps to physical coordinates for each axis.
+ * @param positionStep Number of steps relative to home position.
+ * @return position_t Physical toolhead position.
  */
-position_t stepToCoord(position_t step);
+positionCartesian_t stepToCoord(positionStep_t positionStep);
 
 /**
- * @brief Converts a physical velocity to a corresponding number of steps per seconds.
- * 
- * @param velocity Motor speed in mm/s.
- * @return velocity_t Corresponding number of steps/s.
+ * @brief Converts a physical velocity (mm/s) to a corresponding number of steps per seconds.
+ * @param velocityCartesian Speed (mm/s and degree/s).
+ * @return velocity_t Corresponding number of steps/s for each motor.
  */
-velocity_t velocityToStep(float velocity);
+velocityStep_t velocityToStep(float velocityCartesian);
 
 #endif

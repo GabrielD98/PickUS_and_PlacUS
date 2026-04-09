@@ -1,3 +1,11 @@
+/**
+ * @file controller.h
+ * @author PickusAndPlacus
+ * @brief Class to manage commands from the UI, update machine states and control hardware.
+ * @version 1.0
+ * @date 17/04/2026
+ */
+
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
@@ -13,7 +21,7 @@
 #include "Geometry.h"
 
 /**
- * @brief Control hardware components in response to commands received from UI.
+ * @brief Control hardware components in response to commands received from the UI.
  * Exchange information with the UI via a shared chain of data.
  */
 class Controller
@@ -37,9 +45,7 @@ public :
     DataModel dataModel;
 
 private :
-    /**
-     * @brief Hardware components
-     */
+    // Hardware components
     AccelStepper motorX;
     AccelStepper motorY;
     AccelStepper motorZ;
@@ -54,28 +60,24 @@ private :
     LimitSwitch limSwitchY;
     LimitSwitch limSwitchZ;
 
-    /**
-     * @brief System states
-     */
+    // System states
     MachineState machineState;
     HomingState homingState;
     PickPlaceState pickPlaceState;
 
-    /**
-     * @brief Stores the last time information was updated to the dataModel.
-     */
+    // Stores the last time information was updated to the dataModel.
     uint64_t lastPositionUpdateMS;
 
     /**
      * @brief Set target positions and desired speed to all motors.
-     * 
-     * @param position 
-     * @param speed 
+     * @param position targeted coordinates (mm and degree)
+     * @param speed maximum speed (mm/s and degree/s)
      */
-    void setTargets(position_t position, float speed);
+    void setTargets(positionCartesian_t position, float speed);
 
     /**
-     * @brief Homing action to calibrate all motors.
+     * @brief Homing action to calibrate all motors, one axis at a time (Order : Z, X, Y)
+     * Yaw current position is simply set to 0.
      * Updates the homing state.
      */
     void goHome();

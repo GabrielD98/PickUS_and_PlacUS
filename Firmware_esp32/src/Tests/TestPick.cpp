@@ -8,24 +8,22 @@ TestPick::TestPick()
 
 bool TestPick::run()
 {
-    position_t testPosition;
+    positionCartesian_t testPosition;
 	testPosition.x = 100;
 	testPosition.y = 100;
-	testPosition.z = 200;
+	testPosition.z = -10;
 	testPosition.yaw = 100;
 	
 	dataModel_t* dataModel = testCtrl->dataModel.get();
 	dataModel->command.id = CommandId::PICK;
 	dataModel->command.requestedPosition = testPosition;
-	dataModel->command.velocity = 200;
+	dataModel->command.velocityCartesian = 50;
 	testCtrl->dataModel.release();
 	
 	testCtrl->update();
 
 	dataModel = testCtrl->dataModel.get();
 	dataModel->command.id = CommandId::EMPTY;
-	dataModel->command.requestedPosition = testPosition;
-	dataModel->command.velocity = 200;
 	testCtrl->dataModel.release();
 
 	uint8_t loopCount = 0;

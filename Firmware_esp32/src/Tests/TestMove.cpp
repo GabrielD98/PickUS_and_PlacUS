@@ -8,16 +8,16 @@ TestMove::TestMove()
 
 bool TestMove::run()
 {
-    position_t testPosition;
+    positionCartesian_t testPosition;
 	testPosition.x = 100;
 	testPosition.y = 100;
-	testPosition.z = 100;
+	testPosition.z = -10;
 	testPosition.yaw = 100;
 
 	dataModel_t* dataModel = testCtrl->dataModel.get();
 	dataModel->command.id = CommandId::MOVE;
 	dataModel->command.requestedPosition = testPosition;
-	dataModel->command.velocity = 200;
+	dataModel->command.velocityCartesian = 50;
 	testCtrl->dataModel.release();
 
 	testCtrl->update();
@@ -25,7 +25,7 @@ bool TestMove::run()
 	dataModel = testCtrl->dataModel.get();
 	dataModel->command.id = CommandId::EMPTY;
 	dataModel->command.requestedPosition = testPosition;
-	dataModel->command.velocity = 200;
+	dataModel->command.velocityCartesian = 50;
 	testCtrl->dataModel.release();
 
 	uint8_t loopCount = 0;

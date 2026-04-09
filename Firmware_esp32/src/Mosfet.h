@@ -1,10 +1,18 @@
+/**
+ * @file mosfet.h
+ * @author PickusAndPlacus
+ * @brief Class to control a mosfet as an electrical switch for a physical component.
+ * @version 1.0
+ * @date 17/04/2026
+ */
+
 #ifndef MOSFET_H
 #define MOSFET_H
 
 #include <stdint.h>
 
 /**
- * @brief Serve as an electrical switch for a physical component.
+ * @brief Serves as an electrical switch for a physical component.
  * Store an associated digital pin's identifier and the switch's state.
  */
 class Mosfet
@@ -12,7 +20,6 @@ class Mosfet
 public:
     /**
      * @brief Associate the mosfet to an electrical source pin of a physical system.
-     * 
      * @param pin Electrical source pin connected to a physical system.
      */
     Mosfet(uint8_t pin);
@@ -51,4 +58,4 @@ private:
     bool state;
 };
 
-#endif // MOSFET_H
+#endif
