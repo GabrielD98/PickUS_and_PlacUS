@@ -311,9 +311,12 @@ class JogWidget(QWidget):
         self.move_gripper(target=Position(float(x_value), float(y_value), float(z_value), float(yaw_value)))
 
 
+
+
     def move_gripper(self, target:Position):
-        command = Command(CommandId.MOVE, MAX_SPEED * self.speed/100.0, target, None)
-        self.controller.queueCommand(command)
+        if self.controller.get_machine_state() == MachineState.READY:
+            command = Command(CommandId.MOVE, MAX_SPEED * self.speed/100.0, target, None)
+            self.controller.queueCommand(command)
     
 
 

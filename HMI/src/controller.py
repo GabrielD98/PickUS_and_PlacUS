@@ -192,6 +192,22 @@ class Controller:
 
 
 
+	def start_pnp(self):
+		"""
+		Begins the PnP procedures
+		Queues the commands in wating and transition the state to running
+		"""
+		if self.blocked:
+			return
+		self.requestTransition(TransitionRequest.TO_RUNNING)
+		self.queueCommands(self.commandInWaiting)
+		#print(self.commandInWaiting)
+		print("STARTING THE SLICE")
+
+
+
+
+
 	def _sendCommand(self, command:Command):
 		"""
 		Pack and send the given command on the serial port.
@@ -563,19 +579,6 @@ class Controller:
 		self.commandInWaiting = command 
 
 
-
-
-	def start_pnp(self):
-		"""
-		Begins the PnP procedures
-		Queues the commands in wating and transition the state to running
-		"""
-		if self.blocked:
-			return
-		self.requestTransition(TransitionRequest.TO_RUNNING)
-		self.queueCommands(self.commandInWaiting)
-		#print(self.commandInWaiting)
-		print("STARTING THE SLICE")
 
 
 

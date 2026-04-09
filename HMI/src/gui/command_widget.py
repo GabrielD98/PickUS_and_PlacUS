@@ -67,7 +67,7 @@ class CommandWidget(QWidget):
         current_position = self.controller.get_gripper_position()
         target = current_position * Position(1,1,0,1)
         command = Command(CommandId.MOVE, MAX_SPEED * 0.5, target, None)
-        self.controller.queue_command(command)
+        self.controller.queueCommand(command)
         self.controller.start_pnp()
 
 
