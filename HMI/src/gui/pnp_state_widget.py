@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (
 
 import utils
 from data import Position
-from gui.gui_data_manager import GuiDataManager
+from controller import Controller
 from PyQt5.QtSerialPort import QSerialPortInfo
 import serial.tools.list_ports
 import serial.tools.list_ports
@@ -32,7 +32,7 @@ class PnPStateWidget(QWidget):
         super().__init__()
 
         layout = QVBoxLayout()
-        self.dataManager = GuiDataManager()
+        self.controller = Controller()
         self.connected = False 
 
         connection_layout = QHBoxLayout()
@@ -68,21 +68,20 @@ class PnPStateWidget(QWidget):
 
     def update_state(self):
 
-        if not self.dataManager.is_connected:
+        if not self.controller.isConnected:
             if self.connected:
                 self.set_disconnected()
 
         elif not self.connected:
             self.set_connected()
 
-        state = self.dataManager.get_machine_state()
+        state = self.controller.get_machine_state()
         self.machine_state_label.setText(f"Machine State : {state}")
-        state = self.dataManager.get_controller_state()
+        state = self.controller.get_controller_state()
         self.controller_state_label.setText(f"Controller State : {state}")
-        self.position = self.dataManager.get_gripper_position()
+        self.position = self.controller.get_gripper_position()
         self.position_label.setText(f"Position : {self.position.x:.2f}, {self.position.y:.2f},"
                                      + f" {self.position.z:.2f}, {self.position.yaw:.2f}")
-        #print("STATE : ", self.dataManager.controller.getState())
         
 
     def scan_serial_ports(self) -> List[str]:
@@ -137,13 +136,13 @@ class PnPStateWidget(QWidget):
 
     def toggle_connect(self):
         
-        if self.dataManager.is_port_open(): 
+        if self.controller.isPortOpen(): 
             self.connect_button.setText("Connect")
-            self.dataManager.disconnect()
+            self.controller.disconnectionFromMachine()
             self.set_disconnected()
         else :
             try:
-                self.dataManager.connect_to_pnp(self.get_selected_port())
+                self.controller.connectionToMachine(self.get_selected_port(), 115200)
                 self.set_connected()
                 self.connect_button.setText("Disconnect")
             except Exception as e:

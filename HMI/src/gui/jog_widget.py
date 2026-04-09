@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
 )
 
 from data import Command, Position
-from gui.gui_data_manager import GuiDataManager
+from controller import Controller
 from data import *
 import utils
 
@@ -30,7 +30,7 @@ class JogWidget(QWidget):
         super().__init__()
         init_speed = 50
         self.jog_step = 0.5
-        self.data_manager = GuiDataManager()
+        self.controller = Controller()
         self.speed = MAX_SPEED * init_speed/100
         self.stacked_widget = QStackedWidget()
         self.interaction_widgets:List[QWidget] = []
@@ -124,7 +124,7 @@ class JogWidget(QWidget):
             mode_on_layout.addStretch()
             mode_on_layout.addWidget(deactivate)
         else :
-            self.data_manager.transition_to_manual()
+            self.controller.transition_to_manual()
 
         speed_layout.addWidget(self.speed_label)
         speed_layout.addWidget(self.speed_slider)
@@ -171,7 +171,7 @@ class JogWidget(QWidget):
         self.interaction_widgets.append(step_label_entry)
         self.interaction_widgets.append(self.jog_step_entry)
 
-        if self.data_manager.homed == False:
+        if self.controller.homed == False:
             self.deactivate_interaction_widget()
 
         if not isMain :
@@ -182,11 +182,11 @@ class JogWidget(QWidget):
 
 
     def turn_on_jog_mode(self):
-        self.data_manager.transition_to_manual()
+        self.controller.transition_to_manual()
         self.stacked_widget.setCurrentIndex(1)
 
     def turn_off_jog_mode(self):
-        self.data_manager.transition_to_idle()
+        self.controller.transition_to_idle()
         self.stacked_widget.setCurrentIndex(0)
 
     def deactivate_interaction_widget(self):
@@ -284,7 +284,7 @@ class JogWidget(QWidget):
         y_value = self.y_entry.text()
         z_value = self.z_entry.text()
         yaw_value = self.yaw_entry.text()
-        current_pos = self.data_manager.get_gripper_position()
+        current_pos = self.controller.get_gripper_position()
 
         if not utils.is_float(x_value):
             print(f"Invalid input for the x value. Must be an interger, is instead : {x_value}")
@@ -313,14 +313,14 @@ class JogWidget(QWidget):
 
     def move_gripper(self, target:Position):
         command = Command(CommandId.MOVE, MAX_SPEED * self.speed/100.0, target, None)
-        self.data_manager.queue_command(command)
+        self.controller.queueCommand(command)
     
 
 
 
     def go_home(self):
         print("Going home")
-        self.data_manager.go_home(ending_function=self.activate_interaction_widget)
+        self.controller.go_home(ending_function=self.activate_interaction_widget)
         #self.activate_interaction_widget()
 
 
@@ -360,4 +360,4 @@ class JogWidget(QWidget):
 
     
     def get_gripper_position(self) -> Position:
-        return self.data_manager.get_gripper_position()
+        return self.controller.get_gripper_position()
