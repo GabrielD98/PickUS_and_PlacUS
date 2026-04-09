@@ -67,8 +67,7 @@ class CalibrationWindow(QMainWindow):
 
     def load_previous_calibration(self):
 
-        with open(CALIB_PATH, 'r') as file:
-            data = json.load(file)
+        data = self.read_json_data()
 
         key = JSON_KEY
         if key in data:
@@ -80,9 +79,11 @@ class CalibrationWindow(QMainWindow):
 
 
     def save_current_calibration(self):
-        with open(CALIB_PATH, "r") as file:
-            data = json.load(file)
 
+        data = self.read_json_data()
+
+        if JSON_KEY not in data:
+            data[JSON_KEY] = {}
 
         position = self.dataManager.get_gripper_position()
         data[JSON_KEY]["x"] = str(round(position.x, 2))
@@ -92,6 +93,22 @@ class CalibrationWindow(QMainWindow):
 
         with open(CALIB_PATH, "w") as file:
             json.dump(data, file, indent=4)
+
+
+
+
+    def read_json_data(self):
+        try:
+            with open(CALIB_PATH, 'r') as file:
+                data = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            # Create the file with an empty dictionary if it's missing or corrupted
+            data = {}
+            with open(CALIB_PATH, 'w') as file:
+                json.dump(data, file)
+        
+        return data
+
 
 
 

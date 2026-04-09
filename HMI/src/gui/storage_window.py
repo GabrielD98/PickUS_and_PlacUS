@@ -181,8 +181,7 @@ class StorageWindow(QMainWindow):
 		if not automatic:
 			deltaPos = self.get_delta_pos()
 
-		with open(CALIB_PATH, "r") as file:
-			data = json.load(file)
+		data = self.read_json_data()	
 
 		if self.piece_name not in data:
 			data[self.piece_name] = {}
@@ -212,10 +211,10 @@ class StorageWindow(QMainWindow):
 
 
 
+
 	def load_previous_calibration(self):
 
-		with open(CALIB_PATH, 'r') as file:
-			data = json.load(file)
+		data = self.read_json_data()
 
 		key = self.piece_name
 		if not key in data:
@@ -233,6 +232,21 @@ class StorageWindow(QMainWindow):
 		self.jog_widget.y_entry.setText(data[key]["position"]["y"])
 		self.jog_widget.z_entry.setText(data[key]["position"]["z"])
 		self.jog_widget.yaw_entry.setText(data[key]["position"]["yaw"])
+
+
+
+
+	def read_json_data(self):
+		try:
+			with open(CALIB_PATH, 'r') as file:
+				data = json.load(file)
+		except (FileNotFoundError, json.JSONDecodeError):
+			# Create the file with an empty dictionary if it's missing or corrupted
+			with open(CALIB_PATH, 'w') as file:
+				data  = {}
+				json.dump(data, file)
+
+		return data
 
 
 	def open_calibration_tab(self):
