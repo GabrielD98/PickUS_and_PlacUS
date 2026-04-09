@@ -111,3 +111,6 @@ class CommandWidget(QWidget):
 
 
 
+    def pnp_done(self):
+        self.stop()
+

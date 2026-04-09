@@ -17,9 +17,9 @@ from PyQt5.QtWidgets import (
     QSlider,
     QComboBox
 )
-
+from PyQt5.QtCore import pyqtSignal
 import utils
-from data import Position
+from data import ControllerState, Position
 from controller import Controller
 from PyQt5.QtSerialPort import QSerialPortInfo
 import serial.tools.list_ports
@@ -27,6 +27,8 @@ import serial.tools.list_ports
 from typing import List
 
 class PnPStateWidget(QWidget):
+    pnp_done_signal = pyqtSignal() 
+
 
     def __init__(self):
         super().__init__()
@@ -75,13 +77,20 @@ class PnPStateWidget(QWidget):
         elif not self.connected:
             self.set_connected()
 
-        state = self.controller.get_machine_state()
-        self.machine_state_label.setText(f"Machine State : {state}")
-        state = self.controller.get_controller_state()
-        self.controller_state_label.setText(f"Controller State : {state}")
+        state_m = self.controller.get_machine_state()
+        self.machine_state_label.setText(f"Machine State : {state_m}")
+        state_c = self.controller.get_controller_state()
+        self.controller_state_label.setText(f"Controller State : {state_c}")
         self.position = self.controller.get_gripper_position()
         self.position_label.setText(f"Position : {self.position.x:.2f}, {self.position.y:.2f},"
                                      + f" {self.position.z:.2f}, {self.position.yaw:.2f}")
+        
+        if state_c == ControllerState.DONE:
+            self.pnp_done_signal.emit()
+            print("PnP DONE")
+            self.controller.transition_to_idle()
+
+        
         
 
     def scan_serial_ports(self) -> List[str]:

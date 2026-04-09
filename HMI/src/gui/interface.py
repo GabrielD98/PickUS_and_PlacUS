@@ -158,6 +158,7 @@ class Interface(QMainWindow):
 
 
 		self.slice_widget.slice_done_signal.connect(commandWidget.slice_done)
+		self.state_widget.pnp_done_signal.connect(commandWidget.pnp_done)
 
 		# Set up the update loop
 		

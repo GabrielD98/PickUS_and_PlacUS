@@ -1,6 +1,5 @@
 import struct
 import threading
-
 from storage import Storage
 from communication import Communication
 from data import Position, Command, CommandId, ControllerState, MachineState, TransitionRequest
@@ -41,7 +40,7 @@ class Controller:
 	"""
 	
 	#TODO continue when pause
-
+	
 
 	def __init__(self):
 
@@ -100,6 +99,10 @@ class Controller:
 		with self.mutex:
 			self._commands.extend(commands)
 
+
+
+	def _clearCommands(self):
+		self._commands = []
 
 
 
@@ -609,6 +612,7 @@ class Controller:
 
 	def transition_to_idle(self):
 		"""Change the machine state to IDLE (waiting for commands)"""
+		self._clearCommands()
 		self.requestTransition(TransitionRequest.TO_IDLE)
 
 
