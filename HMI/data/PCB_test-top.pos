@@ -1,0 +1,46 @@
+### Footprint positions - created on 2026-01-21T15:33:44-0500 ###
+### Printed by KiCad version 9.0.7
+## Unit = mm, Angle = deg.
+## Side : top
+# Ref     Val                   Package                                                 PosX       PosY       Rot  Side
+D1        LED                   LED_0805_2012Metric                                  61.0000   -62.9375   90.0000  top
+D2        LED                   LED_0805_2012Metric                                  52.5000   -60.4375   45.0000  top
+D3        LED                   LED_0805_2012Metric                                  50.0625   -51.5000    0.0000  top
+J1        Screw_Terminal_01x02  Molex_KK-396_A-41792-0002_1x02_P3.96mm_Horizontal    57.0200   -35.1600    0.0000  top
+J2        Conn_01x01_Pin        PinHeader_1x01_P1.00mm_Vertical                     115.0000   -40.0000    0.0000  top
+J3        Conn_01x01_Pin        PinHeader_1x01_P1.00mm_Vertical                     115.0000   -80.0000    0.0000  top
+J4        Conn_01x01_Pin        PinHeader_1x01_P1.00mm_Vertical                      55.0000   -80.0000    0.0000  top
+R1        R                     R_0805_2012Metric                                    76.5000   -65.4125  -90.0000  top
+R2        R                     R_0805_2012Metric                                    76.5000   -69.2900  -90.0000  top
+R3        R                     R_0805_2012Metric                                    76.5000   -73.4125  -90.0000  top
+R4        R                     R_0805_2012Metric                                    76.5000   -77.4125  -90.0000  top
+R5        R                     R_0805_2012Metric                                    76.5000   -81.4125  -90.0000  top
+R6        R                     R_0805_2012Metric                                    98.0875   -51.0000    0.0000  top
+R7        R                     R_0805_2012Metric                                   102.5875   -51.0000    0.0000  top
+R8        R                     R_0805_2012Metric                                   107.1750   -51.0000    0.0000  top
+R9        R                     R_0805_2012Metric                                   111.6750   -51.0000    0.0000  top
+R10       R                     R_0805_2012Metric                                   116.0875   -51.0000    0.0000  top
+R11       R_45deg               R_0805_2012Metric                                    86.5000   -62.6667  -45.0000  top
+R12       R_45deg               R_0805_2012Metric                                    91.1452   -67.3120  -45.0000  top
+R13       R_45deg               R_0805_2012Metric                                    95.5619   -71.7286  -45.0000  top
+R14       R_45deg               R_0805_2012Metric                                   100.0619   -76.2286  -45.0000  top
+R15       R_45deg               R_0805_2012Metric                                   104.5619   -80.7286  -45.0000  top
+R16       R                     R_0603_1608Metric                                    69.5000   -65.3250  -90.0000  top
+R17       R                     R_0603_1608Metric                                    69.5000   -69.3250  -90.0000  top
+R18       R                     R_0603_1608Metric                                    69.5000   -73.3250  -90.0000  top
+R19       R                     R_0603_1608Metric                                    69.5000   -77.3250  -90.0000  top
+R20       R                     R_0603_1608Metric                                    69.5000   -81.3250  -90.0000  top
+R21       R                     R_0603_1608Metric                                    98.1750   -45.5000    0.0000  top
+R22       R                     R_0603_1608Metric                                   102.6750   -45.5000    0.0000  top
+R23       R                     R_0603_1608Metric                                   107.1750   -45.5100    0.0000  top
+R24       R                     R_0603_1608Metric                                   111.6750   -45.5000    0.0000  top
+R25       R                     R_0603_1608Metric                                   115.8250   -45.5000    0.0000  top
+R26       R_45deg               R_0603_1608Metric                                    90.9166   -59.0834  -45.0000  top
+R27       R_45deg               R_0603_1608Metric                                    94.9166   -63.0834  -45.0000  top
+R28       R_45deg               R_0603_1608Metric                                    99.4166   -67.5834  -45.0000  top
+R29       R_45deg               R_0603_1608Metric                                   104.0000   -72.1667  -45.0000  top
+R30       R_45deg               R_0603_1608Metric                                   108.5000   -76.6667  -45.0000  top
+R31       R                     R_0805_2012Metric                                    61.0000   -57.9125  -90.0000  top
+R32       R_45deg               R_0805_2012Metric                                    57.1452   -55.8548   45.0000  top
+R33       R                     R_0805_2012Metric                                    55.0875   -51.5000    0.0000  top
+## End
