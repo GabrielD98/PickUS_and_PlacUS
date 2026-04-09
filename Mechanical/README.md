@@ -1,10 +1,11 @@
+
 # Mechanical instructions
 
 The Pick and place is built in a specific way with complex pieces, to insure a good functionning device, please follow the instructions provided.
 
-## Table of Contents
+## Table of Contents (Non conforme)
 
-1. [Bill of Material](#Bill of Material)
+1. [Bill of Material](#BillofMaterial)
 2. [Features](#features)
 3. [Tech Stack](#tech-stack)
 4. [Project Structure](#project-structure)
@@ -31,3 +32,17 @@ The base plate is laser cutted for a size reason and is made of wood.
 All the pieces or component to buy are in the Mechanical folder named BOM. The Bill of Material contain all the pieces needed to complete de Project with links to the websites. Please note that the product were purchased and delivered in Canada so some of the links may not work or be discontinued.
 
 The pieces were bought principally on Amazon.ca and Aliexpress.com. 
+
+## Instructions
+
+The complete assembly is provided in the STL_Files folder to guide you during the assembly process.
+
+### Step 1 : Base
+
+
+
+
+
+
+
+
