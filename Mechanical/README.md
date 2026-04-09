@@ -39,6 +39,14 @@ The complete assembly is provided in the STL_Files folder to guide you during th
 
 ### Step 1 : Base
 
+#### Pieces needed: 
+Alluminum extrusion 5x
+#### Print Needed:
+FootMountSS
+
+BasePlateSupport(Is laser Cutted)
+
+Using 
 
 
 
