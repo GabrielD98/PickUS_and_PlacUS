@@ -133,20 +133,3 @@ class Button(QPushButton):
             }}
 
         """)
-
-#            /* Pressed state (mouse click) */
-#            QPushButton:pressed {{
-#                background-color: {style.pressed_color}; 
-#                /*padding-top: {style.padding_top_pressed}; 
-#                padding-bottom: {style.padding_bot_pressed};*/
-#            }}
-
-
-
-
-
-
-
-
-
-

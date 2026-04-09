@@ -35,10 +35,9 @@ from gui.jog_widget import JogWidget
 from gui.command_widget import CommandWidget
 from gui.slice_info_widget import SliceInfoWidget
 from gui.calbration_window import CalibrationWindow
+from gui.frame import Frame, WidgetConfig
 import utils
 import random
-
-
 
 class Interface(QMainWindow):
 	def __init__(self):
@@ -94,6 +93,7 @@ class Interface(QMainWindow):
 		self.analyse_button = QPushButton("Analyse")
 		self.analyse_button.clicked.connect(self.analyse_file)
 		self.analyse_button.setEnabled(False)
+
 		file_layout = QHBoxLayout()
 		file_layout.addWidget(explore_file, 1)
 		file_layout.addWidget(self.file_label, 5)
@@ -103,15 +103,24 @@ class Interface(QMainWindow):
 
 		#STORAGE PIECE LAYOUT
 		self.pieces_layout = QVBoxLayout()
-
 		scroll = QScrollArea(self)	
-		left_layout.addWidget(scroll, 4)
 		scroll.setWidgetResizable(True)
 
-		self.pieces_layout.setAlignment(Qt.AlignTop)
-		scrollContent = QWidget(scroll)
+		scroll.setStyleSheet("background: transparent; border: none;")
+		scroll.viewport().setStyleSheet("background: transparent;")
+		
+		# self.pieces_layout.setAlignment(Qt.AlignTop)
+		scrollContent = QWidget()
+		scrollContent.setStyleSheet("background: transparent;")
 		scrollContent.setLayout(self.pieces_layout)
 		scroll.setWidget(scrollContent)
+
+		self.framed_scroll = Frame(scroll, style=WidgetConfig(
+            padding="1px 1px", 
+            background_color="transparent"
+        ))
+
+		left_layout.addWidget(self.framed_scroll,4)
 
 		#TODO delete label
 		self.calibrate_button = QPushButton("Calibrate")
@@ -153,7 +162,8 @@ class Interface(QMainWindow):
 			img = "../data/julius_salad.png"
 		pixmap = QPixmap(img)
 		img_label.setPixmap(pixmap)
-		img_label.setScaledContents(True) 
+		img_label.setScaledContents(True)
+	
 		img_label.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Expanding)
 		right_layout.addWidget(img_label, 4)
 
