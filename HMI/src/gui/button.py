@@ -19,7 +19,6 @@ from PyQt5.QtWidgets import (
 )
 from dataclasses import dataclass
 
-
 @dataclass
 class ButtonStyle:
     background_color:str
@@ -34,10 +33,9 @@ class ButtonStyle:
     pressed_color:str
     padding_top_pressed:str
     padding_bot_pressed:str
-
     disabled_color:str
     disabled_text_color:str 
-
+ 
     current_color:str
 
 
@@ -51,20 +49,20 @@ class Button(QPushButton):
             background_color="white",
             txt_color="black", 
             border_radius = "4px",
-            padding = "8px, 16px",
+            padding = "8px, 14px",
             font_size = "14px",
             font_weight = "none",
             border = "none",
 
-            hover_color = "#CBCBCB",
-            pressed_color = "#959393",
+        # "#CBCBCB" , "#959393" , "#A2A2A2"
+            hover_color = "transparent",
+            pressed_color = "transparent",
             padding_top_pressed = "10px",
             padding_bot_pressed = "6px",
-
-            disabled_color = "#A2A2A2",
+            disabled_color = "transparent",
             disabled_text_color = "black",
 
-            current_color = "white"
+            current_color = "transparent"
             # Setup animation
             
         )
@@ -72,7 +70,6 @@ class Button(QPushButton):
         self.animation = QPropertyAnimation(self, b"color")
         self.animation.setDuration(300) # 300ms transition
         
-
 
 
     # Define a custom property for the color
@@ -88,84 +85,31 @@ class Button(QPushButton):
         self.qss_style.current_color = val.name()
         self.update_style()
 
+    
+    def commitStyleSheet(self):
+        # Sync the static color to the active current_color
+        self.qss_style.current_color = self.qss_style.background_color
+        self.update_style()
 
 
 
     def update_style(self):
-        self.setStyleSheet(f"""
-            /* Base state for all buttons */
-            QPushButton {{
-                background-color: {self.qss_style.current_color}; 
-                color: {self.qss_style.txt_color};
-                border-radius: {self.qss_style.border_radius};
-                padding: {self.qss_style.padding};
-                font-size: {self.qss_style.font_size};
-                font-weight: {self.qss_style.font_weight};
-                border: {self.qss_style.border};
-                
-            }}
-            /* Pressed state (mouse click) */
-            QPushButton:pressed {{
-                background-color: {self.qss_style.pressed_color}; 
-                /*padding-top: {self.qss_style.padding_top_pressed}; 
-                padding-bottom: {self.qss_style.padding_bot_pressed};*/
-            }}
-
-            /* Disabled state */
-            QPushButton:disabled {{
-                background-color: {self.qss_style.disabled_color}; 
-                color: {self.qss_style.disabled_text_color};
-            }}
-        """)
-
-
-
-
-    def enterEvent(self, event):
-        # Mouse Hover Start
-        self.animation.stop()
-        self.animation.setEndValue(QColor(self.qss_style.hover_color))
-        self.animation.start()
-        super().enterEvent(event)
-
-
-
-
-
-    def leaveEvent(self, event):
-        # Mouse Hover End
-        self.animation.stop()
-        self.animation.setEndValue(QColor(self.qss_style.background_color))
-        self.animation.start()
-        super().leaveEvent(event)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def commitStyleSheet(self):
+        """
+        Single source of truth for the stylesheet.
+        """
         style = self.qss_style
+        # Clean the padding string (PyQt QSS doesn't like the comma)
+        clean_padding = style.padding.replace(',', '')
 
         self.setStyleSheet(f"""
-            /* Base state for all buttons */
             QPushButton {{
-                background-color: {style.background_color}; 
+                /* The border-image is drawn ON TOP of the background-color */
+                border-image: url('../data/Gold_RomanStyle_corner.png') 25 25 25 25 stretch;
+                
+                background-color: {style.current_color}; 
                 color: {style.txt_color};
                 border-radius: {style.border_radius};
-                padding: {style.padding};
+                padding: {clean_padding}; 
                 font-size: {style.font_size};
                 font-weight: {style.font_weight};
                 border: {style.border};
@@ -176,17 +120,33 @@ class Button(QPushButton):
             QPushButton:hover {{
                 background-color: {style.hover_color}; 
             }}
-
-            /* Pressed state (mouse click) */
-            QPushButton:pressed {{
+            
+             /* This state stays active after clicking if setCheckable(True) */
+            QPushButton:checked {{
                 background-color: {style.pressed_color}; 
-                /*padding-top: {style.padding_top_pressed}; 
-                padding-bottom: {style.padding_bot_pressed};*/
             }}
-
+            
             /* Disabled state */
             QPushButton:disabled {{
                 background-color: {style.disabled_color}; 
                 color: {style.disabled_text_color};
             }}
+
         """)
+
+#            /* Pressed state (mouse click) */
+#            QPushButton:pressed {{
+#                background-color: {style.pressed_color}; 
+#                /*padding-top: {style.padding_top_pressed}; 
+#                padding-bottom: {style.padding_bot_pressed};*/
+#            }}
+
+
+
+
+
+
+
+
+
+
