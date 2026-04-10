@@ -237,7 +237,7 @@ class Interface(QMainWindow):
 
 	def add_piece_to_storage(self, info:StorageUiInfo):
 		self.storage_window = StorageWindow()
-		self.storage_window.set_inputs(info)
+		self.storage_window.setInputs(info)
 		self.storage_window.show()
 
 

@@ -28,7 +28,7 @@ class CommandWidget(QWidget):
         """
         super().__init__()
 
-        #main relevant attributes 
+        # main relevant attributes 
         self._controller = Controller()
         self._on = False
 
