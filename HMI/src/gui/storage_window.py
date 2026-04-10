@@ -88,7 +88,7 @@ class StorageWindow(QMainWindow):
 		
 		utils.clearLayout(self.inputs_layout)
 		self.widget_info = info
-		self.piece_name = info.piece.package
+		self.piece_name = info._piece.package
 		
 		piece_label = QLabel(self.piece_name)
 
@@ -325,9 +325,9 @@ class StorageWindow(QMainWindow):
 				return
 
 
-		self.storage.addComponent(self.widget_info.piece, position, deltaPos, state, quantity, automatic)
+		self.storage.addComponent(self.widget_info._piece, position, deltaPos, state, quantity, automatic)
 
-		self.widget_info.update_all(self.piece_name, state, quantity, automatic)
+		self.widget_info.updateAll(self.piece_name, state, quantity, automatic)
 		print("piece added successfully")
 		self.deleteLater()
 
