@@ -157,7 +157,7 @@ class Interface(QMainWindow):
 
 
 
-		self.slice_widget.slice_done_signal.connect(commandWidget.sliceDone)
+		self.slice_widget.sliceDoneSignal.connect(commandWidget.sliceDone)
 		self.state_widget.pnpDoneSignal.connect(commandWidget.pnpDone)
 
 		# Set up the update loop
@@ -199,7 +199,7 @@ class Interface(QMainWindow):
 		if pieces is None:
 			return
 		
-		self.slice_widget.set_pieces(pieces)
+		self.slice_widget.setPieces(pieces)
 		self.pieces = self.get_all_unique_piece(pieces)
 		self.update_piece_list()
 		self.analyse_button.setEnabled(False)
@@ -246,7 +246,7 @@ class Interface(QMainWindow):
 	def start_calibration(self):
 		self.calibration_window = CalibrationWindow(position=self.calibration_pos)
 		self.calibration_window.show()
-		self.slice_widget.enable_slicing()
+		self.slice_widget.enableSlicing()
 
 
 
