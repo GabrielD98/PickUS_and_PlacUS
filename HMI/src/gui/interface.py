@@ -158,7 +158,7 @@ class Interface(QMainWindow):
 
 
 		self.slice_widget.slice_done_signal.connect(commandWidget.sliceDone)
-		self.state_widget.pnp_done_signal.connect(commandWidget.pnpDone)
+		self.state_widget.pnpDoneSignal.connect(commandWidget.pnpDone)
 
 		# Set up the update loop
 		
@@ -255,15 +255,15 @@ class Interface(QMainWindow):
 		"""This function runs every 500ms when the timer times out."""
 		if not self.controller.isConnected():
 			if not self.controller.isPortOpen():
-				self.state_widget.update_scanned_port()
+				self.state_widget.updateScannedPort()
 			#TODO check for disconnection with exeption request. connected should not be local here
 			else :	
-				self.state_widget.set_disconnected()
+				self.state_widget.setDisconnected()
 			
 			
 			
 		else :
-			self.state_widget.update_state()
+			self.state_widget.updateState()
 		#print("loop")
 
 
@@ -271,10 +271,10 @@ class Interface(QMainWindow):
 
 	def try_connect(self):
 		try :
-			self.state_widget.update_scanned_port()
-			port = self.state_widget.get_selected_port()
+			self.state_widget.updateScannedPort()
+			port = self.state_widget.getSelectedPort()
 			self.controller.connectionToMachine(port, 115200)
-			self.state_widget.set_connected()
+			self.state_widget.setConnected()
 			print("connection successful")
 		except Exception as e :
 			print(f"failed connection to PnP : {e}")
