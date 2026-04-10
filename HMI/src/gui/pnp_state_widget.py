@@ -86,11 +86,11 @@ class PnPStateWidget(QWidget):
         elif not self._connected:
             self.setConnected()
 
-        state_m = self._controller.get_machine_state()
+        state_m = self._controller.getMachineState()
         self._machineStateLabel.setText(f"Machine State : {state_m}")
-        state_c = self._controller.get_controller_state()
+        state_c = self._controller.getControllerState()
         self._controllerStateLabel.setText(f"Controller State : {state_c}")
-        self._position = self._controller.get_gripper_position()
+        self._position = self._controller.getGripperPosition()
         self._positionLabel.setText(f"Position : {self._position.x:.2f}, {self._position.y:.2f},"
                                      + f" {self._position.z:.2f}, {self._position.yaw:.2f}")
         
@@ -99,7 +99,7 @@ class PnPStateWidget(QWidget):
         if state_c == ControllerState.DONE:
             self.pnpDoneSignal.emit()
             print("PnP DONE")
-            self._controller.transition_to_idle()
+            self._controller.transitionToIDLE()
 
 
 

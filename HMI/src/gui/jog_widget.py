@@ -145,7 +145,7 @@ class JogWidget(QWidget):
             modeOnLayout.addStretch()
             modeOnLayout.addWidget(deactivate)
         else :
-            self._controller.transition_to_manual()
+            self._controller.transitionToManual()
 
         # addition of all the individual commands that the user can do in the layouts
         speedLayout.addWidget(self._speedLabel)
@@ -251,16 +251,16 @@ class JogWidget(QWidget):
         Returns:
             Position: The current gripper position.
         """
-        return self._controller.get_gripper_position()
+        return self._controller.getGripperPosition()
     
 
-    
+
 
     def _turnOnJogMode(self):
         """
         Activate jog mode, enabling manual control of the gripper.
         """
-        self._controller.transition_to_manual()
+        self._controller.transitionToManual()
         self._stackedWidget.setCurrentIndex(1)
 
 
@@ -270,7 +270,7 @@ class JogWidget(QWidget):
         """
         Deactivate jog mode, disabling manual control of the gripper.
         """
-        self._controller.transition_to_idle()
+        self._controller.transitionToIDLE()
         self._stackedWidget.setCurrentIndex(0)
 
 
@@ -440,7 +440,7 @@ class JogWidget(QWidget):
         yValue = self._yEntry.text()
         zValue = self._zEntry.text()
         yawValue = self._yawEntry.text()
-        currentPos = self._controller.get_gripper_position()
+        currentPos = self._controller.getGripperPosition()
 
         if not utils.is_float(xValue):
             print(f"Invalid input for the x value. Must be a float, is instead : {xValue}")
@@ -477,7 +477,7 @@ class JogWidget(QWidget):
         Args:
             target (Position): The target position to move the gripper to.
         """
-        if self._controller.get_machine_state() == MachineState.READY:
+        if self._controller.getMachineState() == MachineState.READY:
             command = Command(CommandId.MOVE, MAX_SPEED * self._speed/100.0, target, None)
             self._controller.queueCommand(command)
     
@@ -489,5 +489,5 @@ class JogWidget(QWidget):
         Move the gripper to the home position.
         """
         print("Going home")
-        self._controller.go_home(ending_function=self._activateInteractionWidget)
+        self._controller.goHome(endingFunction=self._activateInteractionWidget)
 

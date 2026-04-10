@@ -59,7 +59,7 @@ class Controller:
 		self._closeEvent = threading.Event()
 		self._comThread = None
 		self._controllerRequestTransitionField = 0
-		self._time_since_last_response:float = -1
+		self._timeSinceLastResponse:float = -1
 		self._connected = False
 		self.mutex = threading.Lock()
 
@@ -102,7 +102,11 @@ class Controller:
 
 
 	def _clearCommands(self):
+		"""
+		Clears the entire command list to stop the PnP
+		"""
 		self._commands = []
+
 
 
 
@@ -154,7 +158,7 @@ class Controller:
 				port speed
 		"""
 
-		self._time_since_last_response = time.time() * 1000
+		self._timeSinceLastResponse = time.time() * 1000
 		self._com = Communication(comPort, baudrate)
 		self._com.open()
 		self._closeEvent = threading.Event()
@@ -183,13 +187,19 @@ class Controller:
 
 
 
-	def isConnected(self):
+	def isConnected(self) -> bool:
+		"""
+		returns True if the application is currently communicating with the ESP
+		"""
 		return self._connected
 
 
 
 
 	def isPortOpen(self):
+		"""
+		returns True if the communication thread has been initialized 
+		"""
 		return self._comThread is not None
 
 
@@ -207,6 +217,100 @@ class Controller:
 		#print(self.commandInWaiting)
 		print("STARTING THE SLICE")
 
+
+
+
+	def goHome(self, endingFunction):
+		"""
+		Starts the homing thread 
+
+		Parameters:
+			ending_function : a function to be called when the homing is done
+								#TODO add signal
+		"""
+		if self.blocked :
+			return
+		if not self.isConnected():
+			return
+		homeThread = threading.Thread(target=self._homingThreadLoop,  args=(endingFunction,))
+		homeThread.start()
+
+
+
+
+	def getMachineState(self) -> MachineState:
+		"""return the state of the Machine (the ESP32)"""
+		with self.mutex:
+			state = self._latestMachineInfo[0]
+		return state
+
+
+
+
+	def getGripperPosition(self) -> Position:
+		"""return the Position of the tip of the gripper (x, y, z, yaw)"""
+		with self.mutex:
+			position = self._latestMachineInfo[1]
+		return position
+
+
+
+
+	def getControllerState(self) -> ControllerState:
+		"""return the state of the Machine (this controller)"""
+		return  self._controllerState
+
+
+
+
+	def setPnpCommands(self, command:Command):
+		"""sets the list of commands for the slice without starting the PnP
+		Parameters:
+			command (Command):
+				Command to add at the end of the queue.
+		"""
+		if self.blocked:
+			return
+		self.commandInWaiting = command 
+
+
+
+
+	def pausePnP(self):
+		"""
+		Pauses the PnP. Interupts the current action 
+		and waits for either a Continue command or a Stop command
+		"""
+		self.requestTransition(TransitionRequest.TO_PAUSE)
+
+
+
+
+	def transitionToRunning(self):
+		"""Changes the machine state to RUNNING (slicing is occuring)"""
+		self.requestTransition(TransitionRequest.TO_RUNNING)
+
+
+
+
+	def transitionToManual(self):
+		"""Change the machine state to MANNUAL (jogging is occuring)"""
+		self.requestTransition(TransitionRequest.TO_MANUAL)
+
+
+
+
+	def transitionToIDLE(self):
+		"""Change the machine state to IDLE (waiting for commands)"""
+		self._clearCommands()
+		self.requestTransition(TransitionRequest.TO_IDLE)
+
+
+
+
+	def continuePnP(self):
+		"""Continues the interrupted command by the Pause action"""
+		self.requestTransition(TransitionRequest.TO_RUNNING)
 
 
 
@@ -247,7 +351,7 @@ class Controller:
 		bytesBuffer = self._com.receiveData(size)
 
 		if bytesBuffer is None or len(bytesBuffer) < size:
-			if (time.time()*1000) - self._time_since_last_response > RESPONSE_TIMOUT:
+			if (time.time()*1000) - self._timeSinceLastResponse > RESPONSE_TIMOUT:
 				self._connected = False
 			return
 		try:
@@ -263,7 +367,7 @@ class Controller:
 			return
 		
 		self._connected =  True
-		self._time_since_last_response = time.time() * 1000
+		self._timeSinceLastResponse = time.time() * 1000
 
 
 
@@ -306,7 +410,7 @@ class Controller:
 
 
 
-	def _check_and_transition(self, bit: TransitionRequest, target_state:ControllerState) -> bool:
+	def _checkAndTransition(self, bit: TransitionRequest, target_state:ControllerState) -> bool:
 		"""
 		Verify that a transition is due
 
@@ -332,7 +436,7 @@ class Controller:
 
 
 
-	def _handle_idle_state(self) -> Command:
+	def _handleIdleState(self) -> Command:
 		"""
 		Handle IDLE state - wait for transition requests.
 		
@@ -343,14 +447,14 @@ class Controller:
 			Command:
 				Command to send when in idle state (always EMPTY).
 		"""
-		self._check_and_transition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING)
-		self._check_and_transition(TransitionRequest.TO_MANUAL, ControllerState.MANUAL)
+		self._checkAndTransition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING)
+		self._checkAndTransition(TransitionRequest.TO_MANUAL, ControllerState.MANUAL)
 		return Command(CommandId.EMPTY, 0, None, None)
 
 
 
 
-	def _handle_running_state(self) -> Command:
+	def _handleRunningState(self) -> Command:
 		"""Handle RUNNING state - execute command queue automatically.
 		
 		Executes queued commands sequentially when the machine is in READY state.
@@ -383,14 +487,14 @@ class Controller:
 				with self.mutex:
 					self._controllerState = ControllerState.DONE
 		
-		self._check_and_transition(TransitionRequest.TO_PAUSE, ControllerState.PAUSE)
+		self._checkAndTransition(TransitionRequest.TO_PAUSE, ControllerState.PAUSE)
 		return commandToSend
 
 
 
 
 
-	def _handle_manual_state(self) -> Command:
+	def _handleManualState(self) -> Command:
 		"""Handle MANUAL state - execute commands manually.
 		
 		Executes commands one at a time when the machine is in READY state,
@@ -411,15 +515,15 @@ class Controller:
 			if nextCommand is not None:
 				commandToSend = nextCommand
 		
-		self._check_and_transition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING)
-		self._check_and_transition(TransitionRequest.TO_IDLE, ControllerState.IDLE)
+		self._checkAndTransition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING)
+		self._checkAndTransition(TransitionRequest.TO_IDLE, ControllerState.IDLE)
 		return commandToSend
 
 
 
 
 
-	def _handle_pause_state(self) -> Command:
+	def _handlePauseState(self) -> Command:
 		"""Handle PAUSE state - send stop command.
 		
 		Continuously sends STOP commands to halt machine operation.
@@ -429,10 +533,10 @@ class Controller:
 				STOP command to halt machine execution.
 		"""
 
-		if self._check_and_transition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING):
+		if self._checkAndTransition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING):
 			self._commands.insert(0, self._lastCommand)
 			
-		if self._check_and_transition(TransitionRequest.TO_IDLE, ControllerState.IDLE):
+		if self._checkAndTransition(TransitionRequest.TO_IDLE, ControllerState.IDLE):
 			self._commands = [] 
 
 		return Command(CommandId.STOP, 0, None, None)
@@ -441,7 +545,7 @@ class Controller:
 
 
 
-	def _handle_done_state(self) -> Command:
+	def _handleDoneState(self) -> Command:
 		"""Handle DONE state - job completed.
 		
 		Indicates that all queued commands have been executed successfully.
@@ -451,7 +555,7 @@ class Controller:
 			Command:
 				EMPTY command (no action needed).
 		"""
-		self._check_and_transition(TransitionRequest.TO_IDLE, ControllerState.IDLE)
+		self._checkAndTransition(TransitionRequest.TO_IDLE, ControllerState.IDLE)
 		return Command(CommandId.EMPTY, 0, None, None)
 
 
@@ -472,11 +576,11 @@ class Controller:
 		controller's state machine execution.
 		"""
 		state_handlers = {
-			ControllerState.IDLE: self._handle_idle_state,
-			ControllerState.RUNNING: self._handle_running_state,
-			ControllerState.MANUAL: self._handle_manual_state,
-			ControllerState.PAUSE: self._handle_pause_state,
-			ControllerState.DONE: self._handle_done_state,
+			ControllerState.IDLE: self._handleIdleState,
+			ControllerState.RUNNING: self._handleRunningState,
+			ControllerState.MANUAL: self._handleManualState,
+			ControllerState.PAUSE: self._handlePauseState,
+			ControllerState.DONE: self._handleDoneState,
 		}
 		
 		while not self._closeEvent.is_set():
@@ -497,128 +601,29 @@ class Controller:
 
 
 
-	def homing_thread(self, ending_function = None):
+	def _homingThreadLoop(self, endingFunction = None):
 		"""
 		Thread that homes the PnP. The thread will end 
 		when the PnP is Homed or if the process is interupted
 
 		Parameters:
-			ending_function : a function to be called when the homing is done
-								#TODO add signal
+			endingFunction : a function to be called when the homing is done
+								#TODO should be signal
 		"""
 		self.blocked = True
-		home_cmd = Command(CommandId.HOME,
+		homeCommand = Command(CommandId.HOME,
 			velocity=0,
 			position=None,
 			piece=None)
-		self.queueCommand(home_cmd)
+		self.queueCommand(homeCommand)
 
 		time.sleep(0.5)
-		while not self.get_machine_state() == MachineState.READY:
+		while not self.getMachineState() == MachineState.READY:
 			if not self.isConnected():
 				break
 			time.sleep(0.5)
 
-		if ending_function is not None:
-			ending_function()
+		if endingFunction is not None:
+			endingFunction()
 		self.homed = True
 		self.blocked = False
-
-
-
-
-
-	def go_home(self, ending_function):
-		"""
-		Starts the homing thread 
-
-		Parameters:
-			ending_function : a function to be called when the homing is done
-								#TODO add signal
-		"""
-		if self.blocked :
-			return
-		if not self.isConnected():
-			return
-		home_thread = threading.Thread(target=self.homing_thread,  args=(ending_function,))
-		home_thread.start()
-
-
-
-
-	def get_machine_state(self) -> MachineState:
-		"""return the state of the Machine (the ESP32)"""
-		with self.mutex:
-			state = self._latestMachineInfo[0]
-		return state
-
-
-
-
-	def get_gripper_position(self) -> Position:
-		"""return the Position of the tip of the gripper (x, y, z, yaw)"""
-		with self.mutex:
-			position = self._latestMachineInfo[1]
-		return position
-
-
-
-
-	def get_controller_state(self) -> ControllerState:
-		"""return the state of the Machine (this controller)"""
-		return  self._controllerState
-
-
-
-
-	def set_pnp_commands(self, command:Command):
-		"""sets the list of commands for the slice without starting the PnP
-		Parameters:
-			command (Command):
-				Command to add at the end of the queue.
-		"""
-		if self.blocked:
-			return
-		self.commandInWaiting = command 
-
-
-
-
-
-
-	def pause_pnp(self):
-		"""
-		Pauses the PnP. Interupts the current action 
-		and waits for either a Continue command or a Stop command
-		"""
-		self.requestTransition(TransitionRequest.TO_PAUSE)
-
-
-
-
-	def transition_to_running(self):
-		"""Changes the machine state to RUNNING (slicing is occuring)"""
-		self.requestTransition(TransitionRequest.TO_RUNNING)
-
-
-
-
-	def transition_to_manual(self):
-		"""Change the machine state to MANNUAL (jogging is occuring)"""
-		self.requestTransition(TransitionRequest.TO_MANUAL)
-
-
-
-
-	def transition_to_idle(self):
-		"""Change the machine state to IDLE (waiting for commands)"""
-		self._clearCommands()
-		self.requestTransition(TransitionRequest.TO_IDLE)
-
-
-
-
-	def continue_pnp(self):
-		"""Continues the interrupted command by the Pause action"""
-		self.requestTransition(TransitionRequest.TO_RUNNING)
-

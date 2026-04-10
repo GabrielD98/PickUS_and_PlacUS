@@ -117,7 +117,7 @@ class CalibrationWindow(QMainWindow):
         if JSON_KEY not in data:
             data[JSON_KEY] = {}
 
-        position = self._controller.get_gripper_position()
+        position = self._controller.getGripperPosition()
         data[JSON_KEY]["x"] = str(round(position.x, 2))
         data[JSON_KEY]["y"] = str(round(position.y, 2))
         data[JSON_KEY]["z"] = str(round(position.z, 2))

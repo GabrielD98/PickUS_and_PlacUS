@@ -87,7 +87,7 @@ class CommandWidget(QWidget):
         self._on = True
         self._mainControlButton.setText("Pause")
         
-        current_position = self._controller.get_gripper_position()
+        current_position = self._controller.getGripperPosition()
         target = current_position * Position(1,1,0,1)
         command = Command(CommandId.MOVE, MAX_SPEED * 0.5, target, None)
         self._controller.queueCommand(command)
@@ -100,7 +100,7 @@ class CommandWidget(QWidget):
         """
         Pause the Pick and Place process and update the UI to show pause controls.
         """
-        self._controller.pause_pnp()
+        self._controller.pausePnP()
         self._stackedWidget.setCurrentIndex(1)
         #self.unpause() #reset le pause button, a voir ak la logique globale TODO
     
@@ -115,7 +115,7 @@ class CommandWidget(QWidget):
         self._on = False
         self._stackedWidget.setCurrentIndex(0)
         self._mainControlButton.setText("Start")
-        self._controller.transition_to_idle()
+        self._controller.transitionToIDLE()
 
 
 
@@ -124,7 +124,7 @@ class CommandWidget(QWidget):
         """
         Continue the Pick and Place process after a pause.
         """
-        self._controller.continue_pnp()
+        self._controller.continuePnP()
         self._stackedWidget.setCurrentIndex(0)
 
 

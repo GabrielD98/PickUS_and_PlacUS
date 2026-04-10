@@ -88,7 +88,7 @@ class SliceInfoWidget(QWidget):
                                           Position(0,0,0,0),   #TODO offset du z
                                           150)              #TODO wtf is this
         
-        self._controller.set_pnp_commands(commands)
+        self._controller.setPnpCommands(commands)
         utils.clearLayout(self.scrollLayout)
 
         #displays all of the generated steps in the scroll layout

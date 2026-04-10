@@ -218,7 +218,7 @@ class StorageWindow(QMainWindow):
 		state = self._statesOptions.currentIndex()
 		rotation = self._rotationOptions.currentIndex()
 		deltaPos = Position(0,0,0,0)
-		position= self._controller.get_gripper_position()
+		position= self._controller.getGripperPosition()
 
 		if not automatic:
 			deltaPos = self._getDeltaPos()
@@ -385,7 +385,7 @@ class StorageWindow(QMainWindow):
 		state = self._states[self._statesOptions.currentText()]
 		rotation = int(self._rotationOptions.currentText())
 		deltaPos = Position(0,0,0,0)
-		position = self._controller.get_gripper_position()
+		position = self._controller.getGripperPosition()
 		position.yaw = rotation
 
 		if not automatic:
