@@ -310,7 +310,7 @@ class JogWidget(QWidget):
             float or None: The validated step value, or None if invalid.
         """
         value = self._jogStepEntry.text()
-        if not utils.is_float(value):
+        if not utils.isFloat(value):
             print(f"Invalid input for the step entry. Must be a float, is instead : {value}")
             return None
         return float(value)
@@ -442,22 +442,22 @@ class JogWidget(QWidget):
         yawValue = self._yawEntry.text()
         currentPos = self._controller.getGripperPosition()
 
-        if not utils.is_float(xValue):
+        if not utils.isFloat(xValue):
             print(f"Invalid input for the x value. Must be a float, is instead : {xValue}")
             xValue = currentPos.x
             self._xEntry.setText(str(xValue))
 
-        if not utils.is_float(yValue):
+        if not utils.isFloat(yValue):
             print(f"Invalid input for the y value. Must be a float, is instead : {yValue}")
             yValue = currentPos.y
             self._yEntry.setText(str(yValue))
 
-        if not utils.is_float(zValue):
+        if not utils.isFloat(zValue):
             print(f"Invalid input for the z value. Must be a float, is instead : {zValue}")
             zValue = currentPos.z
             self._zEntry.setText(str(zValue))
 
-        if not utils.is_float(yawValue):
+        if not utils.isFloat(yawValue):
             print(f"Invalid input for the yaw value. Must be a float, is instead : {yawValue}")
             yawValue = currentPos.yaw
             self._yawEntry.setText(str(yawValue))

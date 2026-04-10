@@ -209,7 +209,7 @@ class StorageWindow(QMainWindow):
 		"""
 		
 		value = self._quantityEntry.text()
-		if not utils.is_int(value):
+		if not utils.isInt(value):
 			print(f"Invalid input for the quantity. Must be an interger, is instead : {value}")
 			return
 		
@@ -348,16 +348,16 @@ class StorageWindow(QMainWindow):
 		zValue = self._deltaEntryZ.text()
 		yawValue = self._deltaEntryYaw.text()
 
-		if not utils.is_float(xValue):
+		if not utils.isFloat(xValue):
 			print(f"Invalid input for the x position delta. Must be a float, is instead : {xValue}")
 			return None
-		if not utils.is_float(yValue):
+		if not utils.isFloat(yValue):
 			print(f"Invalid input for the y position delta. Must be a float, is instead : {yValue}")
 			return None
-		if not utils.is_float(zValue):
+		if not utils.isFloat(zValue):
 			print(f"Invalid input for the z position delta. Must be a float, is instead : {zValue}")
 			return None
-		if not utils.is_float(yawValue):
+		if not utils.isFloat(yawValue):
 			print(f"Invalid input for the yaw position delta. Must be a float, is instead : {yawValue}")
 			return None
 
@@ -372,7 +372,7 @@ class StorageWindow(QMainWindow):
 		If some entries are invalid, nothing is saved. 
 		"""
 		value = self._quantityEntry.text()
-		if not utils.is_int(value):
+		if not utils.isInt(value):
 			msg = f"Invalid input for the quantity. Must be an interger, is instead : [{value}]"
 			print(msg)
 			errorWindow = utils.ErrorWindow(error_msg=msg)
