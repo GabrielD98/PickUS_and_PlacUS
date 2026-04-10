@@ -22,11 +22,11 @@ from dataclasses import dataclass
 
 @dataclass
 class WidgetConfig:
-    image_path: str = '../data/Widgets_Frame.png'
-    slices: str = "45 45 45 45" 
+    image_path: str = '../data/Golden_Roman_Frame.png'
+    slices: str = "0 0 0 0" 
     background_color: str = "transparent"
     txt_color: str = "black"
-    padding: str = "0px 0px"
+    padding: str = "10px 10px"
 
 
 class Frame(QFrame):
@@ -38,20 +38,14 @@ class Frame(QFrame):
 
         self.main_layout = QVBoxLayout(self)
         
-        # Remove all spacing that might cause gaps
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        margin = int(self.style_config.slices.split()[0])
+
+        self.main_layout.setContentsMargins(margin, margin, margin, margin)
         self.main_layout.setSpacing(0)
-
-        # 2. Inner Container
-        self.inner_container = QWidget()
-        self.inner_layout = QVBoxLayout(self.inner_container)
-        self.inner_layout.setContentsMargins(0, 0, 0, 0) 
-
-        self.main_layout.addWidget(self.inner_container)
 
         if child_widget:
             child_widget.setStyleSheet("background: transparent; border: none;")
-            self.inner_layout.addWidget(child_widget)
+            self.main_layout.addWidget(child_widget)
             
         self.apply_roman_style()
 
@@ -62,13 +56,7 @@ class Frame(QFrame):
                 border-image: url('{self.style_config.image_path}') {self.style_config.slices} stretch;
                 border-width: {border_width};
                 border-style: solid;
-                background-color: transparent;
-            }}
-        """)
-        self.inner_container.setStyleSheet(f"""
-            QWidget {{
                 background-color: white;
-                margin: -{border_width}; 
             }}
         """)
 

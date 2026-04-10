@@ -57,6 +57,7 @@ class CommandWidget(QWidget):
         self.start_button.qss_style.background_color = "#02542E"
         self.start_button.qss_style.hover_color = "#048E4D"
         self.start_button.qss_style.pressed_color =  "#910D0D"
+        self.start_button.qss_style.hover_pressed_color = "#C41D1D"
         self.start_button.commitStyleSheet()
 
         #PAUSE BUTTON 
@@ -69,6 +70,7 @@ class CommandWidget(QWidget):
         self.pause_button.qss_style.disabled_color =  "#B84D01"
         self.pause_button.qss_style.hover_color = "#E56305"
         self.pause_button.qss_style.pressed_color = "#02542E"
+        self.pause_button.qss_style.hover_pressed_color = "#048E4D"
         self.pause_button.commitStyleSheet()
 
 

@@ -31,12 +31,16 @@ class ButtonStyle:
 
     hover_color:str
     pressed_color:str
+    hover_pressed_color:str
     padding_top_pressed:str
     padding_bot_pressed:str
     disabled_color:str
     disabled_text_color:str 
  
     current_color:str
+
+    image_path: str = '../data/Gold_RomanStyle_corner.png'
+    slices: str = "25 25 25 25" 
 
 
 
@@ -57,6 +61,7 @@ class Button(QPushButton):
         # "#CBCBCB" , "#959393" , "#A2A2A2"
             hover_color = "transparent",
             pressed_color = "transparent",
+            hover_pressed_color = "transparent",
             padding_top_pressed = "10px",
             padding_bot_pressed = "6px",
             disabled_color = "transparent",
@@ -104,7 +109,7 @@ class Button(QPushButton):
         self.setStyleSheet(f"""
             QPushButton {{
                 /* The border-image is drawn ON TOP of the background-color */
-                border-image: url('../data/Gold_RomanStyle_corner.png') 25 25 25 25 stretch;
+                border-image: url('{self.qss_style.image_path}') {self.qss_style.slices} stretch;
                 
                 background-color: {style.current_color}; 
                 color: {style.txt_color};
@@ -125,7 +130,11 @@ class Button(QPushButton):
             QPushButton:checked {{
                 background-color: {style.pressed_color}; 
             }}
-            
+
+            QPushButton:checked:hover {{
+                background-color: {style.hover_pressed_color}; 
+            }}
+
             /* Disabled state */
             QPushButton:disabled {{
                 background-color: {style.disabled_color}; 
