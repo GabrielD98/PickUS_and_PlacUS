@@ -33,7 +33,7 @@ from gui.storage_ui_info import StorageUiInfo
 from gui.jog_widget import JogWidget
 from gui.command_widget import CommandWidget
 from gui.slice_info_widget import SliceInfoWidget
-from gui.calbration_window import CalibrationWindow
+from gui.calibration_window import CalibrationWindow
 import utils
 import random
 
