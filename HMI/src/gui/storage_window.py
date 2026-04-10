@@ -275,10 +275,10 @@ class StorageWindow(QMainWindow):
 		self._deltaEntryY.setText(data[key]["deltaPos"]["y"])
 		self._deltaEntryZ.setText(data[key]["deltaPos"]["z"])
 		self._deltaEntryYaw.setText(data[key]["deltaPos"]["yaw"])
-		self._jogWidget.x_entry.setText(data[key]["position"]["x"])
-		self._jogWidget.y_entry.setText(data[key]["position"]["y"])
-		self._jogWidget.z_entry.setText(data[key]["position"]["z"])
-		self._jogWidget.yaw_entry.setText(data[key]["position"]["yaw"])
+		self._jogWidget._xEntry.setText(data[key]["position"]["x"])
+		self._jogWidget._yEntry.setText(data[key]["position"]["y"])
+		self._jogWidget._zEntry.setText(data[key]["position"]["z"])
+		self._jogWidget._yawEntry.setText(data[key]["position"]["yaw"])
 
 
 

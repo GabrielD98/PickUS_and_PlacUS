@@ -1,22 +1,15 @@
-import time
 from typing import List
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
 	QVBoxLayout,
-    QMainWindow, 
     QPushButton,
     QWidget, 
-    QFileDialog,
     QLineEdit,
 	QLabel,
-	QFrame,
-	QPlainTextEdit,
-	QInputDialog,
     QStackedWidget,
     QSlider
 )
-
 from data import Command, Position
 from controller import Controller
 from data import *
@@ -24,317 +17,204 @@ import utils
 
 
 
+
 class JogWidget(QWidget):
+    """
+    Widget for manual jogging and positioning of the gripper in a Pick and Place machine.
+    Provides controls for moving in all axes, setting speed, and going to specific positions.
+
+    Attributes:
+        _controller (Controller):
+            Controller thats allows this object to send commands to the machine
+            and receives information from it.
+        _jogStep (float):
+            the distance traveled by a step querry by the user (mm)
+        _speed (float):
+            The speed of the gripper movement. (TODO units?)
+        _jogEnabled (bool) :
+            Indicates if the user is allowed to jog the PnP manually.
+    """
 
     def __init__(self, isMain = True):
+        """
+        Initialize the JogWidget, set up the UI, and prepare jog controls.
+        
+        Args:
+            isMain (bool, optional): Whether this is the jog widget of the main Window. Defaults to True.
+        """
         super().__init__()
-        init_speed = 50
-        self.jog_step = 0.5
-        self.controller = Controller()
-        self.speed = MAX_SPEED * init_speed/100
-        self.stacked_widget = QStackedWidget()
-        self.interaction_widgets:List[QWidget] = []
-        self.interaction_on = True
-        mode_off_widget = QWidget()
-        mode_on_widget = QWidget()
+
+        # main relevant attributes 
+        defaultSpeed = 50
+        self._jogStep = 0.5
+        self._controller = Controller()
+        self._speed = MAX_SPEED * defaultSpeed/100
+        self._jogEnabled = True
+
+        # init of global layout
+        self._stackedWidget = QStackedWidget()
+        self._interactionWidgets:List[QWidget] = []
+        modeOffWidget = QWidget()
+        modeOnWidget = QWidget()
         layout = QVBoxLayout()
         self.setLayout(layout)
-        self.stacked_widget.addWidget(mode_off_widget)
-        self.stacked_widget.addWidget(mode_on_widget)
-        layout.addWidget(self.stacked_widget)
+        self._stackedWidget.addWidget(modeOffWidget)
+        self._stackedWidget.addWidget(modeOnWidget)
+        layout.addWidget(self._stackedWidget)
 
-        mode_off_layout = QVBoxLayout()
-        mode_off_widget.setLayout(mode_off_layout)
+        # wrapper of the widget to hide buttons
+        modeOffLayout = QVBoxLayout()
+        modeOffWidget.setLayout(modeOffLayout)
         activate = QPushButton("Activate Jog Mode")
-        activate.clicked.connect(lambda : self.turn_on_jog_mode())
-        mode_off_layout.addWidget(activate)
+        activate.clicked.connect(lambda : self._turnOnJogMode())
+        modeOffLayout.addWidget(activate)
 
-        go_home = QPushButton("Go Home")
-        go_home.clicked.connect(self.go_home)
+        goHome = QPushButton("Go Home")
+        goHome.clicked.connect(self._goHome)
 
-        
-        self.speed_label = QLabel(f"speed : {init_speed}%")
-        self.speed_slider = QSlider(Qt.Horizontal)
-        self.speed_slider.setRange(10, 100)
-        self.speed_slider.setValue(init_speed)
-        self.speed_slider.valueChanged.connect(self.update_speed_slider)
+        # speed slider for gripper movement
+        self._speedLabel = QLabel(f"speed : {defaultSpeed}%")
+        self._speedSlider = QSlider(Qt.Horizontal)
+        self._speedSlider.setRange(10, 100)
+        self._speedSlider.setValue(defaultSpeed)
+        self._speedSlider.valueChanged.connect(self.updateSpeedSlider)
 
+        # distance of single step entry
+        stepEntryLayout = QHBoxLayout()
+        stepLabelEntry = QLabel("jog step ")
+        self._jogStepEntry = QLineEdit(self)
+        self._jogStepEntry.setText("1")
+        stepEntryLayout.addWidget(stepLabelEntry)
+        stepEntryLayout.addWidget(self._jogStepEntry)
 
-        step_entry_layout = QHBoxLayout()
-        step_label_entry = QLabel("jog step ")
-        self.jog_step_entry = QLineEdit(self)
-        self.jog_step_entry.setText("1")
-        step_entry_layout.addWidget(step_label_entry)
-        step_entry_layout.addWidget(self.jog_step_entry)
-
-
-        increment_label = QLabel("Increment Jog")
-        yaw_r = QPushButton("\u2b6e")
-        yaw_l = QPushButton("\u2b6f")
-        y_plus = QPushButton("y+")
-        y_minus = QPushButton("y-")
-        x_plus = QPushButton("x+")
-        x_minus = QPushButton("x-")
-        z_plus = QPushButton("z+")
-        z_minus = QPushButton("z-")
-        go_to_pos = QPushButton("Go to Position")
+        #buttons for single steps entries and associated function
+        incrementLabel = QLabel("Increment Jog")
+        yawR = QPushButton("\u2b6e")
+        yawL = QPushButton("\u2b6f")
+        yPlus = QPushButton("y+")
+        yMinus = QPushButton("y-")
+        xPlus = QPushButton("x+")
+        xMinus = QPushButton("x-")
+        zPlus = QPushButton("z+")
+        zMinus = QPushButton("z-")
+        goToPos = QPushButton("Go to Position")
         deactivate = QPushButton("Deactivate Jog Mode")
+        yawR.clicked.connect(lambda : self._rotateRight())
+        yawL.clicked.connect(lambda : self._rotateLeft()) 
+        yPlus.clicked.connect(lambda : self._movePositiveY()) 
+        yMinus.clicked.connect(lambda : self._moveNegativeY()) 
+        xPlus.clicked.connect(lambda : self._movePositiveX()) 
+        xMinus.clicked.connect(lambda : self._moveNegativeX()) 
+        zPlus.clicked.connect(lambda : self._movePositiveZ()) 
+        zMinus.clicked.connect(lambda : self._moveNegativeZ()) 
+        goToPos.clicked.connect(lambda : self._goToPosition())
+        deactivate.clicked.connect(lambda : self._turnOffJogMode())
+        
+        # Entries for the "go to position" option
+        entryLabel = QLabel("Go to Position (mm)")
+        self._xEntry = QLineEdit(self)
+        self._yEntry = QLineEdit(self)
+        self._zEntry = QLineEdit(self)
+        self._yawEntry = QLineEdit(self)
+        xLabel = QLabel("x")
+        yLabel = QLabel("y")
+        zLabel = QLabel("z")
+        yawLabel = QLabel("yaw")
 
-        yaw_r.clicked.connect(lambda : self.rotate_right())
-        yaw_l.clicked.connect(lambda : self.rotate_left()) 
-        y_plus.clicked.connect(lambda : self.go_up()) 
-        y_minus.clicked.connect(lambda : self.go_down()) 
-        x_plus.clicked.connect(lambda : self.go_right()) 
-        x_minus.clicked.connect(lambda : self.go_left()) 
-        z_plus.clicked.connect(lambda : self.go_higher()) 
-        z_minus.clicked.connect(lambda : self.go_lower()) 
-        go_to_pos.clicked.connect(lambda : self.go_to_position())
-        deactivate.clicked.connect(lambda : self.turn_off_jog_mode())
+        # position of the all the global widget dans layout on the control panel 
+        modeOnLayout = QVBoxLayout()
+        speedLayout = QHBoxLayout()
+        upperLayout = QHBoxLayout()
+        lowerLayout = QHBoxLayout()
+        entryLayout = QHBoxLayout()
+        modeOnLayout.addWidget(goHome)
+        modeOnLayout.addStretch()
+        modeOnLayout.addLayout(speedLayout)
+        modeOnLayout.addWidget(incrementLabel)
+        modeOnLayout.addLayout(stepEntryLayout)
+        modeOnLayout.addLayout(upperLayout)
+        modeOnLayout.addLayout(lowerLayout)
+        modeOnLayout.addStretch()
+        modeOnLayout.addWidget(entryLabel)
+        modeOnLayout.addLayout(entryLayout)
+        modeOnWidget.setLayout(modeOnLayout)
+        modeOnLayout.addWidget(goToPos)
 
-        entry_label = QLabel("Go to Position (mm)")
-        self.x_entry = QLineEdit(self)
-        self.y_entry = QLineEdit(self)
-        self.z_entry = QLineEdit(self)
-        self.yaw_entry = QLineEdit(self)
-        x_label = QLabel("x")
-        y_label = QLabel("y")
-        z_label = QLabel("z")
-        yaw_label = QLabel("yaw")
-
-
-        mode_on_layout = QVBoxLayout()
-        speed_layout = QHBoxLayout()
-        upper_layout = QHBoxLayout()
-        lower_layout = QHBoxLayout()
-        entry_layout = QHBoxLayout()
-        mode_on_layout.addWidget(go_home)
-        mode_on_layout.addStretch()
-        mode_on_layout.addLayout(speed_layout)
-        mode_on_layout.addWidget(increment_label)
-        mode_on_layout.addLayout(step_entry_layout)
-        mode_on_layout.addLayout(upper_layout)
-        mode_on_layout.addLayout(lower_layout)
-        mode_on_layout.addStretch()
-        mode_on_layout.addWidget(entry_label)
-        mode_on_layout.addLayout(entry_layout)
-        mode_on_widget.setLayout(mode_on_layout)
-        mode_on_layout.addWidget(go_to_pos)
-
+        # if this window is on the main window, hides the manual mode option
         if (isMain):
-            mode_on_layout.addStretch()
-            mode_on_layout.addWidget(deactivate)
+            modeOnLayout.addStretch()
+            modeOnLayout.addWidget(deactivate)
         else :
-            self.controller.transition_to_manual()
+            self._controller.transition_to_manual()
 
-        speed_layout.addWidget(self.speed_label)
-        speed_layout.addWidget(self.speed_slider)
+        # addition of all the individual commands that the user can do in the layouts
+        speedLayout.addWidget(self._speedLabel)
+        speedLayout.addWidget(self._speedSlider)
+        upperLayout.addWidget(xPlus)
+        upperLayout.addWidget(yPlus)
+        upperLayout.addWidget(zPlus)
+        upperLayout.addWidget(yawR)
+        lowerLayout.addWidget(xMinus)
+        lowerLayout.addWidget(yMinus)
+        lowerLayout.addWidget(zMinus)
+        lowerLayout.addWidget(yawL)
+        entryLayout.addWidget(xLabel, 1)
+        entryLayout.addWidget(self._xEntry, 4)
+        entryLayout.addWidget(yLabel, 1)
+        entryLayout.addWidget(self._yEntry, 4)
+        entryLayout.addWidget(zLabel, 1)
+        entryLayout.addWidget(self._zEntry, 4)
+        entryLayout.addWidget(yawLabel, 1)
+        entryLayout.addWidget(self._yawEntry, 4)
 
-        upper_layout.addWidget(x_plus)
-        upper_layout.addWidget(y_plus)
-        upper_layout.addWidget(z_plus)
-        upper_layout.addWidget(yaw_r)
-        lower_layout.addWidget(x_minus)
-        lower_layout.addWidget(y_minus)
-        lower_layout.addWidget(z_minus)
-        lower_layout.addWidget(yaw_l)
+        # Adds all the interactions widgets in a list so that they can be activated/deactivated easily
+        self._interactionWidgets.append(self._speedLabel)
+        self._interactionWidgets.append(self._speedSlider)
+        self._interactionWidgets.append(incrementLabel)
+        self._interactionWidgets.append(yawR)
+        self._interactionWidgets.append(yawL)
+        self._interactionWidgets.append(yPlus)
+        self._interactionWidgets.append(yMinus)
+        self._interactionWidgets.append(xPlus)
+        self._interactionWidgets.append(xMinus)
+        self._interactionWidgets.append(zPlus)
+        self._interactionWidgets.append(zMinus)
+        self._interactionWidgets.append(entryLabel)
+        self._interactionWidgets.append(xLabel)
+        self._interactionWidgets.append(yLabel)
+        self._interactionWidgets.append(zLabel)
+        self._interactionWidgets.append(yawLabel)
+        self._interactionWidgets.append(self._xEntry)
+        self._interactionWidgets.append(self._yEntry)
+        self._interactionWidgets.append(self._zEntry)
+        self._interactionWidgets.append(self._yawEntry)
+        self._interactionWidgets.append(goToPos)
+        self._interactionWidgets.append(stepLabelEntry)
+        self._interactionWidgets.append(self._jogStepEntry)
 
-        entry_layout.addWidget(x_label, 1)
-        entry_layout.addWidget(self.x_entry, 4)
-        entry_layout.addWidget(y_label, 1)
-        entry_layout.addWidget(self.y_entry, 4)
-        entry_layout.addWidget(z_label, 1)
-        entry_layout.addWidget(self.z_entry, 4)
-        entry_layout.addWidget(yaw_label, 1)
-        entry_layout.addWidget(self.yaw_entry, 4)
-
-        self.interaction_widgets.append(self.speed_label)
-        self.interaction_widgets.append(self.speed_slider)
-        self.interaction_widgets.append(increment_label)
-        self.interaction_widgets.append(yaw_r)
-        self.interaction_widgets.append(yaw_l)
-        self.interaction_widgets.append(y_plus)
-        self.interaction_widgets.append(y_minus)
-        self.interaction_widgets.append(x_plus)
-        self.interaction_widgets.append(x_minus)
-        self.interaction_widgets.append(z_plus)
-        self.interaction_widgets.append(z_minus)
-        self.interaction_widgets.append(entry_label)
-        self.interaction_widgets.append(x_label)
-        self.interaction_widgets.append(y_label)
-        self.interaction_widgets.append(z_label)
-        self.interaction_widgets.append(yaw_label)
-        self.interaction_widgets.append(self.x_entry)
-        self.interaction_widgets.append(self.y_entry)
-        self.interaction_widgets.append(self.z_entry)
-        self.interaction_widgets.append(self.yaw_entry)
-        self.interaction_widgets.append(go_to_pos)
-        self.interaction_widgets.append(step_label_entry)
-        self.interaction_widgets.append(self.jog_step_entry)
-
-        if self.controller.homed == False:
-            self.deactivate_interaction_widget()
+        if self._controller.homed == False:
+            self._deactivateInteractionWidget()
 
         if not isMain :
-            self.stacked_widget.setCurrentIndex(1)
-       
+            self._stackedWidget.setCurrentIndex(1)
 
 
 
 
-    def turn_on_jog_mode(self):
-        self.controller.transition_to_manual()
-        self.stacked_widget.setCurrentIndex(1)
-
-    def turn_off_jog_mode(self):
-        self.controller.transition_to_idle()
-        self.stacked_widget.setCurrentIndex(0)
-
-    def deactivate_interaction_widget(self):
-        if self.interaction_on is False:
-            return
-        for widget in self.interaction_widgets:
-            widget.setEnabled(False)
-        self.interaction_on = False
-    
-    def activate_interaction_widget(self):
-        if self.interaction_on:
-            return
-        for widget in self.interaction_widgets:
-            widget.setEnabled(True)
-        self.interaction_on = True
-
-
-
-    def validate_step_input(self):
-        value = self.jog_step_entry.text()
-        if not utils.is_float(value):
-            print(f"Invalid input for the step entry. Must be a float, is instead : {value}")
-            return None
-        return float(value)
-
-
-    def go_up(self):
-        print("up")
-        step = self.validate_step_input()
-        if step is None:
-            return
-        current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, step, 0, 0))
-
-    def go_down(self):
-        print("down")
-        step = self.validate_step_input()
-        if step is None:
-            return
-        current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, -1*step, 0, 0))
-
-    def go_left(self):
-        step = self.validate_step_input()
-        if step is None:
-            return
-        current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(-1*step, 0, 0, 0))
-        print("left")
-
-    def go_right(self):
-        step = self.validate_step_input()
-        if step is None:
-            return
-        current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(step, 0, 0, 0))
-        print("right")
-
-    def go_lower(self):
-        step = self.validate_step_input()
-        if step is None:
-            return
-        current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, 0, -1*step, 0))
-        print("left")
-
-    def go_higher(self):
-        step = self.validate_step_input()
-        if step is None:
-            return
-        current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, 0, step, 0))
-        print("right")
-
-
-    def rotate_left(self):
-        step = self.validate_step_input()
-        if step is None:
-            return
-        current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, 0, 0, -1*step))
-        print("rotate left")
-
-    def rotate_right(self):
-        step = self.validate_step_input()
-        if step is None:
-            return
-        current_pos = self.get_gripper_position()
-        self.move_gripper(target=current_pos+Position(0, 0, 0, step))
-        print("rotate right")
-
-    def go_to_position(self):
+    def updateSpeedSlider(self, value):
+        """
+        Update the speed value and label when the speed slider is changed.
         
-        x_value = self.x_entry.text()
-        y_value = self.y_entry.text()
-        z_value = self.z_entry.text()
-        yaw_value = self.yaw_entry.text()
-        current_pos = self.controller.get_gripper_position()
-
-        if not utils.is_float(x_value):
-            print(f"Invalid input for the x value. Must be an interger, is instead : {x_value}")
-            x_value = current_pos.x
-            self.x_entry.setText(str(x_value))
-
-        if not utils.is_float(y_value):
-            print(f"Invalid input for the y value. Must be an interger, is instead : {y_value}")
-            y_value = current_pos.y
-            self.y_entry.setText(str(y_value))
-
-        if not utils.is_float(z_value):
-            print(f"Invalid input for the z value. Must be an interger, is instead : {z_value}")
-            z_value = current_pos.z
-            self.z_entry.setText(str(z_value))
-
-        if not utils.is_float(yaw_value):
-            print(f"Invalid input for the yaw value. Must be an interger, is instead : {yaw_value}")
-            yaw_value = current_pos.yaw
-            self.yaw_entry.setText(str(yaw_value))
-
-        self.move_gripper(target=Position(current_pos.x, current_pos.y, 0, current_pos.yaw))
-        self.move_gripper(target=Position(float(x_value), float(y_value), 0, float(yaw_value)))
-        self.move_gripper(target=Position(float(x_value), float(y_value), float(z_value), float(yaw_value)))
-
-
-
-
-    def move_gripper(self, target:Position):
-        if self.controller.get_machine_state() == MachineState.READY:
-            command = Command(CommandId.MOVE, MAX_SPEED * self.speed/100.0, target, None)
-            self.controller.queueCommand(command)
-    
-
-
-
-    def go_home(self):
-        print("Going home")
-        self.controller.go_home(ending_function=self.activate_interaction_widget)
-        #self.activate_interaction_widget()
-
-
-    def update_speed_slider(self, value):
-        self.speed = value
-        self.speed_label.setText(f"speed : {str(value)}%")
+        Args:
+            value (int): The new speed value from the slider.
+        """
+        self._speed = value
+        self._speedLabel.setText(f"speed : {str(value)}%")
 
         return
         #TODO smt like this for slider style, but prettier
-        value = self.speed_slider.value()
-        maximum = self.speed_slider.maximum()
+        value = self._speedSlider.value()
+        maximum = self._speedSlider.maximum()
         
         # Calculate percentage for gradient
         percentage = int((value / maximum) * 100) if maximum > 0 else 0
@@ -359,8 +239,255 @@ class JogWidget(QWidget):
                 border-radius: 7px;
             }}
         """
-        self.speed_slider.setStyleSheet(style)
+        self._speedSlider.setStyleSheet(style)
+
+
 
     
-    def get_gripper_position(self) -> Position:
-        return self.controller.get_gripper_position()
+    def getGripperPosition(self) -> Position:
+        """
+        Get the current position of the gripper from the controller.
+        
+        Returns:
+            Position: The current gripper position.
+        """
+        return self._controller.get_gripper_position()
+    
+
+    
+
+    def _turnOnJogMode(self):
+        """
+        Activate jog mode, enabling manual control of the gripper.
+        """
+        self._controller.transition_to_manual()
+        self._stackedWidget.setCurrentIndex(1)
+
+
+
+
+    def _turnOffJogMode(self):
+        """
+        Deactivate jog mode, disabling manual control of the gripper.
+        """
+        self._controller.transition_to_idle()
+        self._stackedWidget.setCurrentIndex(0)
+
+
+
+
+    def _deactivateInteractionWidget(self):
+        """
+        Disable all interactive widgets to prevent user input.
+        """
+        if self._jogEnabled is False:
+            return
+        for widget in self._interactionWidgets:
+            widget.setEnabled(False)
+        self._jogEnabled = False
+    
+
+
+
+    def _activateInteractionWidget(self):
+        """
+        Enable all interactive widgets to allow user input.
+        """
+        if self._jogEnabled:
+            return
+        for widget in self._interactionWidgets:
+            widget.setEnabled(True)
+        self._jogEnabled = True
+
+
+
+
+    def _validateStepInput(self):
+        """
+        Validate the jog step input as a float.
+        
+        Returns:
+            float or None: The validated step value, or None if invalid.
+        """
+        value = self._jogStepEntry.text()
+        if not utils.is_float(value):
+            print(f"Invalid input for the step entry. Must be a float, is instead : {value}")
+            return None
+        return float(value)
+
+
+
+
+    def _movePositiveY(self):
+        """
+        Move the gripper up (positive Y direction) by the jog step.
+        """
+        print("up")
+        step = self._validateStepInput()
+        if step is None:
+            return
+        currentPos = self.getGripperPosition()
+        self._moveGripper(target=currentPos+Position(0, step, 0, 0))
+
+
+
+
+    def _moveNegativeY(self):
+        """
+        Move the gripper down (negative Y direction) by the jog step.
+        """
+        print("down")
+        step = self._validateStepInput()
+        if step is None:
+            return
+        currentPos = self.getGripperPosition()
+        self._moveGripper(target=currentPos+Position(0, -1*step, 0, 0))
+
+
+
+
+    def _moveNegativeX(self):
+        """
+        Move the gripper left (negative X direction) by the jog step.
+        """
+        step = self._validateStepInput()
+        if step is None:
+            return
+        currentPos = self.getGripperPosition()
+        self._moveGripper(target=currentPos+Position(-1*step, 0, 0, 0))
+        print("left")
+
+
+
+
+    def _movePositiveX(self):
+        """
+        Move the gripper right (positive X direction) by the jog step.
+        """
+        step = self._validateStepInput()
+        if step is None:
+            return
+        currentPos = self.getGripperPosition()
+        self._moveGripper(target=currentPos+Position(step, 0, 0, 0))
+        print("right")
+
+
+
+
+    def _moveNegativeZ(self):
+        """
+        Move the gripper lower (negative Z direction) by the jog step.
+        """
+        step = self._validateStepInput()
+        if step is None:
+            return
+        currentPos = self.getGripperPosition()
+        self._moveGripper(target=currentPos+Position(0, 0, -1*step, 0))
+        print("left")
+
+
+
+
+    def _movePositiveZ(self):
+        """
+        Move the gripper higher (positive Z direction) by the jog step.
+        """
+        step = self._validateStepInput()
+        if step is None:
+            return
+        currentPos = self.getGripperPosition()
+        self._moveGripper(target=currentPos+Position(0, 0, step, 0))
+        print("right")
+
+
+
+
+    def _rotateLeft(self):
+        """
+        Rotate the gripper left (negative yaw) by the jog step.
+        """
+        step = self._validateStepInput()
+        if step is None:
+            return
+        currentPos = self.getGripperPosition()
+        self._moveGripper(target=currentPos+Position(0, 0, 0, -1*step))
+        print("rotate left")
+
+
+
+
+    def _rotateRight(self):
+        """
+        Rotate the gripper right (positive yaw) by the jog step.
+        """
+        step = self._validateStepInput()
+        if step is None:
+            return
+        currentPos = self.getGripperPosition()
+        self._moveGripper(target=currentPos+Position(0, 0, 0, step))
+        print("rotate right")
+
+
+
+
+    def _goToPosition(self):
+        """
+        Move the gripper to a specific position based on user input.
+        If an entry is empty or invalid, will be set to the current position of the gripper.
+        """
+        # reads the user inputs
+        xValue = self._xEntry.text()
+        yValue = self._yEntry.text()
+        zValue = self._zEntry.text()
+        yawValue = self._yawEntry.text()
+        currentPos = self._controller.get_gripper_position()
+
+        if not utils.is_float(xValue):
+            print(f"Invalid input for the x value. Must be a float, is instead : {xValue}")
+            xValue = currentPos.x
+            self._xEntry.setText(str(xValue))
+
+        if not utils.is_float(yValue):
+            print(f"Invalid input for the y value. Must be a float, is instead : {yValue}")
+            yValue = currentPos.y
+            self._yEntry.setText(str(yValue))
+
+        if not utils.is_float(zValue):
+            print(f"Invalid input for the z value. Must be a float, is instead : {zValue}")
+            zValue = currentPos.z
+            self._zEntry.setText(str(zValue))
+
+        if not utils.is_float(yawValue):
+            print(f"Invalid input for the yaw value. Must be a float, is instead : {yawValue}")
+            yawValue = currentPos.yaw
+            self._yawEntry.setText(str(yawValue))
+
+        # move the z axis the its highest value before lateral movement (to prevent collisions)
+        self._moveGripper(target=Position(currentPos.x, currentPos.y, 0, currentPos.yaw))
+        self._moveGripper(target=Position(float(xValue), float(yValue), 0, float(yawValue)))
+        self._moveGripper(target=Position(float(xValue), float(yValue), float(zValue), float(yawValue)))
+
+
+
+
+    def _moveGripper(self, target:Position):
+        """
+        Send a move command to the controller to move the gripper to the target position.
+        
+        Args:
+            target (Position): The target position to move the gripper to.
+        """
+        if self._controller.get_machine_state() == MachineState.READY:
+            command = Command(CommandId.MOVE, MAX_SPEED * self._speed/100.0, target, None)
+            self._controller.queueCommand(command)
+    
+
+
+
+    def _goHome(self):
+        """
+        Move the gripper to the home position.
+        """
+        print("Going home")
+        self._controller.go_home(ending_function=self._activateInteractionWidget)
+
