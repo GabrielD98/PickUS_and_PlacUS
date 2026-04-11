@@ -1,3 +1,4 @@
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
     QPushButton,
@@ -21,6 +22,9 @@ class CommandWidget(QWidget):
         _on (bool):
             indicates if the PnP is current in the process of placing components.
     """
+
+    pnpStartingSignal = pyqtSignal() 
+
 
     def __init__(self):
         """
@@ -92,7 +96,7 @@ class CommandWidget(QWidget):
         command = Command(CommandId.MOVE, MAX_SPEED * 0.5, target, None)
         self._controller.queueCommand(command)
         self._controller.startPnP()
-
+        self.pnpStartingSignal.emit()
 
 
 

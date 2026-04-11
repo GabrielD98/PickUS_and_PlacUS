@@ -159,14 +159,22 @@ class SliceInfoWidget(QWidget):
         Allows the HMI to display the current command executed by the PnP.
         """
         try :
-            index = self._currentCommandIndex
-            if index >= 0:
-                self._commands[index].setStyleSheet("color: black;")
-            index += 1
-            if index < len(self._commands):
-                self._commands[index].setStyleSheet("color: green;")
-            self._currentCommandIndex = index
-            self.scrollArea.ensureWidgetVisible(self._commands[index])
+            if self._currentCommandIndex >= 0:
+                self._commands[self._currentCommandIndex].setStyleSheet("color: black;")
             
+            self._currentCommandIndex += 1
+            if self._currentCommandIndex < len(self._commands):
+                self._commands[self._currentCommandIndex].setStyleSheet("color: green;")
+            self.scrollArea.ensureWidgetVisible(self._commands[self._currentCommandIndex])
+
         except Exception as e:
             print(f"SliceInfoWidget -> Error displaying the current step : {e}")
+
+
+    def resetCommandIndex(self):
+        """
+        resets the current command index to the first one in the list.
+        """
+        if self._currentCommandIndex < len(self._commands):
+            self._commands[self._currentCommandIndex].setStyleSheet("color: black;")
+        self._currentCommandIndex = -1

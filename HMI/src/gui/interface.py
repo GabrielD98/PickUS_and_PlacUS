@@ -173,7 +173,7 @@ class Interface(QMainWindow):
 		# sets up signals to get info when a task is ended
 		self._sliceWidget.sliceDoneSignal.connect(commandWidget.sliceDone)
 		self._stateWidget.pnpDoneSignal.connect(commandWidget.pnpDone)
-
+		commandWidget.pnpStartingSignal.connect(self._sliceWidget.resetCommandIndex)
 		# cant use pyqtsignals on non pyqt object (controller)
 		self._controller.registerCallback(self._sliceWidget.onNextCommand) 
 
