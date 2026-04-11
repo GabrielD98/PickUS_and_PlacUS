@@ -53,6 +53,8 @@ class SliceInfoWidget(QWidget):
         self._controller = Controller()
         self._storage = Storage()
         self._pieces:List[Piece] = None
+        self._commands:List[QLabel] = []
+        self._currentCommandIndex:int = -1
         
         #global layout of this widget
         layout = QVBoxLayout()
@@ -107,6 +109,7 @@ class SliceInfoWidget(QWidget):
 
             comLabel = QLabel(commandInfo+pieceInfo+positionInfo+speedInfo)
             self.scrollLayout.addWidget(comLabel)
+            self._commands.append(comLabel)
 
         #tells the command widget that the slicing is done
         self.sliceDoneSignal.emit(True)
@@ -142,3 +145,14 @@ class SliceInfoWidget(QWidget):
         utils.clearLayout(self.scrollLayout)
         self._sliceButton.setEnabled(False)
 
+
+
+    def onNextCommand(self):
+        index = self._currentCommandIndex
+        if index >= 0:
+            self._commands[index].setStyleSheet("color: black;")
+        index += 1
+        if index < len(self._commands):
+            self._commands[index].setStyleSheet("color: green;")
+        self._currentCommandIndex = index
+        #print("NextStep")

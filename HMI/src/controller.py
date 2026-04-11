@@ -37,6 +37,8 @@ class Controller:
 			Bit field of all current requested transitions
 		mutex (threading.Lock):
 			Used to ensure thread safety for all shared state
+		onNextCommandFunc (function):
+			The function to be called when the PnP finished a command.
 	"""
 	
 	#TODO continue when pause
@@ -62,6 +64,7 @@ class Controller:
 		self._timeSinceLastResponse:float = -1
 		self._connected = False
 		self.mutex = threading.Lock()
+		self.onNextCommandFunc = None
 
 		self.homed = False
 		self.blocked = False
@@ -72,6 +75,8 @@ class Controller:
 		if not hasattr(cls, 'instance'):
 			cls.instance = super(Controller, cls).__new__(cls)
 		return cls.instance
+
+
 
 
 	def queueCommand(self, command: Command):
@@ -198,7 +203,7 @@ class Controller:
 
 
 
-	def start_pnp(self):
+	def startPnP(self):
 		"""
 		Begins the PnP procedures
 		Queues the commands in wating and transition the state to running
@@ -306,6 +311,12 @@ class Controller:
 		self.requestTransition(TransitionRequest.TO_RUNNING)
 
 
+
+	def registerCallback(self, func):
+		"""
+		Sets the function to be called when a command has been completed.
+		"""
+		self.onNextCommandFunc = func
 
 
 	def _clearCommands(self):
@@ -477,6 +488,8 @@ class Controller:
 			nextCommand = self._nextCommand()
 			if nextCommand is not None:
 				commandToSend = nextCommand
+				self.onNextCommandFunc() #update the next step in the UI
+
 			if commandToSend.commandId == CommandId.PLACE:
 				if commandToSend.piece is not None and commandToSend.piece in self._storage.components:
 					self._storage.components[commandToSend.piece].quantity -= 1

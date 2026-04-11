@@ -91,7 +91,7 @@ class CommandWidget(QWidget):
         target = current_position * Position(1,1,0,1)
         command = Command(CommandId.MOVE, MAX_SPEED * 0.5, target, None)
         self._controller.queueCommand(command)
-        self._controller.start_pnp()
+        self._controller.startPnP()
 
 
 

@@ -174,6 +174,9 @@ class Interface(QMainWindow):
 		self._sliceWidget.sliceDoneSignal.connect(commandWidget.sliceDone)
 		self._stateWidget.pnpDoneSignal.connect(commandWidget.pnpDone)
 
+		# cant use pyqtsignals on non pyqt object (controller)
+		self._controller.registerCallback(self._sliceWidget.onNextCommand) 
+
 		# Set up the update loop
 		self.timer = QTimer(self)
 		self.timer.setInterval(100) # Update every 100 milliseconds
