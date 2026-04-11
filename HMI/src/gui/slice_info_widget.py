@@ -1,3 +1,9 @@
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from matplotlib.image import imread
+import time
 from typing import List
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (
@@ -9,10 +15,11 @@ from PyQt5.QtWidgets import (
 )
 
 import utils
-from data import Piece, Position
+from data import Command, Piece, Position
 from slicer import Slicer
 from storage import Storage
 from controller import Controller
+from gui.Tab_widget import MyTabWidget
 
 class SliceInfoWidget(QWidget):
     """
@@ -82,7 +89,12 @@ class SliceInfoWidget(QWidget):
         self.scrollArea.setWidget(scrollContent)
 
 
+        self.index = 0
+        layout.addWidget(self.tabs)
 
+        self.tabs = MyTabWidget(self)
+
+       
 
     def slice(self):
         """
@@ -96,9 +108,9 @@ class SliceInfoWidget(QWidget):
                                           150)              #TODO wtf is this
         
         self._controller.setPnpCommands(commands)
-        utils.clearLayout(self.scrollLayout)
 
         #displays all of the generated steps in the scroll layout
+        utils.clearLayout(self.tabs.scrollLayout)
         for command in commands:
             position = command.position
 
@@ -113,13 +125,22 @@ class SliceInfoWidget(QWidget):
             speedInfo = f"Speed : {command.velocity}"
 
             comLabel = QLabel(commandInfo+pieceInfo+positionInfo+speedInfo)
-            self.scrollLayout.addWidget(comLabel)
             self._commands.append(comLabel)
 
         #tells the command widget that the slicing is done
         self._currentCommandIndex = -1
         self.sliceDoneSignal.emit(True)
+            self.scrollLayout.addWidget(comLabel)
+            self.tabs.scrollLayout.addWidget(comLabel)
 
+        self.show_graph()
+
+    def highlight_step(self):
+        #TODO initialiser index a 0 in start
+        if self.index >= 1:
+             self.tabs.scrollLayout.itemAt(self.index - 1).widget().setStyleSheet("background-color: white; color: black")
+        self.tabs.scrollLayout.itemAt(self.index).widget().setStyleSheet("background-color: green; color: black") 
+        self.index ++ 1 
 
 
 
@@ -148,7 +169,7 @@ class SliceInfoWidget(QWidget):
         """
         Reset the widget by clearing the layout and disabling the slice button.
         """
-        utils.clearLayout(self.scrollLayout)
+        utils.clearLayout(self.tabs.scrollLayout)
         self._sliceButton.setEnabled(False)
 
 
@@ -178,3 +199,41 @@ class SliceInfoWidget(QWidget):
         if self._currentCommandIndex < len(self._commands):
             self._commands[self._currentCommandIndex].setStyleSheet("color: black;")
         self._currentCommandIndex = -1
+
+    def show_graph(self):
+        self.tabs.ax.clear()
+
+        piece_dict_x:dict[float] = {}
+        piece_dict_y:dict[float] = {}
+
+        for piece in self.pieces:
+            if not piece in piece_dict_x:
+                piece_dict_x[piece] = [piece.position.x]
+                piece_dict_y[piece] = [piece.position.y]
+            else:
+                piece_dict_x[piece].append(piece.position.x)
+                piece_dict_y[piece].append(piece.position.y)
+
+        pcb_height = -70.0
+        pcb_width = 90.0
+        pcb_offset_x = 40.5
+        pcb_offset_y = -25.0
+
+        fig, ax = plt.subplots()
+       # bg = imread("../data/PCB_Background.png")
+       # self.tabs.ax.imshow(bg, extent=[pcb_offset_x, pcb_offset_x + pcb_width,
+       #                              pcb_offset_y + pcb_height, pcb_offset_y],
+       #                 aspect='auto', zorder=0)
+        rect = patches.Rectangle((pcb_offset_x,pcb_offset_y), width=pcb_width, height=pcb_height, #TODO Offsets hard-codes
+                        linewidth=2, edgecolor = 'black', facecolor='none')
+        self.tabs.ax.add_patch(rect)
+
+        #TODO c'est trassh une liste de couleurs de meme 
+        colors = ['blue','red','green'] 
+        i = 0
+
+        for key in piece_dict_x:
+            self.tabs.ax.plot(piece_dict_x[key],piece_dict_y[key],'o', color = colors[i])
+            i = i+1
+
+        self.tabs.canvas.draw()

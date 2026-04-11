@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (
 	QLabel,
 	QScrollArea
 
+	QFrame,
 )
 from PyQt5 import QtWidgets
 from pathlib import Path
