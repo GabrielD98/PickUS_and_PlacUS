@@ -1,5 +1,3 @@
-import time
-
 from PyQt5.QtCore import QEvent, QSize, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QTimer
@@ -12,20 +10,13 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QLineEdit,
 	QLabel,
-	QFrame,
-	QPlainTextEdit,
-	QInputDialog,
 	QScrollArea
-
 )
 from PyQt5 import QtWidgets
 from pathlib import Path
-
 from controller import Controller
 from file_interpreter import FileInterpreter
-from gui.gui_data_manager import GuiDataManager
 from gui.pnp_state_widget import PnPStateWidget
-from slicer import Slicer
 from storage import Storage
 from data import *
 from typing import List
@@ -34,277 +25,305 @@ from gui.storage_ui_info import StorageUiInfo
 from gui.jog_widget import JogWidget
 from gui.command_widget import CommandWidget
 from gui.slice_info_widget import SliceInfoWidget
-from gui.calbration_window import CalibrationWindow
-from gui.frame import Frame, WidgetConfig
+from gui.calibration_window import CalibrationWindow
 import utils
 import random
 
+DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+
 class Interface(QMainWindow):
+	"""
+	Main application window for PickUS & PlacUS.
+	Handles the overall GUI layout, user actions, and coordination between widgets for:
+
+	- File loading and analysis.
+	- Storage management and calibration.
+	- Slicing and command generation.
+	- Machine state monitoring and manual jogging.
+	- Image display and periodic updates.
+
+	Attributes:
+        _calibrationPos (Position): 
+            The position used for the calibration of the PCB position.
+		_pieces (List[Piece]):
+			List of all the piece to be placed by the PnP. Needed for the slicing logic.
+		_filePath (str):
+			The displayed path of the open .pos file.
+        _controller (Controller):
+            Controller thats allows this object to send commands to the machine and receives information from it.
+	"""
 	def __init__(self):
 		super().__init__()	
-		self.connected = False
-		self.calibration_pos = Position(-1,-1,-1,-1)
-		self.storage_window:StorageWindow = None
-		self.data_manager = GuiDataManager()
-		self.storage = Storage()
-		self.pieces:List[Piece] = []
-		self.file_path = "No file selected"
-		self.initialize_gui()
+
+		# main relevant attributes 
+		self._calibrationPos = Position(-1,-1,-1,-1)
+		self._controller = Controller()
+		self._pieces:List[Piece] = []
+		self._filePath = "No file selected"
+
+		self._initializeGUI()
 
 	
 
-	def initialize_gui(self) :
+
+	def _initializeGUI(self) :
+		"""
+		Set up the main GUI layout, initialize all widgets, connect signals, and start the update timer.
+		"""
 		
 		self.setWindowTitle("PickUS & PlacUS")
 		self.setMinimumSize(800, 600)
-		self.setObjectName("MainWindow")
-		self.setStyleSheet("""
-			#MainWindow {
-				background-image: url(../data/marble.jpg);
-				background-position: center; /* Optional: centers the image */
-			}
-		""")
 
+		globalWidget = QWidget()
+		globalLayout = QHBoxLayout()
+		globalWidget.setLayout(globalLayout)
+		self._storageWindow:StorageWindow = None
 
-
-		#testting
-		global_widget = QWidget()
-		global_layout = QHBoxLayout()
-		global_widget.setLayout(global_layout)
-
-
-		#layouts
-		left_layout = QVBoxLayout()
-		right_layout = QVBoxLayout()
-		global_layout.addLayout(left_layout, 2)
-		global_layout.addLayout(right_layout, 1)
-		global_layout.setStretch(0, 2) # Left side
-		global_layout.setStretch(1, 1) # Right side
-
+		# global layouts (overall structure of the UI)
+		leftLayout = QVBoxLayout()
+		rightLayout = QVBoxLayout()
+		globalLayout.addLayout(leftLayout, 2)
+		globalLayout.addLayout(rightLayout, 1)
+		globalLayout.setStretch(0, 2) # Left side
+		globalLayout.setStretch(1, 1) # Right side
 
 
 		#FILE READING LAYOUT
-		explore_file = QPushButton("Open .pos file")
-		explore_file.clicked.connect(self.open_file_dialog)
-		self.file_label = QLineEdit('No File Selected', alignment=Qt.AlignLeft|Qt.AlignVCenter)
-		self.file_label.setReadOnly(True)
-		self.file_label.setStyleSheet("color: black; background-color: white")
+		exploreFile = QPushButton("Open .pos file")
+		exploreFile.clicked.connect(self._openFileDialog)
+		self._fileLabel = QLineEdit('No File Selected', alignment=Qt.AlignLeft|Qt.AlignVCenter)
+		self._fileLabel.setReadOnly(True)
+		self._fileLabel.setStyleSheet("color: black; background-color: white")
 		
-		self.analyse_button = QPushButton("Analyse")
-		self.analyse_button.clicked.connect(self.analyse_file)
-		self.analyse_button.setEnabled(False)
-
-		file_layout = QHBoxLayout()
-		file_layout.addWidget(explore_file, 1)
-		file_layout.addWidget(self.file_label, 5)
-		file_layout.addWidget(self.analyse_button, 1)
-		left_layout.addLayout(file_layout, 1)
+		self._analyseButton = QPushButton("Analyse")
+		self._analyseButton.clicked.connect(self._analyseFile)
+		self._analyseButton.setEnabled(False)
+		fileLayout = QHBoxLayout()
+		fileLayout.addWidget(exploreFile, 1)
+		fileLayout.addWidget(self._fileLabel, 5)
+		fileLayout.addWidget(self._analyseButton, 1)
+		leftLayout.addLayout(fileLayout, 1)
 
 
 		#STORAGE PIECE LAYOUT
-		self.pieces_layout = QVBoxLayout()
+		self._piecesLayout = QVBoxLayout()
 		scroll = QScrollArea(self)	
+		leftLayout.addWidget(scroll, 4)
 		scroll.setWidgetResizable(True)
-
-		scroll.setStyleSheet("background: transparent; border: none;")
-		scroll.viewport().setStyleSheet("background: transparent;")
-		
-		# self.pieces_layout.setAlignment(Qt.AlignTop)
-		scrollContent = QWidget()
-		scrollContent.setStyleSheet("background: transparent;")
-		scrollContent.setLayout(self.pieces_layout)
+		self._piecesLayout.setAlignment(Qt.AlignTop)
+		scrollContent = QWidget(scroll)
+		scrollContent.setLayout(self._piecesLayout)
 		scroll.setWidget(scrollContent)
 
-		self.framed_scroll = Frame(scroll, style=WidgetConfig(
-            background_color="white"
-        ))
 
-		left_layout.addWidget(self.framed_scroll,5)
-
-		#TODO delete label
-		self.calibrate_button = QPushButton("Calibrate")
-		self.calibrate_button.clicked.connect(lambda : self.start_calibration())
-		self.calibrate_button.setEnabled(False)
-		calibration_layout = QHBoxLayout()
-		calibration_layout.addWidget(self.calibrate_button)
-		left_layout.addLayout(calibration_layout, 4)
+		#CALIBRATION LAYOUT
+		self._calibrateButton = QPushButton("Calibrate")
+		self._calibrateButton.clicked.connect(lambda : self._startCalibration())
+		self._calibrateButton.setEnabled(False)
+		calibrationLayout = QHBoxLayout()
+		calibrationLayout.addWidget(self._calibrateButton)
+		leftLayout.addLayout(calibrationLayout, 4)
 
 
-		slice_layout = QHBoxLayout()
-		self.slice_widget = SliceInfoWidget(self.calibration_pos)
-		self.slice_widget.setMinimumHeight(100) # Allow it to be smaller
-		self.slice_widget.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred)
-		slice_layout.addWidget(self.slice_widget)
-		left_layout.addLayout(slice_layout, 10)
+		# SLICE LAYOUT
+		sliceLayout = QHBoxLayout()
+		self._sliceWidget = SliceInfoWidget(self._calibrationPos)
+		self._sliceWidget.setMinimumHeight(100) # Allow it to be smaller
+		self._sliceWidget.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred)
+		sliceLayout.addWidget(self._sliceWidget)
+		leftLayout.addLayout(sliceLayout, 10)
+
+		#COMMAND LAYOUT 
+		commandsLayout = QHBoxLayout()
+		commandWidget = CommandWidget()
+		commandsLayout.addWidget(commandWidget)
+		leftLayout.addLayout(commandsLayout, 2)
 
 
-		commands_layout = QHBoxLayout()
-		commands_layout.addWidget(CommandWidget())
-		left_layout.addLayout(commands_layout, 2)
-
-		state_layout = QHBoxLayout()
-		self.state_widget = PnPStateWidget()
-		state_layout.addWidget(self.state_widget)
-		right_layout.addLayout(state_layout, 1)
+		#PNP STATE LAYOUT
+		stateLayout = QHBoxLayout()
+		self._stateWidget = PnPStateWidget()
+		stateLayout.addWidget(self._stateWidget)
+		rightLayout.addLayout(stateLayout, 1)
 
 
-		jog_layout = QHBoxLayout()
-		jog_layout.addWidget(JogWidget())
-		right_layout.addLayout(jog_layout, 4)
+		# JOG AND MANUAL CONTROL LAYOUT
+		jogLayout = QHBoxLayout()
+		jogLayout.addWidget(JogWidget())
+		rightLayout.addLayout(jogLayout, 4)
 
 
+		# JULIUS IMAGE LAYOUT
 		img_label = QLabel(self)
-		img = "../data/a_joyful_Julius_C.png"
+		img = DATA_DIR / "a_joyful_Julius_C.png"
 		rand_num = random.randint(1, 20)
 		if rand_num == 1:
-			img = "../data/julius_salad.png"
-		pixmap = QPixmap(img)
-		# scaled_pixmap = pixmap.scaled(500, 350, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+			img = DATA_DIR / "julius_salad.png"
+		pixmap = QPixmap(str(img))
 		img_label.setPixmap(pixmap)
-		img_label.setScaledContents(False)
-		img_label.setContentsMargins(2024,2024,2024,2024)
-		img_label.setAlignment(Qt.AlignCenter)
-
+		img_label.setScaledContents(True) 
 		img_label.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Expanding)
-	
-		
-		self.framed_overlay = Frame(img_label, style=WidgetConfig(
-			background_color="transparent",
-			image_path='../data/Test_V3.png',
-			border_width='30px',
-			slices= '90 90 90 90',
-			padding= "10px 10px"
-		
-			))
-	
-		right_layout.addWidget(self.framed_overlay,4)
+		rightLayout.addWidget(img_label, 4)
 
-		
-		self.setCentralWidget(global_widget)
+		#overall setup of the window
+		self.setCentralWidget(globalWidget)
 		self.showMaximized()
+
+		# sets up signals to get info when a task is ended
+		self._sliceWidget.sliceDoneSignal.connect(commandWidget.sliceDone)
+		self._stateWidget.pnpDoneSignal.connect(commandWidget.pnpDone)
+		commandWidget.pnpStartingSignal.connect(self._sliceWidget.resetCommandIndex)
+		# cant use pyqtsignals on non pyqt object (controller)
+		self._controller.registerCallback(self._sliceWidget.onNextCommand) 
 
 		# Set up the update loop
 		self.timer = QTimer(self)
-		self.timer.setInterval(100) # Update every 500 milliseconds
-		self.timer.timeout.connect(self.update_gui) 
+		self.timer.setInterval(100) # Update every 100 milliseconds
+		self.timer.timeout.connect(self._updateGUI) 
 		self.timer.start() 
 
 
 
 
 
-	def open_file_dialog(self):
+	def _openFileDialog(self):
+		"""
+		Open a file dialog for the user to select a .pos file (KiCad position file).
+		If a new file is open, resets relevant widgets (file path and analyse button).
+
+		#TODO file manager should be another object to make this class
+		tasks more clear and concise.
+		"""
 		filename, _ = QFileDialog.getOpenFileName(
 			parent=self,               
 			caption="Select a File",
-			directory="../data/", 
+			directory=str(DATA_DIR), 
 			filter="All Files (*.pos)" 
 		)
 
 		if not filename:
 			return
 		
-		self.file_path = str(Path(filename))
-		self.file_label.setText(self.file_path)
-		self.analyse_button.setEnabled(True)
-		self.analyse_button.setText("Analyse")
-		utils.clearLayout(self.pieces_layout)
+		self._filePath = str(Path(filename))
+		self._fileLabel.setText(self._filePath)
+		self._analyseButton.setEnabled(True)
+		self._analyseButton.setText("Analyse")
+		utils.clearLayout(self._piecesLayout)
 
-		self.calibrate_button.setEnabled(False)
-		self.slice_widget.reset()
+		self._calibrateButton.setEnabled(False)
+		self._sliceWidget.reset()
 
 		
 
 
-	def analyse_file(self):
-		pieces = FileInterpreter().readPositionFile(self.file_path)
+	def _analyseFile(self):
+		"""
+		Analyse the selected .pos file, extract pieces, 
+		update the slice widget and piece list.
+		Enable calibration (The user can only calibrate once a file is loaded).
+		"""
+		pieces = FileInterpreter().readPositionFile(self._filePath)
 		if pieces is None:
 			return
 		
-		self.slice_widget.set_pieces(pieces)
-		self.pieces = self.get_all_unique_piece(pieces)
-		self.update_piece_list()
-		self.analyse_button.setEnabled(False)
-		self.calibrate_button.setEnabled(True)
-		self.analyse_button.setText("Analysis Completed")
+		self._sliceWidget.setPieces(pieces)
+		self._pieces = self._getAllUniquePiece(pieces)
+		self._updatePieceList()
+		self._analyseButton.setEnabled(False)
+		self._calibrateButton.setEnabled(True)
+		self._analyseButton.setText("Analysis Completed")
 
 
 
 
-
-	def get_all_unique_piece(self, pieces:List[Piece]) -> List[Piece]:
-		unique_pieces:dict[Piece:Piece] = {}
+	def _getAllUniquePiece(self, pieces:List[Piece]) -> List[Piece]:
+		"""
+		Return a list of unique Piece objects from the provided list.
+        
+		Args:
+			pieces (List[Piece]): List of Piece objects (may contain duplicates).
+		Returns:
+			List[Piece]: List of unique Piece objects.
+		"""
+		uniquePieces:dict[Piece:Piece] = {}
 		for piece in pieces:
-			if piece not in unique_pieces:
-				unique_pieces[piece] = piece
-		return list(unique_pieces.values())
+			if piece not in uniquePieces:
+				uniquePieces[piece] = piece
+		return list(uniquePieces.values())
     
 
 
-	def update_piece_list(self):
 
-
-		for piece in self.pieces:
+	def _updatePieceList(self):
+		"""
+		Populate the GUI with widgets for each unique piece, allowing the user to add them to storage.
+		"""
+		for piece in self._pieces:
 			layout = QHBoxLayout()
 			button = QPushButton("Add to Storage")
-			storage_info = StorageUiInfo(piece, button)
-			button.clicked.connect(lambda _, info=storage_info: 
-						  self.add_piece_to_storage(info))
+			storageInfo = StorageUiInfo(piece, button)
+
+			# lambda should have this form to keep data in memory
+			button.clicked.connect(lambda _, info=storageInfo: 
+						  self._addPieceToStorage(info))
 			
-			layout.addWidget(storage_info, 4)
+			layout.addWidget(storageInfo, 4)
 			layout.addWidget(button, 1)
-			self.pieces_layout.addLayout(layout)
-		self.pieces_layout.addStretch(1)
+			self._piecesLayout.addLayout(layout)
+		self._piecesLayout.addStretch(1)
 
 
 
 
-	def add_piece_to_storage(self, info:StorageUiInfo):
-		self.storage_window = StorageWindow()
-		self.storage_window.set_inputs(info)
-		self.storage_window.show()
+	def _addPieceToStorage(self, info:StorageUiInfo):
+		"""
+		Open the storage window for the selected piece, allowing the user to configure and add it to storage.
+        
+		Args:
+			info (StorageUiInfo): The storage UI info widget for the piece.
+		"""
+		self._storageWindow = StorageWindow()
+		self._storageWindow.setInputs(info)
+		self._storageWindow.show()
 
 
-	def start_calibration(self):
-		self.calibration_window = CalibrationWindow(position=self.calibration_pos)
-		self.calibration_window.show()
-		self.slice_widget.enable_slicing()
+
+
+	def _startCalibration(self):
+		"""
+		Open the calibration window to configure the position of the PCB.
+		Then enables slicing.
+		"""
+		self._calibrationWindow = CalibrationWindow(position=self._calibrationPos)
+		self._calibrationWindow.show()
+		self._sliceWidget.enableSlicing()
 
 
 
 
-	def update_gui(self):
-		"""This function runs every 500ms when the timer times out."""
-		if not self.connected:
+	def _updateGUI(self):
+		"""
+		Periodically update the GUI based on the controller's connection and state.
+		Displays the machine state via the stateWidget listener. 
+		Runs every 100ms via a QTimer.
+		"""
+		if not self._controller.isConnected():
+			if not self._controller.isPortOpen():
+				self._stateWidget.updateScannedPort()
 			#TODO check for disconnection with exeption request. connected should not be local here
-			return
-			self.try_connect()
-			
+			else :	
+				self._stateWidget.setDisconnected()		
 		else :
-			self.state_widget.update_state()
-		#print("loop")
+			self._stateWidget.updateState()
 
-
-
-
-	def try_connect(self):
-		try :
-			self.state_widget.update_scanned_port()
-			port = self.state_widget.get_selected_port()
-			self.data_manager.connect_to_pnp(port)
-			self.connected = True
-			self.state_widget.set_connected()
-			#print("connection successful")
-		except Exception as e :
-			pass
-			#print(f"failed connection to PnP : {e}")
-
-		
 
 
 	
-	def closeEvent(self, event: QEvent):
-		"""Override the default close event handler."""
-		
+	def closeEvent(self, _: QEvent):
+		"""
+		Override the default close event handler to stop the timer and disconnect from the machine.
+		"""
+		if self.timer.isActive():
+			self.timer.stop()
 		self.deleteLater()	
-		self.data_manager.disconnect()
+		self._controller.disconnectionFromMachine()

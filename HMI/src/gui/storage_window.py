@@ -1,5 +1,4 @@
-from PyQt5.QtCore import QSize, Qt,  QEvent
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QEvent
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
 	QVBoxLayout,
@@ -7,203 +6,399 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QWidget, 
 	QLabel,
-	QFrame,
 	QLineEdit, 
-	QInputDialog,
 	QComboBox,
-	QCheckBox
+	QCheckBox,
+	QDesktopWidget
 )
-
+import json
+import utils
 from storage import Storage
 from data import *
-from typing import List
-import utils
 from gui.storage_ui_info import StorageUiInfo
 from gui.jog_widget import JogWidget
-from gui.gui_data_manager import GuiDataManager
+from controller import Controller
+
 
 class StorageWindow(QMainWindow):
+	"""
+	Main window for managing storage calibration and configuration for Pick and Place components.
+	Allows users to input, save, and load calibration data, set component states, and configure storage details.
+
+    Attributes:
+        _controller (Controller):
+            Controller thats allows this object to send commands to the machine
+            and receives information from it.
+        _storage (Storage):
+            instance of the storage data initialise by the user in the calibration phase. 
+        _states (dict[StorageState, str]):
+            The different states that the storage can have (for display purposes)
+        _piece (Piece):
+            The associated with this storage space.
+		_pieceName (str):
+			The name of the piece to be added.
+
+    """
 	def __init__(self, parent=None):
+		"""
+		Initialize the StorageWindow, set up the UI, and prepare storage controls.
+        
+		Args:
+			parent (QWidget, optional): The parent widget. Defaults to None.
+		"""
 		super().__init__(parent)
 		self.setWindowTitle("Storage Manager")
-		self.storage = Storage()
-		self.data_manager = GuiDataManager()
-		self.piece:Piece = None
-		self.addition_label:QLabel = None
-		self.piece_name = "Unknown"
-		self.states = {
+		
+		# main relevant attributes 
+		self._storage = Storage()
+		self._controller = Controller()
+		self._piece:Piece = None
+		self._pieceName = "Unknown"
+		self._states = {
 			"available" : StorageState.USING,
 			"ignore this component" : StorageState.IGNORE,
 			"storage is empty": StorageState.EMPTY
 		}
 
-		global_widget = QWidget()
-		global_layout = QVBoxLayout()
-		self.setCentralWidget(global_widget)
-		global_widget.setLayout(global_layout)
+		# init of global layout and widget
+		globalWidget = QWidget()
+		globalLayout = QVBoxLayout()
+		self.setCentralWidget(globalWidget)
+		globalWidget.setLayout(globalLayout)
+	
+		self._inputsLayout = QVBoxLayout()
+		self._inputsLayout.setSpacing(30)
 
-		self.inputs_layout = QVBoxLayout()
-		self.inputs_layout.setSpacing(50)
+
+		# section of the button options
+		_saveJsonButton = QPushButton("Save Current Calibration")
+		_saveJsonButton.clicked.connect(lambda : self._saveCurrentCalibration())
+		
+		_loadJsonButton = QPushButton("Load Previous Calibration")
+		_loadJsonButton.clicked.connect(lambda : self._loadPreviousCalibration())
+		
 		button = QPushButton("Confirm")
-		button.clicked.connect(lambda : self.close_window())
-		global_layout.addLayout(self.inputs_layout)
-		global_layout.addWidget(button)
+		button.clicked.connect(lambda : self._closeWindow())
+		globalLayout.addLayout(self._inputsLayout)
+
+		jsonLayout = QHBoxLayout()
+		jsonLayout.setSpacing(30)
+		jsonLayout.addWidget(_saveJsonButton)
+		jsonLayout.addWidget(_loadJsonButton)
+
+		globalLayout.addLayout(jsonLayout)
+		globalLayout.addWidget(button)
+
 		
 
 
+	def center(self):
+		"""
+		Calculates the screen center and moves the window there.
+		"""
+		self.adjustSize() 
+		qr = self.frameGeometry()
+		cp = QDesktopWidget().availableGeometry().center()
+		qr.moveCenter(cp)
+		self.move(qr.topLeft())
 
-	def set_inputs(self, info:StorageUiInfo):
+
+
+
+	def closeEvent(self, _: QEvent):
+		"""
+		Override the default close event handler to ensure proper cleanup.
+		"""
+		self._closeWindow()
+
+
+
+
+	def setInputs(self, info:StorageUiInfo):
+		"""
+		Set up the input fields for a given storage piece, including quantity, 
+		delta, rotation, state, and calibration.
+        
+		Args:
+			info (StorageUiInfo): The storage UI info widget for the piece.
+		"""
 		if info is None:
 			return
 		
-		utils.clearLayout(self.inputs_layout)
-		self.widget_info = info
-		self.piece_name = info.piece.package
+		utils.clearLayout(self._inputsLayout)
+		self._widgetInfo = info
+		self._pieceName = info._piece.package
 		
-		piece_label = QLabel(self.piece_name)
+		pieceLabel = QLabel(self._pieceName)
 
-		quantity_layout = QHBoxLayout()
-		amount_label = QLabel("Quantity:")
-		self.quantity_entry = QLineEdit(self)
-		quantity_layout.addWidget(amount_label)
-		quantity_layout.addWidget(self.quantity_entry)
+		quantityLayout = QHBoxLayout()
+		amountLabel = QLabel("Quantity:")
+		self._quantityEntry = QLineEdit(self)
+		quantityLayout.addWidget(amountLabel)
+		quantityLayout.addWidget(self._quantityEntry)
 
-		delta_layout = QHBoxLayout()
-		self.delta_label = QLabel("Distance between each pieces :")
-		self.delta_entry_x = QLineEdit(self)
-		self.delta_entry_y = QLineEdit(self)
-		self.delta_entry_z = QLineEdit(self)
-		self.delta_entry_yaw = QLineEdit(self)
-		self.delta_entry_x.setText("0")
-		self.delta_entry_y.setText("0")
-		self.delta_entry_z.setText("0")
-		self.delta_entry_yaw.setText("0")
-		self.delta_entry_x.setFixedWidth(100)
-		self.delta_entry_y.setFixedWidth(100)
-		self.delta_entry_z.setFixedWidth(100)
-		self.delta_entry_yaw.setFixedWidth(100)
-		delta_layout.addWidget(self.delta_label)
-		delta_layout.addWidget(QLabel("x"))
-		delta_layout.addWidget(self.delta_entry_x)
-		delta_layout.addWidget(QLabel("y"))
-		delta_layout.addWidget(self.delta_entry_y)
-		delta_layout.addWidget(QLabel("z"))
-		delta_layout.addWidget(self.delta_entry_z)
-		delta_layout.addWidget(QLabel("yaw"))
-		delta_layout.addWidget(self.delta_entry_yaw)
+		#init of the entries for the storage delta position between each pieces
+		deltaLayout = QHBoxLayout()
+		self._deltaLabel = QLabel("Distance between each pieces :")
+		self._deltaEntryX = QLineEdit(self)
+		self._deltaEntryY = QLineEdit(self)
+		self._deltaEntryZ = QLineEdit(self)
+		self._deltaEntryYaw = QLineEdit(self)
+		self._deltaEntryX.setText("0")
+		self._deltaEntryY.setText("0")
+		self._deltaEntryZ.setText("0")
+		self._deltaEntryYaw.setText("0")
+		self._deltaEntryX.setFixedWidth(100)
+		self._deltaEntryY.setFixedWidth(100)
+		self._deltaEntryZ.setFixedWidth(100)
+		self._deltaEntryYaw.setFixedWidth(100)
+		deltaLayout.addWidget(self._deltaLabel)
+		deltaLayout.addWidget(QLabel("x"))
+		deltaLayout.addWidget(self._deltaEntryX)
+		deltaLayout.addWidget(QLabel("y"))
+		deltaLayout.addWidget(self._deltaEntryY)
+		deltaLayout.addWidget(QLabel("z"))
+		deltaLayout.addWidget(self._deltaEntryZ)
+		deltaLayout.addWidget(QLabel("yaw"))
+		deltaLayout.addWidget(self._deltaEntryYaw)
 
 
-		rotation_layout = QHBoxLayout()
-		rotation_label = QLabel("Component rotation (deg) : ")
-		self.rotation_options = QComboBox(self)
-		self.rotation_options.addItems(["0", "90", "180", "270"])
-		rotation_layout.addWidget(rotation_label)
-		rotation_layout.addWidget(self.rotation_options)
+		#init of the rotation options for the storage position
+		rotationLayout = QHBoxLayout()
+		rotationLabel = QLabel("Component rotation (deg) : ")
+		self._rotationOptions = QComboBox(self)
+		self._rotationOptions.addItems(["0", "90", "180", "270"])
+		rotationLayout.addWidget(rotationLabel)
+		rotationLayout.addWidget(self._rotationOptions)
 
-		states_layout = QHBoxLayout()
-		states_label = QLabel("Component availabilty : ")
-		self.states_options = QComboBox(self)
-		self.states_options.addItems(list(self.states.keys()))
-		states_layout.addWidget(states_label)
-		states_layout.addWidget(self.states_options)
+		# init of the different states the storage can have (using, empty, ignore)
+		statesLayout = QHBoxLayout()
+		statesLabel = QLabel("Component availabilty : ")
+		self._statesOptions = QComboBox(self)
+		self._statesOptions.addItems(list(self._states.keys()))
+		statesLayout.addWidget(statesLabel)
+		statesLayout.addWidget(self._statesOptions)
 
-		self.auto_checkbox = QCheckBox("Is the Feeder Automatic")
-		self.auto_checkbox.stateChanged.connect(self.on_state_changed)
+		# checkbox for the automation of the storage
+		self._autoCheckbox = QCheckBox("Is the Feeder Automatic")
+		self._autoCheckbox.stateChanged.connect(self._onStateChanged)
 		
-		self.calibration_layout = QVBoxLayout()
-		calibrate_button = QPushButton("Calibrate")
-		calibrate_button.clicked.connect(self.open_calibration_tab)
-		self.calibration_layout.addWidget(calibrate_button)
+		# section for the manual calibration 
+		self._calibrationLayout = QVBoxLayout()
+		infoLabel = QLabel("Place the tip of the gripper on the first commponent of the storage")
+		self._calibrationLayout.addWidget(infoLabel)
+		self._jogWidget = JogWidget(isMain=False)
+		self._calibrationLayout.addWidget(self._jogWidget)
 
-		self.inputs_layout.addWidget(piece_label)
-		self.inputs_layout.addLayout(quantity_layout)
-		self.inputs_layout.addWidget(self.auto_checkbox)
-		self.inputs_layout.addLayout(delta_layout)
-		self.inputs_layout.addLayout(rotation_layout)
-		self.inputs_layout.addLayout(states_layout)
-		self.inputs_layout.addLayout(self.calibration_layout)
+		# adds all of the abouve layout in widget in the desired order. 
+		self._inputsLayout.addWidget(pieceLabel)
+		self._inputsLayout.addLayout(quantityLayout)
+		self._inputsLayout.addWidget(self._autoCheckbox)
+		self._inputsLayout.addLayout(deltaLayout)
+		self._inputsLayout.addLayout(rotationLayout)
+		self._inputsLayout.addLayout(statesLayout)
+		self._inputsLayout.addLayout(self._calibrationLayout)
+		self.center()
+
+
+
+	def _saveCurrentCalibration(self):
+		"""
+		Save the current calibration and configuration for the selected piece to the calibration file.
+		Validates input and updates the JSON data structure.
+		"""
+		
+		value = self._quantityEntry.text()
+		if not utils.isInt(value):
+			print(f"Invalid input for the quantity. Must be an interger, is instead : {value}")
+			return
+		
+		# values to be saved in the JSON 
+		automatic = self._autoCheckbox.isChecked()
+		state = self._statesOptions.currentIndex()
+		rotation = self._rotationOptions.currentIndex()
+		deltaPos = Position(0,0,0,0)
+		position= self._controller.getGripperPosition()
+
+		if not automatic:
+			deltaPos = self._getDeltaPos()
+
+		data = self._readJsonData()	
+
+		if self._pieceName not in data:
+			data[self._pieceName] = {}
+		if "deltaPos" not in data[self._pieceName]:
+			data[self._pieceName]["deltaPos"] = {}
+
+		if "position" not in data[self._pieceName]:
+			data[self._pieceName]["position"] = {}
+
+
+		# saves the entries in a dictionary
+		data[self._pieceName]["quantity"] = value
+		data[self._pieceName]["automatic"] = automatic
+		data[self._pieceName]["state"] = state
+		data[self._pieceName]["rotation"] = rotation
+		data[self._pieceName]["deltaPos"]["x"] = str(round(deltaPos.x, 2))
+		data[self._pieceName]["deltaPos"]["y"] = str(round(deltaPos.y, 2))
+		data[self._pieceName]["deltaPos"]["z"] = str(round(deltaPos.z, 2))
+		data[self._pieceName]["deltaPos"]["yaw"] = str(round(deltaPos.yaw, 2))
+		data[self._pieceName]["position"]["x"] = str(round(position.x, 2))
+		data[self._pieceName]["position"]["y"] = str(round(position.y, 2))
+		data[self._pieceName]["position"]["z"] = str(round(position.z, 2))
+		data[self._pieceName]["position"]["yaw"] = str(round(position.yaw, 2))
+		
+
+		with open(CALIB_PATH, "w") as file:
+			json.dump(data, file, indent=4)
 
 
 
 
-	def open_calibration_tab(self):
-		utils.clearLayout(self.calibration_layout)
+	def _loadPreviousCalibration(self):
+		"""
+		Load the previous calibration and configuration for the selected piece from the calibration file.
+		Populates the UI fields with the loaded data.
+		"""
+
+		data = self._readJsonData()
+
+		key = self._pieceName
+		if not key in data:
+			return
+		
+		self._quantityEntry.setText(data[key]["quantity"] )
+		self._autoCheckbox.setChecked(bool(data[key]["automatic"]))
+		self._statesOptions.setCurrentIndex(data[key]["state"])
+		self._rotationOptions.setCurrentIndex(data[key]["rotation"])
+		self._deltaEntryX.setText(data[key]["deltaPos"]["x"])
+		self._deltaEntryY.setText(data[key]["deltaPos"]["y"])
+		self._deltaEntryZ.setText(data[key]["deltaPos"]["z"])
+		self._deltaEntryYaw.setText(data[key]["deltaPos"]["yaw"])
+		self._jogWidget._xEntry.setText(data[key]["position"]["x"])
+		self._jogWidget._yEntry.setText(data[key]["position"]["y"])
+		self._jogWidget._zEntry.setText(data[key]["position"]["z"])
+		self._jogWidget._yawEntry.setText(data[key]["position"]["yaw"])
+
+
+
+
+	def _readJsonData(self):
+		"""
+		Read the calibration data from the calibration JSON file. If the file does not exist or is corrupted,
+		it creates a new file with an empty dictionary.
+        
+		Returns:
+			dict: The calibration data.
+		"""
+		try:
+			with open(CALIB_PATH, 'r') as file:
+				data = json.load(file)
+		except (FileNotFoundError, json.JSONDecodeError):
+			# Create the file with an empty dictionary if it's missing or corrupted
+			with open(CALIB_PATH, 'w') as file:
+				data  = {}
+				json.dump(data, file)
+
+		return data
+
+
+	def _openCalibrationTab(self):
+		"""
+		Open the calibration tab, clearing the layout and adding calibration instructions and jog widget.
+		"""
+		utils.clearLayout(self._calibrationLayout)
 		info_label = QLabel("Place the tip of the gripper on the first commponent of the storage")
-		self.calibration_layout.addWidget(info_label)
-		self.calibration_layout.addWidget(JogWidget(isMain=False))
+		self._calibrationLayout.addWidget(info_label)
+		self._calibrationLayout.addWidget(JogWidget(isMain=False))
 
 
 
 
-	def closeEvent(self, event: QEvent):
-		"""Override the default close event handler."""
-		self.close_window()
 
-
-
-
-	def on_state_changed(self, state):
+	def _onStateChanged(self, state:int):
+		"""
+		Handle the state change of the automatic checkbox, enabling or disabling delta input fields.
+        
+		Args:
+			state (int): The state of the checkbox (Qt.Checked or not).
+		"""
 
 		enabled = True
 		if state == 2: # 2 = Qt.Checked
 			enabled = False
-		self.delta_label.setEnabled(enabled)
-		self.delta_entry_x.setEnabled(enabled)
-		self.delta_entry_y.setEnabled(enabled)
-		self.delta_entry_z.setEnabled(enabled)
-		self.delta_entry_yaw.setEnabled(enabled)		
+		self._deltaLabel.setEnabled(enabled)
+		self._deltaEntryX.setEnabled(enabled)
+		self._deltaEntryY.setEnabled(enabled)
+		self._deltaEntryZ.setEnabled(enabled)
+		self._deltaEntryYaw.setEnabled(enabled)		
 	
 
 
 
-	def get_delta_pos(self) -> Position:
-		x_value = self.delta_entry_x.text()
-		y_value = self.delta_entry_y.text()
-		z_value = self.delta_entry_z.text()
-		yaw_value = self.delta_entry_yaw.text()
+	def _getDeltaPos(self) -> Position:
+		"""
+		Get the delta position values from the input fields, validating them as floats.
+        
+		Returns:
+			Position: The delta position as a Position object, or None if invalid input.
+		"""
+		xValue = self._deltaEntryX.text()
+		yValue = self._deltaEntryY.text()
+		zValue = self._deltaEntryZ.text()
+		yawValue = self._deltaEntryYaw.text()
 
-		if not utils.is_float(x_value):
-			print(f"Invalid input for the x position delta. Must be a float, is instead : {x_value}")
+		if not utils.isFloat(xValue):
+			print(f"Invalid input for the x position delta. Must be a float, is instead : {xValue}")
 			return None
-		if not utils.is_float(y_value):
-			print(f"Invalid input for the y position delta. Must be a float, is instead : {y_value}")
+		if not utils.isFloat(yValue):
+			print(f"Invalid input for the y position delta. Must be a float, is instead : {yValue}")
 			return None
-		if not utils.is_float(z_value):
-			print(f"Invalid input for the z position delta. Must be a float, is instead : {z_value}")
+		if not utils.isFloat(zValue):
+			print(f"Invalid input for the z position delta. Must be a float, is instead : {zValue}")
 			return None
-		if not utils.is_float(yaw_value):
-			print(f"Invalid input for the yaw position delta. Must be a float, is instead : {yaw_value}")
+		if not utils.isFloat(yawValue):
+			print(f"Invalid input for the yaw position delta. Must be a float, is instead : {yawValue}")
 			return None
 
-		return Position(float(x_value), float(y_value), float(z_value), float(yaw_value))
+		return Position(float(xValue), float(yValue), float(zValue), float(yawValue))
 
 
 
 
-	def close_window(self):
-		value = self.quantity_entry.text()
-		if not utils.is_int(value):
-			print(f"Invalid input for the quantity. Must be an interger, is instead : {value}")
+	def _closeWindow(self):
+		"""
+		Saves the value of the entries in memory before closing this window. 
+		If some entries are invalid, nothing is saved. 
+		"""
+		value = self._quantityEntry.text()
+		if not utils.isInt(value):
+			msg = f"Invalid input for the quantity. Must be an interger, is instead : [{value}]"
+			print(msg)
+			errorWindow = utils.ErrorWindow(error_msg=msg)
+			errorWindow.show()
 			return
 		
+		# reads the user inputs 
 		quantity = int(value)
-		automatic = self.auto_checkbox.isChecked()
-		state = self.states[self.states_options.currentText()]
-		rotation = int(self.rotation_options.currentText())
+		automatic = self._autoCheckbox.isChecked()
+		state = self._states[self._statesOptions.currentText()]
+		rotation = int(self._rotationOptions.currentText())
 		deltaPos = Position(0,0,0,0)
-		position= self.data_manager.get_gripper_position()
+		position = self._controller.getGripperPosition()
+		position.yaw = rotation
 
 		if not automatic:
-			deltaPos = self.get_delta_pos()
+			deltaPos = self._getDeltaPos()
 			if deltaPos is None:
 				return
 
-
-		self.storage.addComponent(self.widget_info.piece, position, deltaPos, 
-							rotation, state, quantity, automatic)
-
-		self.widget_info.update_all(self.piece_name, state, quantity, automatic)
+		# saves the data acquired
+		self._storage.addComponent(self._widgetInfo._piece, position, deltaPos, state, quantity, automatic)
+		self._widgetInfo.updateAll(self._pieceName, state, quantity, automatic)
 		print("piece added successfully")
+
+		# closes the window
 		self.deleteLater()
 
 	

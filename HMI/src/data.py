@@ -1,8 +1,11 @@
 from dataclasses import dataclass
 from enum import Enum, IntFlag
 import numbers
+from pathlib import Path
 
 MAX_SPEED = 100 #mm/s
+DATA_DIR = Path(__file__).resolve().parents[1] / 'data'
+CALIB_PATH = str(DATA_DIR / 'calib.json')
 
 
 class CommandId(Enum):
@@ -73,6 +76,16 @@ class Position:
         y = self.y + other.y
         z = self.z + other.z
         yaw = self.yaw + other.yaw
+        return Position(x, y, z, yaw)
+    
+    def __sub__(self, other):
+        """Alows two position to be substracted together"""
+        if not isinstance(other, Position):
+            return NotImplemented
+        x = self.x - other.x
+        y = self.y - other.y
+        z = self.z - other.z
+        yaw = self.yaw - other.yaw
         return Position(x, y, z, yaw)
     
     def __mul__(self, other):
@@ -176,7 +189,6 @@ class StorageUnit:
     state : StorageState    
     quantity : int          
     automatic : bool     
-    rotation : int    
 
 
 @dataclass

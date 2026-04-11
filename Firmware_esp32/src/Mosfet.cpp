@@ -3,15 +3,17 @@
 
 Mosfet::Mosfet(uint8_t pin)
 {
-    this->pin = pin;
+    this->pin = pin; // Pin association to mosfet
     this->state = false;
     pinMode(this->pin, OUTPUT);
 }
+
 
 Mosfet::~Mosfet()
 {
     this->off();
 }
+
 
 void Mosfet::on()
 {
@@ -19,11 +21,13 @@ void Mosfet::on()
     this->state = true;
 }
 
+
 void Mosfet::off()
 {
     digitalWrite(this->pin, LOW);
     this->state = false;
 }
+
 
 bool Mosfet::getState()
 {

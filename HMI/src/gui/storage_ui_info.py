@@ -1,116 +1,157 @@
-from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
-	QVBoxLayout,
-    QMainWindow, 
     QPushButton,
     QWidget, 
-    QFileDialog,
-    QLineEdit,
 	QLabel,
-	QFrame,
-	QPlainTextEdit,
-	QInputDialog,
     QStackedWidget
 )
-
 from data import *
-from utils import clearLayout
 
 class StorageUiInfo(QWidget):
+    """
+    Widget for displaying and managing the UI information of a storage piece.
+    Shows the name, state, quantity, and automatic status, and allows updating these fields.
+
+    Attributes:
+        button (QPushButton):
+            A reference to the button of this space. Use to set the pieces informations.
+            #TODO should be signal for less spagetti.
+        _states (dict[StorageState, str]):
+            The different states that the storage can have (for display purposes)
+        _piece (Piece):
+            The associated with this storage space.
+        _added (bool):
+            boolean that indicates if this piece as been initialized in the storage.
+
+    """
     def __init__(self, piece:Piece, button:QPushButton):
+        """
+        Initialize the StorageUiInfo widget, set up the UI, and prepare display fields.
+        
+        Args:
+            piece (Piece): The piece to display information for.
+            button (QPushButton): A reference to the button associated with this piecs.
+                                  Allows the user to add/modify a piece in the storage.
+                                  Also allows the main UI to modify it.
+        """
         super().__init__()
-        self.states = {
+        self._states = {
             StorageState.EMPTY : "EMPTY",
             StorageState.IGNORE : "IGNORE",
             StorageState.USING : "USING"
         }
 
-
-        #Layout for the storage info
-        self.piece = piece
+        # Relevent attributes 
+        self._piece = piece
         self.button = button
-        self.added:bool = False
-        self.stacked_widget = QStackedWidget()
+        self._added:bool = False
 
-        self.name:str = piece.package
-        self.quantity:int = -1
-        self.name_label = QLabel(self.name)
-        self.state_label = QLabel("state : -")
-        self.quantity_label = QLabel("quantity : -")
-        self.automatic_label = QLabel("automatic : -")
+        # initialisation of important storage data for this piece.
+        self._stackedWidget = QStackedWidget()
+        self._name:str = piece.package
+        self._quantity:int = -1
+        self.nameLabel = QLabel(self._name)
+        self.stateLabel = QLabel("state : -")
+        self.quantityLabel = QLabel("quantity : -")
+        self.automaticLabel = QLabel("automatic : -")
 
+        activeWidget = QWidget()
+        activeLayout = QHBoxLayout()
+        activeLayout.setSpacing(30)
+        activeLayout.addWidget(self.nameLabel)
+        activeLayout.addWidget(self.stateLabel)
+        activeLayout.addWidget(self.quantityLabel)
+        activeLayout.addWidget(self.automaticLabel)
+        activeWidget.setLayout(activeLayout)
 
+        # Layout when the piece is not added yet 
+        inactiveWidget = QWidget()
+        inactiveLayout = QHBoxLayout()
+        additionLabel = QLabel("(Not Added)")
+        additionLabel.setStyleSheet("color: red;") 
+        inactiveWidget.setLayout(inactiveLayout)
 
-        self.active_widget = QWidget()
-        self.active_layout = QHBoxLayout()
-        self.active_layout.setSpacing(30)
-        self.active_layout.addWidget(self.name_label)
-        self.active_layout.addWidget(self.state_label)
-        self.active_layout.addWidget(self.quantity_label)
-        self.active_layout.addWidget(self.automatic_label)
-        self.active_widget.setLayout(self.active_layout)
+        inactiveLayout.addWidget(QLabel(self._name))
+        inactiveLayout.addWidget(additionLabel)
 
-
-       
-
-
-        #Layout when the piece is not added yet 
-        self.inactive_widget = QWidget()
-        self.inactive_layout = QHBoxLayout()
-        addition_label = QLabel("(Not Added)")
-        addition_label.setStyleSheet("color: red;") 
-        self.inactive_widget.setLayout(self.inactive_layout)
-
-        self.inactive_layout.addWidget(QLabel(self.name))
-        self.inactive_layout.addWidget(addition_label)
-
-        self.stacked_widget.addWidget(self.inactive_widget)
-        self.stacked_widget.addWidget(self.active_widget)
+        self._stackedWidget.addWidget(inactiveWidget)
+        self._stackedWidget.addWidget(activeWidget)
         layout = QHBoxLayout()
-        layout.addWidget(self.stacked_widget)
+        layout.addWidget(self._stackedWidget)
         self.setLayout(layout)
-        #self.setLayout(self.inactive_layout)
 
 
 
 
-    def update_all(self, name:str, state:StorageState, quantity:int, auto:bool):
-        self.update_name(name)
-        self.update_state(state)
-        self.update_quantity(quantity)
-        self.update_automatic_state(auto)
-        self.stacked_widget.setCurrentIndex(1)
+    def updateAll(self, name:str, state:StorageState, quantity:int, auto:bool):
+        """
+        Update all fields of the storage info widget and switch to the active display.
+        
+        Args:
+            name (str): The name of the piece.
+            state (StorageState): The state of the storage.
+            quantity (int): The quantity of the piece.
+            auto (bool): Whether the storage is set to automatic.
+        """
+        self.updateName(name)
+        self.updateState(state)
+        self.updateQuantity(quantity)
+        self.updateAutomaticState(auto)
+        self._stackedWidget.setCurrentIndex(1)
         self.button.setText("Change")
 
 
 
 
-    def update_name(self, new_name:str):
-        self.name = new_name
-        self.name_label.setText(self.name)
+    def updateName(self, newName:str):
+        """
+        Update the name of the piece in the UI.
+        
+        Args:
+            new_name (str): The new name to display.
+        """
+        self._name = newName
+        self.nameLabel.setText(self._name)
 
 
 
 
-    def update_state(self, new_state:StorageState):
-        self.state_label.setText("state : " + self.states[new_state])
+    def updateState(self, newState:StorageState):
+        """
+        Update the state of the storage in the UI.
+        
+        Args:
+            new_state (StorageState): The new state to display.
+        """
+        self.stateLabel.setText("state : " + self._states[newState])
 
 
 
 
-    def update_quantity(self, new_quantity:int):
-        self.quantity = new_quantity
-        self.quantity_label.setText(f"quantity : {self.quantity}")
+    def updateQuantity(self, newQuantity:int):
+        """
+        Update the quantity of the piece in the UI.
+        
+        Args:
+            new_quantity (int): The new quantity to display.
+        """
+        self._quantity = newQuantity
+        self.quantityLabel.setText(f"quantity : {self._quantity}")
 
 
 
 
-    def update_automatic_state(self, new_auto_state:bool):
-        new_text = "automatic : False"
-        if new_auto_state == True:
-            new_text = "automatic : True"
-        self.automatic_label.setText(new_text)
+    def updateAutomaticState(self, newState:bool):
+        """
+        Update the automatic state of the piece in the UI.
+        
+        Args:
+            new_auto_state (bool): The new automatic state to display.
+        """
+        newText = "automatic : False"
+        if newState == True:
+            newText = "automatic : True"
+        self.automaticLabel.setText(newText)
 
 
 
