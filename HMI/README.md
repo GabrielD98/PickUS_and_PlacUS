@@ -44,10 +44,15 @@ To find your port:
 
 1. Launch the HMI: `python main.py`
 2. Load a KiCad `.pos` file via the GUI
-3. Home the machine 
+3. Home the machine to access manual mode
 4. Configure component feeders for each tray
+   1. Fill all of the required fields in the displayed window
+   2. Place the tip of the gripper on the first piece of the storage
+   3. Confirm to save the data 
 5. Calibrate PCB position
-6. Generate commands
+   1. place the tip of the gripper on the calibration point of the PCB (has to be set by the user in KiCad)
+   2. Confirm to save the data 
+6. Generate commands by clicking the slice button
 5. Start the pick-and-place cycle
 6. Monitor progress and pause/resume as needed
 
@@ -113,6 +118,15 @@ HMI/
 ├── data/                    # Sample data files
 └── README.md
 ```
+
+---
+
+## Class Diagram
+### Main project UML
+![alt text](doc/UML.png)
+
+### GUI UML
+![alt text](doc/GUI_UML.png)
 
 ---
 
