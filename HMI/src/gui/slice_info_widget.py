@@ -32,6 +32,11 @@ class SliceInfoWidget(QWidget):
             instance of the storage data initialise by the user in the calibration phase. 
         _pieces (List[Piece]):
             list of all the piece to be placed by the PnP. Needed for the slicing logic.
+        _commands(List[QLabel]):
+            the list of all the command written in the QLabels. Allows the HMI to keep track 
+            of the current command label, in a cleaner way than with the scroll area
+        __currentCommandIndex (int):
+            the index of the current command being executed. 
     """
     sliceDoneSignal = pyqtSignal(bool) 
 
@@ -67,14 +72,14 @@ class SliceInfoWidget(QWidget):
         layout.addWidget(self._sliceButton)
 
         #Area that displays all of the steps of the slicing
-        scroll = QScrollArea(self)
-        layout.addWidget(scroll)
-        scroll.setWidgetResizable(True)
-        scrollContent = QWidget(scroll)
+        self.scrollArea = QScrollArea(self)
+        layout.addWidget(self.scrollArea)
+        self.scrollArea.setWidgetResizable(True)
+        scrollContent = QWidget(self.scrollArea)
 
         self.scrollLayout = QVBoxLayout(scrollContent)
         scrollContent.setLayout(self.scrollLayout)
-        scroll.setWidget(scrollContent)
+        self.scrollArea.setWidget(scrollContent)
 
 
 
@@ -112,6 +117,7 @@ class SliceInfoWidget(QWidget):
             self._commands.append(comLabel)
 
         #tells the command widget that the slicing is done
+        self._currentCommandIndex = -1
         self.sliceDoneSignal.emit(True)
 
 
@@ -148,11 +154,19 @@ class SliceInfoWidget(QWidget):
 
 
     def onNextCommand(self):
-        index = self._currentCommandIndex
-        if index >= 0:
-            self._commands[index].setStyleSheet("color: black;")
-        index += 1
-        if index < len(self._commands):
-            self._commands[index].setStyleSheet("color: green;")
-        self._currentCommandIndex = index
-        #print("NextStep")
+        """
+        Called when the next command is poped from the queue in the controller.
+        Allows the HMI to display the current command executed by the PnP.
+        """
+        try :
+            index = self._currentCommandIndex
+            if index >= 0:
+                self._commands[index].setStyleSheet("color: black;")
+            index += 1
+            if index < len(self._commands):
+                self._commands[index].setStyleSheet("color: green;")
+            self._currentCommandIndex = index
+            self.scrollArea.ensureWidgetVisible(self._commands[index])
+            
+        except Exception as e:
+            print(f"SliceInfoWidget -> Error displaying the current step : {e}")
