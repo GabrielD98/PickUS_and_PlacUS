@@ -1,26 +1,25 @@
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QScrollArea, QTabWidget
 )
 
-class MyTabWidget(QWidget):
+class TabWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
-        self.layout = QVBoxLayout(self)
+        globalLayout = QVBoxLayout(self)
         
         self.tabs = QTabWidget()
-        self.tab1 = QWidget()
-        self.tab2 = QWidget()
+        self._commandsTab = QWidget()
+        self._graphTab = QWidget()
 
-        self.tabs.addTab(self.tab1, "Scroll bar")
-        self.tabs.addTab(self.tab2, "Graphic")
+        self.tabs.addTab(self._commandsTab, "Scroll bar")
+        self.tabs.addTab(self._graphTab, "Graphic")
 
-        self.tab1.layout = QVBoxLayout(self.tab1)
+        commandsLayout = QVBoxLayout(self._commandsTab)
+        self._commandsTab.setLayout(commandsLayout)
         scroll = QScrollArea(self)
-        self.tab1.layout.addWidget(scroll)
+        commandsLayout.addWidget(scroll)
         scroll.setWidgetResizable(True)
         scrollContent = QWidget(scroll)
 
@@ -28,9 +27,10 @@ class MyTabWidget(QWidget):
         scrollContent.setLayout(self.scrollLayout)
         scroll.setWidget(scrollContent)
 
-        self.tab2.layout = QVBoxLayout(self.tab2)
+        graphLayout = QVBoxLayout(self._graphTab)
+        self._graphTab.setLayout(graphLayout)
         self.canvas = FigureCanvas(Figure())
         self.ax = self.canvas.figure.add_subplot(111)
-        self.tab2.layout.addWidget(self.canvas)
+        graphLayout.addWidget(self.canvas)
 
-        self.layout.addWidget(self.tabs)
+        globalLayout.addWidget(self.tabs)

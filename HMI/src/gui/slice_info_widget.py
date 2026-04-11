@@ -1,9 +1,5 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib.image import imread
-import time
 from typing import List
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (
@@ -15,11 +11,11 @@ from PyQt5.QtWidgets import (
 )
 
 import utils
-from data import Command, Piece, Position
+from data import Piece, Position
 from slicer import Slicer
 from storage import Storage
 from controller import Controller
-from gui.Tab_widget import MyTabWidget
+from gui.tab_widget import TabWidget
 
 class SliceInfoWidget(QWidget):
     """
@@ -37,7 +33,7 @@ class SliceInfoWidget(QWidget):
             and receives information from it.
         _storage (Storage):
             instance of the storage data initialise by the user in the calibration phase. 
-        _pieces (List[Piece]):
+        __pieces (List[Piece]):
             list of all the piece to be placed by the PnP. Needed for the slicing logic.
         _commands(List[QLabel]):
             the list of all the command written in the QLabels. Allows the HMI to keep track 
@@ -79,20 +75,21 @@ class SliceInfoWidget(QWidget):
         layout.addWidget(self._sliceButton)
 
         #Area that displays all of the steps of the slicing
-        self.scrollArea = QScrollArea(self)
-        layout.addWidget(self.scrollArea)
-        self.scrollArea.setWidgetResizable(True)
-        scrollContent = QWidget(self.scrollArea)
+        #self.scrollArea = QScrollArea(self)
+        #layout.addWidget(self.scrollArea)
+        #self.scrollArea.setWidgetResizable(True)
+        #scrollContent = QWidget(self.scrollArea)
 
-        self.scrollLayout = QVBoxLayout(scrollContent)
-        scrollContent.setLayout(self.scrollLayout)
-        self.scrollArea.setWidget(scrollContent)
+        self.tabs = TabWidget(self)
+        #self.scrollLayout = QVBoxLayout(scrollContent)
+        #scrollContent.setLayout(self.tabs.scrollLayout)
+        #self.scrollArea.setWidget(scrollContent)
 
 
         self.index = 0
         layout.addWidget(self.tabs)
 
-        self.tabs = MyTabWidget(self)
+        
 
        
 
@@ -130,17 +127,10 @@ class SliceInfoWidget(QWidget):
         #tells the command widget that the slicing is done
         self._currentCommandIndex = -1
         self.sliceDoneSignal.emit(True)
-            self.scrollLayout.addWidget(comLabel)
-            self.tabs.scrollLayout.addWidget(comLabel)
+        self.tabs.scrollLayout.addWidget(comLabel)
 
         self.show_graph()
 
-    def highlight_step(self):
-        #TODO initialiser index a 0 in start
-        if self.index >= 1:
-             self.tabs.scrollLayout.itemAt(self.index - 1).widget().setStyleSheet("background-color: white; color: black")
-        self.tabs.scrollLayout.itemAt(self.index).widget().setStyleSheet("background-color: green; color: black") 
-        self.index ++ 1 
 
 
 
@@ -203,10 +193,10 @@ class SliceInfoWidget(QWidget):
     def show_graph(self):
         self.tabs.ax.clear()
 
-        piece_dict_x:dict[float] = {}
-        piece_dict_y:dict[float] = {}
+        piece_dict_x:dict[float, List[Position]]= {}
+        piece_dict_y:dict[float, List[Position]] = {}
 
-        for piece in self.pieces:
+        for piece in self._pieces:
             if not piece in piece_dict_x:
                 piece_dict_x[piece] = [piece.position.x]
                 piece_dict_y[piece] = [piece.position.y]
@@ -219,7 +209,7 @@ class SliceInfoWidget(QWidget):
         pcb_offset_x = 40.5
         pcb_offset_y = -25.0
 
-        fig, ax = plt.subplots()
+        _, _ = plt.subplots()
        # bg = imread("../data/PCB_Background.png")
        # self.tabs.ax.imshow(bg, extent=[pcb_offset_x, pcb_offset_x + pcb_width,
        #                              pcb_offset_y + pcb_height, pcb_offset_y],
