@@ -116,11 +116,10 @@ class Interface(QMainWindow):
 		scroll.setWidget(scrollContent)
 
 		self.framed_scroll = Frame(scroll, style=WidgetConfig(
-            padding="1px 1px", 
             background_color="transparent"
         ))
 
-		left_layout.addWidget(self.framed_scroll,4)
+		left_layout.addWidget(self.framed_scroll,5)
 
 		#TODO delete label
 		self.calibrate_button = QPushButton("Calibrate")

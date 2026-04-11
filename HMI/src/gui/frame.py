@@ -23,10 +23,10 @@ from dataclasses import dataclass
 @dataclass
 class WidgetConfig:
     image_path: str = '../data/Golden_Roman_Frame.png'
-    slices: str = "0 0 0 0" 
+    slices: str = "50 50 50 50" 
     background_color: str = "transparent"
     txt_color: str = "black"
-    padding: str = "10px 10px"
+    padding: str = "1px 1px"
 
 
 class Frame(QFrame):
@@ -38,9 +38,6 @@ class Frame(QFrame):
 
         self.main_layout = QVBoxLayout(self)
         
-        margin = int(self.style_config.slices.split()[0])
-
-        self.main_layout.setContentsMargins(margin, margin, margin, margin)
         self.main_layout.setSpacing(0)
 
         if child_widget:
@@ -50,9 +47,12 @@ class Frame(QFrame):
         self.apply_roman_style()
 
     def apply_roman_style(self):
+
+        self.setObjectName("RomanFrame")
+
         border_width = self.style_config.slices.split()[0] + "px"
         self.setStyleSheet(f"""
-            QFrame {{
+            QFrame#RomanFrame {{
                 border-image: url('{self.style_config.image_path}') {self.style_config.slices} stretch;
                 border-width: {border_width};
                 border-style: solid;
