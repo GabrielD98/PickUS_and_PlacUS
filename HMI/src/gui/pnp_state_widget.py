@@ -99,7 +99,7 @@ class PnPStateWidget(QWidget):
         if state_c == ControllerState.DONE:
             self.pnpDoneSignal.emit()
             print("PnP DONE")
-            self._controller.transitionToIDLE()
+            self._controller.toggleIDLEMode()
 
 
 

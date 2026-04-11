@@ -61,7 +61,7 @@ class Interface(QMainWindow):
 		self._controller = Controller()
 		self._pieces:List[Piece] = []
 		self._filePath = "No file selected"
-		
+
 		self._initializeGUI()
 
 	
@@ -188,6 +188,9 @@ class Interface(QMainWindow):
 		"""
 		Open a file dialog for the user to select a .pos file (KiCad position file).
 		If a new file is open, resets relevant widgets (file path and analyse button).
+
+		#TODO file manager should be another object to make this class
+		tasks more clear and concise.
 		"""
 		filename, _ = QFileDialog.getOpenFileName(
 			parent=self,               
@@ -314,7 +317,7 @@ class Interface(QMainWindow):
 
 
 	
-	def closeEvent(self, event: QEvent):
+	def closeEvent(self, _: QEvent):
 		"""
 		Override the default close event handler to stop the timer and disconnect from the machine.
 		"""

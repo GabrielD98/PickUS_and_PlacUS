@@ -66,7 +66,7 @@ class JogWidget(QWidget):
         modeOffLayout = QVBoxLayout()
         modeOffWidget.setLayout(modeOffLayout)
         activate = QPushButton("Activate Jog Mode")
-        activate.clicked.connect(lambda : self._turnOnJogMode())
+        activate.clicked.connect(lambda : self._activateJogMode())
         modeOffLayout.addWidget(activate)
 
         goHome = QPushButton("Go Home")
@@ -108,7 +108,7 @@ class JogWidget(QWidget):
         zPlus.clicked.connect(lambda : self._movePositiveZ()) 
         zMinus.clicked.connect(lambda : self._moveNegativeZ()) 
         goToPos.clicked.connect(lambda : self._goToPosition())
-        deactivate.clicked.connect(lambda : self._turnOffJogMode())
+        deactivate.clicked.connect(lambda : self._deactivateJogMode())
         
         # Entries for the "go to position" option
         entryLabel = QLabel("Go to Position (mm)")
@@ -145,7 +145,7 @@ class JogWidget(QWidget):
             modeOnLayout.addStretch()
             modeOnLayout.addWidget(deactivate)
         else :
-            self._controller.transitionToManual()
+            self._controller.toggleManualMode()
 
         # addition of all the individual commands that the user can do in the layouts
         speedLayout.addWidget(self._speedLabel)
@@ -256,21 +256,21 @@ class JogWidget(QWidget):
 
 
 
-    def _turnOnJogMode(self):
+    def _activateJogMode(self):
         """
         Activate jog mode, enabling manual control of the gripper.
         """
-        self._controller.transitionToManual()
+        self._controller.toggleManualMode()
         self._stackedWidget.setCurrentIndex(1)
 
 
 
 
-    def _turnOffJogMode(self):
+    def _deactivateJogMode(self):
         """
         Deactivate jog mode, disabling manual control of the gripper.
         """
-        self._controller.transitionToIDLE()
+        self._controller.toggleIDLEMode()
         self._stackedWidget.setCurrentIndex(0)
 
 

@@ -16,7 +16,7 @@ class StorageUiInfo(QWidget):
         button (QPushButton):
             A reference to the button of this space. Use to set the pieces informations.
             #TODO should be signal for less spagetti.
-        _states (dict[StoraheState, str]):
+        _states (dict[StorageState, str]):
             The different states that the storage can have (for display purposes)
         _piece (Piece):
             The associated with this storage space.
@@ -103,55 +103,55 @@ class StorageUiInfo(QWidget):
 
 
 
-    def updateName(self, new_name:str):
+    def updateName(self, newName:str):
         """
         Update the name of the piece in the UI.
         
         Args:
             new_name (str): The new name to display.
         """
-        self._name = new_name
+        self._name = newName
         self.nameLabel.setText(self._name)
 
 
 
 
-    def updateState(self, new_state:StorageState):
+    def updateState(self, newState:StorageState):
         """
         Update the state of the storage in the UI.
         
         Args:
             new_state (StorageState): The new state to display.
         """
-        self.stateLabel.setText("state : " + self._states[new_state])
+        self.stateLabel.setText("state : " + self._states[newState])
 
 
 
 
-    def updateQuantity(self, new_quantity:int):
+    def updateQuantity(self, newQuantity:int):
         """
         Update the quantity of the piece in the UI.
         
         Args:
             new_quantity (int): The new quantity to display.
         """
-        self._quantity = new_quantity
+        self._quantity = newQuantity
         self.quantityLabel.setText(f"quantity : {self._quantity}")
 
 
 
 
-    def updateAutomaticState(self, new_auto_state:bool):
+    def updateAutomaticState(self, newState:bool):
         """
         Update the automatic state of the piece in the UI.
         
         Args:
             new_auto_state (bool): The new automatic state to display.
         """
-        new_text = "automatic : False"
-        if new_auto_state == True:
-            new_text = "automatic : True"
-        self.automaticLabel.setText(new_text)
+        newText = "automatic : False"
+        if newState == True:
+            newText = "automatic : True"
+        self.automaticLabel.setText(newText)
 
 
 

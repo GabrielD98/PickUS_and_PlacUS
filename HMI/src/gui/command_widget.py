@@ -115,7 +115,7 @@ class CommandWidget(QWidget):
         self._on = False
         self._stackedWidget.setCurrentIndex(0)
         self._mainControlButton.setText("Start")
-        self._controller.transitionToIDLE()
+        self._controller.toggleIDLEMode()
 
 
 

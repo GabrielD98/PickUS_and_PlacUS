@@ -31,7 +31,7 @@ class StorageWindow(QMainWindow):
             and receives information from it.
         _storage (Storage):
             instance of the storage data initialise by the user in the calibration phase. 
-        _states (dict[StoraheState, str]):
+        _states (dict[StorageState, str]):
             The different states that the storage can have (for display purposes)
         _piece (Piece):
             The associated with this storage space.
@@ -105,7 +105,7 @@ class StorageWindow(QMainWindow):
 
 
 
-	def closeEvent(self, event: QEvent):
+	def closeEvent(self, _: QEvent):
 		"""
 		Override the default close event handler to ensure proper cleanup.
 		"""
@@ -316,7 +316,7 @@ class StorageWindow(QMainWindow):
 
 
 
-	def _onStateChanged(self, state):
+	def _onStateChanged(self, state:int):
 		"""
 		Handle the state change of the automatic checkbox, enabling or disabling delta input fields.
         

@@ -101,13 +101,6 @@ class Controller:
 
 
 
-	def _clearCommands(self):
-		"""
-		Clears the entire command list to stop the PnP
-		"""
-		self._commands = []
-
-
 
 
 	def requestTransition(self, transition: TransitionRequest):
@@ -286,21 +279,21 @@ class Controller:
 
 
 
-	def transitionToRunning(self):
+	def toggleRunningMode(self):
 		"""Changes the machine state to RUNNING (slicing is occuring)"""
 		self.requestTransition(TransitionRequest.TO_RUNNING)
 
 
 
 
-	def transitionToManual(self):
+	def toggleManualMode(self):
 		"""Change the machine state to MANNUAL (jogging is occuring)"""
 		self.requestTransition(TransitionRequest.TO_MANUAL)
 
 
 
 
-	def transitionToIDLE(self):
+	def toggleIDLEMode(self):
 		"""Change the machine state to IDLE (waiting for commands)"""
 		self._clearCommands()
 		self.requestTransition(TransitionRequest.TO_IDLE)
@@ -311,6 +304,15 @@ class Controller:
 	def continuePnP(self):
 		"""Continues the interrupted command by the Pause action"""
 		self.requestTransition(TransitionRequest.TO_RUNNING)
+
+
+
+
+	def _clearCommands(self):
+		"""
+		Clears the entire command list to stop the PnP
+		"""
+		self._commands = []
 
 
 

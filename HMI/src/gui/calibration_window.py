@@ -80,7 +80,7 @@ class CalibrationWindow(QMainWindow):
 
 
 
-    def closeEvent(self, event: QEvent):
+    def closeEvent(self, _: QEvent):
         """
         Override the default close event handler to ensure calibration position is set before closing.
         """
