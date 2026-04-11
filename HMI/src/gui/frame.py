@@ -27,6 +27,8 @@ class WidgetConfig:
     background_color: str = "transparent"
     txt_color: str = "black"
     padding: str = "1px 1px"
+    border_width: str = slices.split()[0] + "px"
+
 
 
 class Frame(QFrame):
@@ -50,13 +52,13 @@ class Frame(QFrame):
 
         self.setObjectName("RomanFrame")
 
-        border_width = self.style_config.slices.split()[0] + "px"
+
         self.setStyleSheet(f"""
             QFrame#RomanFrame {{
                 border-image: url('{self.style_config.image_path}') {self.style_config.slices} stretch;
-                border-width: {border_width};
+                border-width: {self.style_config.border_width};
                 border-style: solid;
-                background-color: white;
+                background-color: {self.style_config.background_color};
             }}
         """)
 

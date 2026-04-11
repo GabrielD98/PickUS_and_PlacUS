@@ -116,7 +116,7 @@ class Interface(QMainWindow):
 		scroll.setWidget(scrollContent)
 
 		self.framed_scroll = Frame(scroll, style=WidgetConfig(
-            background_color="transparent"
+            background_color="white"
         ))
 
 		left_layout.addWidget(self.framed_scroll,5)
@@ -142,7 +142,6 @@ class Interface(QMainWindow):
 		commands_layout.addWidget(CommandWidget())
 		left_layout.addLayout(commands_layout, 2)
 
-
 		state_layout = QHBoxLayout()
 		self.state_widget = PnPStateWidget()
 		state_layout.addWidget(self.state_widget)
@@ -160,11 +159,25 @@ class Interface(QMainWindow):
 		if rand_num == 1:
 			img = "../data/julius_salad.png"
 		pixmap = QPixmap(img)
+		# scaled_pixmap = pixmap.scaled(500, 350, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 		img_label.setPixmap(pixmap)
-		img_label.setScaledContents(True)
-	
+		img_label.setScaledContents(False)
+		img_label.setContentsMargins(2024,2024,2024,2024)
+		img_label.setAlignment(Qt.AlignCenter)
+
 		img_label.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Expanding)
-		right_layout.addWidget(img_label, 4)
+	
+		
+		self.framed_overlay = Frame(img_label, style=WidgetConfig(
+			background_color="transparent",
+			image_path='../data/Test_V3.png',
+			border_width='30px',
+			slices= '90 90 90 90',
+			padding= "10px 10px"
+		
+			))
+	
+		right_layout.addWidget(self.framed_overlay,4)
 
 		
 		self.setCentralWidget(global_widget)
