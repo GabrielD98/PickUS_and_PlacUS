@@ -52,9 +52,9 @@ class CommandWidget(QWidget):
         self._stackedWidget.setCurrentIndex(0)
         
         #setup of the control buttons and widgets
-        self._mainControlButton = QPushButton("Start")
-        self._continueButton = QPushButton("Continue")
-        self._stopButton = QPushButton("Stop")
+        self._mainControlButton = Button("Start")
+        self._continueButton = Button("Continue")
+        self._stopButton = Button("Stop")
         self._mainControlButton.setEnabled(False)
         self._mainControlButton.clicked.connect(self._toggleStart)
         self._continueButton.clicked.connect(self._unpause)
@@ -66,6 +66,38 @@ class CommandWidget(QWidget):
         self._onPauseLayout.addWidget(self._stopButton)
         self._stackedWidget.addWidget(self._onActiveWidget)
         self._stackedWidget.addWidget(self._onPauseWidget)
+
+        #START BUTTON 
+        self._mainControlButton.setCheckable(True)
+        self._mainControlButton.qss_style.font_size = "35px"
+        self._mainControlButton.qss_style.border_radius = "22px"
+        self._mainControlButton.qss_style.font_weight = "bold"
+        self._mainControlButton.qss_style.padding = "10px, 10px"
+
+        self._mainControlButton.qss_style.disabled_color =  "#02542E"
+        self._mainControlButton.qss_style.background_color = "#02542E"
+        self._mainControlButton.qss_style.hover_color = "#048E4D"
+
+        #PAUSE BUTTON
+        self._mainControlButton.qss_style.pressed_color =  "#B84D01"
+        self._mainControlButton.qss_style.hover_pressed_color = "#E56305"
+
+        self._mainControlButton.commitStyleSheet()
+
+        #STOP BUTTON 
+        self._stopButton.qss_style.disabled_color =  "#680707"
+        self._stopButton.qss_style.background_color = "#680707"
+        self._stopButton.qss_style.hover_color = "#B11B1B"
+        
+        self._stopButton.commitStyleSheet()
+
+        #CONTINUE BUTTON
+        self._continueButton.qss_style.disabled_color =  "#02542E"
+        self._continueButton.qss_style.background_color = "#02542E"
+        self._continueButton.qss_style.hover_color = "#048E4D"
+
+        self._continueButton.commitStyleSheet()
+
 
 
     def sliceDone(self, _):
@@ -83,41 +115,14 @@ class CommandWidget(QWidget):
         self._stop()
 
 
-        #START BUTTON 
-        # self.start_button.qss_style.background_color =  "#30E993"
-        self.start_button.setCheckable(True) # This allows it to stay "Checked"
-        self.start_button.qss_style.font_size = "35px"
-        self.start_button.qss_style.border_radius = "22px"
-        self.start_button.qss_style.font_weight = "bold"
-        self.start_button.qss_style.padding = "20px, 20px"
-        self.start_button.qss_style.background_color = "#02542E"
-        self.start_button.qss_style.hover_color = "#048E4D"
-        self.start_button.qss_style.pressed_color =  "#910D0D"
-        self.start_button.qss_style.hover_pressed_color = "#C41D1D"
-        self.start_button.commitStyleSheet()
-
-        #PAUSE BUTTON 
-        self.pause_button.setCheckable(True) # This allows it to stay "Checked"
-        self.pause_button.qss_style.font_size = "35px"
-        self.pause_button.qss_style.border_radius = "22px"
-        self.pause_button.qss_style.font_weight = "bold"
-        self.pause_button.qss_style.padding = "20px, 20px"
-        self.pause_button.qss_style.background_color = "#B84D01"
-        self.pause_button.qss_style.disabled_color =  "#B84D01"
-        self.pause_button.qss_style.hover_color = "#E56305"
-        self.pause_button.qss_style.pressed_color = "#02542E"
-        self.pause_button.qss_style.hover_pressed_color = "#048E4D"
-        self.pause_button.commitStyleSheet()
-
-
     def _start(self):
         """
         Start the Pick and Place process, update UI, and send the initial command to the controller.
         """
-        self._startButton.setChecked(True)
         self._on = True
         self._mainControlButton.setText("Pause")
-        
+        self._mainControlButton.setChecked(True)
+
         current_position = self._controller.getGripperPosition()
         target = current_position * Position(1,1,0,1)
         command = Command(CommandId.MOVE, MAX_SPEED * 0.5, target, None)
@@ -131,7 +136,7 @@ class CommandWidget(QWidget):
         """
         Pause the Pick and Place process and update the UI to show pause controls.
         """
-        self._pauseButton.setChecked(True)
+        self._mainControlButton.setChecked(True)
         self._controller.pausePnP()
         self._stackedWidget.setCurrentIndex(1)
         #self.unpause() #reset le pause button, a voir ak la logique globale TODO
@@ -145,8 +150,8 @@ class CommandWidget(QWidget):
         The command queue will be cleared and the UI will be set to its initial sate.
         """
         self._on = False
-        self._stopButton.setChecked(False)
         self._stackedWidget.setCurrentIndex(0)
+        self._mainControlButton.setChecked(False)
         self._mainControlButton.setText("Start")
         self._controller.toggleIDLEMode()
 
@@ -157,7 +162,7 @@ class CommandWidget(QWidget):
         """
         Continue the Pick and Place process after a pause.
         """
-        self._pauseButton.setChecked(False)
+        self._mainControlButton.setChecked(False)
         self._controller.continuePnP()
         self._stackedWidget.setCurrentIndex(0)
 

@@ -26,6 +26,7 @@ from gui.jog_widget import JogWidget
 from gui.command_widget import CommandWidget
 from gui.slice_info_widget import SliceInfoWidget
 from gui.calibration_window import CalibrationWindow
+from gui.frame import Frame,WidgetConfig
 import utils
 import random
 
@@ -114,7 +115,24 @@ class Interface(QMainWindow):
 		scrollContent = QWidget(scroll)
 		scrollContent.setLayout(self._piecesLayout)
 		scroll.setWidget(scrollContent)
+		"""
+		self.pieces_layout = QVBoxLayout()
+		scroll = QScrollArea(self)	
+		scroll.setWidgetResizable(True)
 
+		scroll.setStyleSheet("background: transparent; border: none;")
+		scroll.viewport().setStyleSheet("background: transparent;")
+		
+		# self.pieces_layout.setAlignment(Qt.AlignTop)
+		scrollContent = QWidget()
+		scrollContent.setStyleSheet("background: transparent;")
+		scrollContent.setLayout(self.pieces_layout)
+		scroll.setWidget(scrollContent)
+
+		self.framed_scroll = Frame(scroll, style=WidgetConfig(
+            background_color="white"
+        ))
+		"""
 
 		#CALIBRATION LAYOUT
 		self._calibrateButton = QPushButton("Calibrate")

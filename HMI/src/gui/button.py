@@ -40,7 +40,7 @@ class ButtonStyle:
     current_color:str
 
     image_path: str = '../data/Gold_RomanStyle_corner.png'
-    slices: str = "25 25 25 25" 
+    slices: str = "30 30 30 30" 
 
 
 
