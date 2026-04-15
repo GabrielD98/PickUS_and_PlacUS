@@ -42,6 +42,8 @@ class ButtonStyle:
     image_path: str = '../data/Gold_RomanStyle_corner.png'
     slices: str = "30 30 30 30" 
 
+    hover_image_path: str = ''
+    slices_hover: str = "30 30 30 30" 
 
 
 class Button(QPushButton):
@@ -52,7 +54,7 @@ class Button(QPushButton):
         self.qss_style = ButtonStyle (
             background_color="white",
             txt_color="black", 
-            border_radius = "4px",
+            border_radius = "0px",
             padding = "8px, 14px",
             font_size = "14px",
             font_weight = "none",
@@ -110,7 +112,6 @@ class Button(QPushButton):
             QPushButton {{
                 /* The border-image is drawn ON TOP of the background-color */
                 border-image: url('{self.qss_style.image_path}') {self.qss_style.slices} stretch;
-                
                 background-color: {style.current_color}; 
                 color: {style.txt_color};
                 border-radius: {style.border_radius};
@@ -123,7 +124,9 @@ class Button(QPushButton):
 
             /* Hover state (mouse over) */
             QPushButton:hover {{
+                border-image: url('{self.qss_style.hover_image_path}') {self.qss_style.slices_hover} stretch;
                 background-color: {style.hover_color}; 
+
             }}
             
              /* This state stays active after clicking if setCheckable(True) */

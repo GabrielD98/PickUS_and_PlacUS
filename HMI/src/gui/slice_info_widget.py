@@ -16,6 +16,7 @@ from slicer import Slicer
 from storage import Storage
 from controller import Controller
 from gui.tab_widget import TabWidget
+from gui.button import Button
 
 class SliceInfoWidget(QWidget):
     """
@@ -69,7 +70,14 @@ class SliceInfoWidget(QWidget):
         self.setLayout(layout)
         
         #actionnable widget
-        self._sliceButton = QPushButton("Slice")
+        self._sliceButton = Button("Slice")
+        self._sliceButton.qss_style.font_size = "22px"
+        self._sliceButton.qss_style.image_path = '../data/Long_Light_Bronze_Button.png'
+        self._sliceButton.qss_style.slices = "0 0 0 0"
+        self._sliceButton.qss_style.hover_image_path = '../data/Long_Bronze_Hovered_Button.png'
+        self._sliceButton.qss_style.slices_hover = "0 0 0 0"
+        
+        self._sliceButton.commitStyleSheet()
         self._sliceButton.clicked.connect(self.slice)
         self._sliceButton.setEnabled(False)
         layout.addWidget(self._sliceButton)

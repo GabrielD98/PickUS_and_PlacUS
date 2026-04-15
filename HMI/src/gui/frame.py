@@ -43,7 +43,7 @@ class Frame(QFrame):
         self.main_layout.setSpacing(0)
 
         if child_widget:
-            child_widget.setStyleSheet("background: transparent; border: none;")
+            #child_widget.setStyleSheet("background: transparent; border: none;")
             self.main_layout.addWidget(child_widget)
             
         self.apply_roman_style()

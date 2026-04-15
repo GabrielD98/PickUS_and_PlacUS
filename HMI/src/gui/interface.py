@@ -27,6 +27,7 @@ from gui.command_widget import CommandWidget
 from gui.slice_info_widget import SliceInfoWidget
 from gui.calibration_window import CalibrationWindow
 from gui.frame import Frame,WidgetConfig
+from gui.button import Button
 import utils
 import random
 
@@ -90,13 +91,22 @@ class Interface(QMainWindow):
 
 
 		#FILE READING LAYOUT
-		exploreFile = QPushButton("Open .pos file")
+		exploreFile = Button("Open .pos file")
+		exploreFile.qss_style.image_path = '../data/Light_Bronze_Button.png'
+		exploreFile.qss_style.hover_image_path = '../data/Short_Hover_Button.png'
+		exploreFile.commitStyleSheet()
+
 		exploreFile.clicked.connect(self._openFileDialog)
 		self._fileLabel = QLineEdit('No File Selected', alignment=Qt.AlignLeft|Qt.AlignVCenter)
 		self._fileLabel.setReadOnly(True)
 		self._fileLabel.setStyleSheet("color: black; background-color: white")
 		
-		self._analyseButton = QPushButton("Analyse")
+		self._analyseButton = Button("Analyse")
+		self._analyseButton.qss_style.image_path = '../data/Light_Bronze_Button.png'
+		self._analyseButton.qss_style.hover_image_path = '../data/Short_Hover_Button.png'
+		self._analyseButton.commitStyleSheet()
+
+
 		self._analyseButton.clicked.connect(self._analyseFile)
 		self._analyseButton.setEnabled(False)
 		fileLayout = QHBoxLayout()
@@ -109,33 +119,34 @@ class Interface(QMainWindow):
 		#STORAGE PIECE LAYOUT
 		self._piecesLayout = QVBoxLayout()
 		scroll = QScrollArea(self)	
-		leftLayout.addWidget(scroll, 4)
-		scroll.setWidgetResizable(True)
-		self._piecesLayout.setAlignment(Qt.AlignTop)
-		scrollContent = QWidget(scroll)
-		scrollContent.setLayout(self._piecesLayout)
-		scroll.setWidget(scrollContent)
-		"""
-		self.pieces_layout = QVBoxLayout()
-		scroll = QScrollArea(self)	
 		scroll.setWidgetResizable(True)
 
 		scroll.setStyleSheet("background: transparent; border: none;")
 		scroll.viewport().setStyleSheet("background: transparent;")
 		
-		# self.pieces_layout.setAlignment(Qt.AlignTop)
+		self._piecesLayout.setAlignment(Qt.AlignTop)
 		scrollContent = QWidget()
 		scrollContent.setStyleSheet("background: transparent;")
-		scrollContent.setLayout(self.pieces_layout)
+		scrollContent.setLayout(self._piecesLayout)
 		scroll.setWidget(scrollContent)
 
 		self.framed_scroll = Frame(scroll, style=WidgetConfig(
+			image_path = "../data/Storage_Frame.png",
+			slices = "70 70 70 70",
             background_color="white"
         ))
-		"""
+
+		leftLayout.addWidget(self.framed_scroll,4)
 
 		#CALIBRATION LAYOUT
-		self._calibrateButton = QPushButton("Calibrate")
+		self._calibrateButton = Button("Calibrate")
+		self._calibrateButton.qss_style.font_size = "22px"
+		self._calibrateButton.qss_style.image_path = '../data/Long_Light_Bronze_Button.png'
+		self._calibrateButton.qss_style.slices = "0 0 0 0"
+		self._calibrateButton.qss_style.hover_image_path = '../data/Long_Bronze_Hovered_Button.png'
+		self._calibrateButton.qss_style.slices_hover = "0 0 0 0"
+		self._calibrateButton.commitStyleSheet()
+
 		self._calibrateButton.clicked.connect(lambda : self._startCalibration())
 		self._calibrateButton.setEnabled(False)
 		calibrationLayout = QHBoxLayout()
@@ -150,7 +161,13 @@ class Interface(QMainWindow):
 		self._sliceWidget.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred)
 		sliceLayout.addWidget(self._sliceWidget)
 		leftLayout.addLayout(sliceLayout, 10)
+		"""
+		self.framed_sliceLayout = Frame(sliceLayout, style=WidgetConfig(
+            background_color="white"
+        ))
 
+		leftLayout.addWidget(self.framed_sliceLayout,10)
+		"""
 		#COMMAND LAYOUT 
 		commandsLayout = QHBoxLayout()
 		commandWidget = CommandWidget()

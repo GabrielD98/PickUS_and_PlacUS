@@ -70,13 +70,14 @@ class CommandWidget(QWidget):
         #START BUTTON 
         self._mainControlButton.setCheckable(True)
         self._mainControlButton.qss_style.font_size = "35px"
-        self._mainControlButton.qss_style.border_radius = "22px"
-        self._mainControlButton.qss_style.font_weight = "bold"
+        self._mainControlButton.qss_style.disabled_text_color = "white"
+        self._mainControlButton.qss_style.txt_color = "white"
+        self._mainControlButton.qss_style.border_radius = "0px"
         self._mainControlButton.qss_style.padding = "10px, 10px"
-
-        self._mainControlButton.qss_style.disabled_color =  "#02542E"
-        self._mainControlButton.qss_style.background_color = "#02542E"
-        self._mainControlButton.qss_style.hover_color = "#048E4D"
+        self._mainControlButton.qss_style.image_path = '../data/Long_Start_Button.png'
+        self._mainControlButton.qss_style.slices = '0 0 0 0'
+        self._mainControlButton.qss_style.hover_image_path = '../data/Long_Hovered_Start_Button.png'
+        self._mainControlButton.qss_style.slices_hover = '0 0 0 0'
 
         #PAUSE BUTTON
         self._mainControlButton.qss_style.pressed_color =  "#B84D01"
