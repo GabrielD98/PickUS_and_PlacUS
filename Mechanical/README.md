@@ -12,6 +12,8 @@ The project is made with pieces and component purchased on the internet. Includi
 
 All the STL files needed are provided in the Mechanical folder in a folder named STL_Files. We recommend to print all the pieces before starting the assembly, but the pieces needed in each instruction will be cited so can be printed in order. All the pieces are printed with PLA for reduced costs.
 
+There is also a MakerWord project created with all the pieces ready to print. https://makerworld.com/en/models/2670527-pickus-and-plackus#profileId-2955730
+
 The base plate is laser cutted for a size reason and is made of wood.
 
 ### Pieces to Buy
@@ -49,12 +51,12 @@ First, Install the two 90 degrees joint in the middle of two alluminum extrusion
 ### Step 2 : Y Movement
 
 #### Pieces needed: 
-1. Linear rails 2x,
-2. Gear 2x,
-3. Timing belt,
-4. Timing Belt Fixing Piece,
-5. Heat insert M4,
-6. Nema 17 motor,
+1. Linear rails 2x
+2. Gear 2x
+3. Timing belt
+4. Timing Belt Fixing Piece
+5. Heat insert M4
+6. Nema 17 motor
 #### Print Needed:
 1. Adaptor_RailY_Extrude_Inferior.stl 2x
 
@@ -67,13 +69,13 @@ Install the two rails with M3 bolts and Tnuts on the top extrusions. Place a hea
 ### Step 3 : X Movement
 
 #### Pieces needed: 
-1. Linear rails 1x,
-2. Gear 2x,
-3. Timing belt,
-4. Timing Belt Fixing Piece,
-5. Heat insert M4,
-6. Nema 17 motor,
-7. alluminum extrusion,
+1. Linear rails 1x
+2. Gear 2x
+3. Timing belt
+4. Timing Belt Fixing Piece
+5. Heat insert M4
+6. Nema 17 motor
+7. alluminum extrusion
 #### Print Needed:
 1. Adaptor_RailY_Superior_Motor.stl
 2. Adaptor_RailY_Extrude_Superior_Idle.stl
