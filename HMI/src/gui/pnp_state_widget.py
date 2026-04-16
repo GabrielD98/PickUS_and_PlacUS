@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (
     QComboBox
 )
 from controller import Controller
+from gui.button import Button
 
 class PnPStateWidget(QWidget):
     """
@@ -40,7 +41,9 @@ class PnPStateWidget(QWidget):
         #Initialisation of the main layout
         layout = QVBoxLayout()
         connectionLayout = QHBoxLayout()
-        self._connectButton = QPushButton("Connect")
+        self._connectButton = Button("Connect")
+        self._connectButton.qss_style.hover_image_path = '../data/Long_button.png'
+        self._connectButton.commitStyleSheet()
         self._connectButton.clicked.connect(self._toggleConnect)
         self._connectButton.setEnabled(False)
         

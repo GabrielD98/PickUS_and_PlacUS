@@ -39,7 +39,7 @@ class ButtonStyle:
  
     current_color:str
 
-    image_path: str = '../data/Gold_RomanStyle_corner.png'
+    image_path: str = '../data/../data/Light_Bronze_Button.png'
     slices: str = "30 30 30 30" 
 
     hover_image_path: str = ''

@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
     QStackedWidget
 )
 from data import *
+from gui.button import Button
 
 class StorageUiInfo(QWidget):
     """
@@ -24,7 +25,7 @@ class StorageUiInfo(QWidget):
             boolean that indicates if this piece as been initialized in the storage.
 
     """
-    def __init__(self, piece:Piece, button:QPushButton):
+    def __init__(self, piece:Piece, button:Button):
         """
         Initialize the StorageUiInfo widget, set up the UI, and prepare display fields.
         

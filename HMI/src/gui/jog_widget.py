@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (
 from data import Command, Position
 from controller import Controller
 from data import *
+from gui.button import Button
 import utils
 
 
@@ -65,7 +66,10 @@ class JogWidget(QWidget):
         # wrapper of the widget to hide buttons
         modeOffLayout = QVBoxLayout()
         modeOffWidget.setLayout(modeOffLayout)
-        activate = QPushButton("Activate Jog Mode")
+        activate = Button("Activate Jog Mode")
+        activate.qss_style.image_path = '../data/Long_Bronze_Button.png'
+        activate.qss_style.hover_image_path = '../data/Long_button.png'
+        activate.commitStyleSheet()
         activate.clicked.connect(lambda : self._activateJogMode())
         modeOffLayout.addWidget(activate)
 

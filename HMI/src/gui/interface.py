@@ -77,9 +77,28 @@ class Interface(QMainWindow):
 		self.setMinimumSize(800, 600)
 
 		globalWidget = QWidget()
+		# globalWidget.setStyleSheet("border-image: url('../data/Marble_Background.png') 100 100 100 100 stretch; background-repeat: no-repeat;" 
+       	#	"background-position: center; border: none;")
+
 		globalLayout = QHBoxLayout()
 		globalWidget.setLayout(globalLayout)
 		self._storageWindow:StorageWindow = None
+
+		#Global background 
+		# 2. Set the object name to avoid inheritance issues
+		globalWidget.setObjectName("MainBackground")
+
+		# 3. Apply the stylesheet with a clean string
+		# Note: Ensure there are no curly braces {} inside the string other than the CSS blocks
+		globalWidget.setStyleSheet(f"""
+			QWidget#MainBackground {{
+				border-image: url('../data/Marble_Background.png') 100 100 100 100 stretch stretch;
+				background-repeat: no-repeat;
+				background-position: center;
+			}}
+		""")
+
+		globalWidget.setAttribute(Qt.WA_StyledBackground, True)
 
 		# global layouts (overall structure of the UI)
 		leftLayout = QVBoxLayout()
@@ -131,9 +150,9 @@ class Interface(QMainWindow):
 		scroll.setWidget(scrollContent)
 
 		self.framed_scroll = Frame(scroll, style=WidgetConfig(
-			image_path = "../data/Storage_Frame.png",
-			slices = "70 70 70 70",
-            background_color="white"
+			image_path = "../data/Storage_Background_VF.png",
+			slices = "100 100 100 100",
+            background_color="transparent"
         ))
 
 		leftLayout.addWidget(self.framed_scroll,4)
@@ -161,13 +180,7 @@ class Interface(QMainWindow):
 		self._sliceWidget.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred)
 		sliceLayout.addWidget(self._sliceWidget)
 		leftLayout.addLayout(sliceLayout, 10)
-		"""
-		self.framed_sliceLayout = Frame(sliceLayout, style=WidgetConfig(
-            background_color="white"
-        ))
 
-		leftLayout.addWidget(self.framed_sliceLayout,10)
-		"""
 		#COMMAND LAYOUT 
 		commandsLayout = QHBoxLayout()
 		commandWidget = CommandWidget()
@@ -190,10 +203,10 @@ class Interface(QMainWindow):
 
 		# JULIUS IMAGE LAYOUT
 		img_label = QLabel(self)
-		img = DATA_DIR / "a_joyful_Julius_C.png"
+		img = DATA_DIR / "Framed_Jules.png"
 		rand_num = random.randint(1, 20)
 		if rand_num == 1:
-			img = DATA_DIR / "julius_salad.png"
+			img = DATA_DIR / "Framed_Jules_Salade.png"
 		pixmap = QPixmap(str(img))
 		img_label.setPixmap(pixmap)
 		img_label.setScaledContents(True) 
@@ -295,7 +308,9 @@ class Interface(QMainWindow):
 		"""
 		for piece in self._pieces:
 			layout = QHBoxLayout()
-			button = QPushButton("Add to Storage")
+			button = Button("Add to Storage")
+			button.qss_style.hover_image_path = '../data/Short_Hover_Button.png'
+			button.commitStyleSheet()
 			storageInfo = StorageUiInfo(piece, button)
 
 			# lambda should have this form to keep data in memory

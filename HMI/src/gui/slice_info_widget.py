@@ -201,6 +201,11 @@ class SliceInfoWidget(QWidget):
     def show_graph(self):
         self.tabs.ax.clear()
 
+        self.tabs.canvas.figure.patch.set_facecolor('none')
+        self.tabs.canvas.figure.patch.set_alpha(0.0)
+        self.tabs.ax.patch.set_facecolor('none')
+        self.tabs.ax.patch.set_alpha(0.0)
+
         piece_dict_x:dict[float, List[Position]]= {}
         piece_dict_y:dict[float, List[Position]] = {}
 

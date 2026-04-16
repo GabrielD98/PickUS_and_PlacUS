@@ -65,6 +65,7 @@ class CalibrationWindow(QMainWindow):
         self._saveJSONButton.clicked.connect(lambda : self._saveCurrentCalibration())
         self._calibrateButton.clicked.connect(lambda : self._setCalibrationPosition())
 
+
         # set the widget in the desired order of the layout        
         JSONLayout = QHBoxLayout()
         JSONLayout.setSpacing(30)
