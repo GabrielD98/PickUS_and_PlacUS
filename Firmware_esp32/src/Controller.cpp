@@ -4,7 +4,7 @@
 #define HOME_DIRECTION_X -1.0f
 #define HOME_DIRECTION_Y -1.0f
 #define HOME_DIRECTION_Z 1.0f
-#define PIECE_PRESSURE_THRESHOLD 80 // kPa
+#define PIECE_PRESSURE_THRESHOLD 110 // kPa
 #define NO_PIECE_PRESSURE_THRESHOLD 90 // kPa
 
 #define HOME_SPEED 50.0             // mm/s
