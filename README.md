@@ -95,6 +95,7 @@ Each subsystem has its own detailed README:
 - **[Firmware_esp32/](Firmware_esp32/)** — ESP32-S3 firmware setup and configuration
 - **[HMI/](HMI/)** — Python host interface installation and usage
 - **[Electrical/](Electrical/)** — PCB design and electrical recreation guide
+- **[Mechanical/](Mechanical/)** — Mechanical recreation guide, BOM, and STL
 
 ---
 
