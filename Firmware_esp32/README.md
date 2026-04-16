@@ -159,3 +159,4 @@ Firmware_esp32/
 - See [main README](../README.md) for project overview
 - See [HMI README](../HMI/) for host interface setup
 - See [Electrical README](../Electrical/) for hardware design
+- See [Mechanical README](../Mechanical/) for mechanical design

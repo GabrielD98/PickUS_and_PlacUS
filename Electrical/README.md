@@ -111,7 +111,8 @@ Complete this checklist as you recreate each board:
 Recommended workflow:
 
 - **PCB parts:** use the KiCad interactive BOM export (`PNP_MOBO_V1/bom/ibom.html`)
-- **All non-PCB parts (electrical + mechanical):** TODO
+- **All non-PCB parts (electrical + mechanical):** see [Mechanical BOM](../Mechanical)
+
 
 ## Fabrication Tools
 
@@ -141,3 +142,4 @@ Recommended workflow:
 - See [main README](../README.md) for project overview
 - See [Firmware README](../Firmware_esp32/) for ESP32 setup and firmware details
 - See [HMI README](../HMI/) for host interface setup
+- See [Mechanical README](../Mechanical/) for mechanical design

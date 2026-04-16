@@ -160,3 +160,4 @@ HMI/
 - See [main README](../README.md) for project overview
 - See [Firmware README](../Firmware_esp32/) for ESP32 setup and configuration
 - See [Electrical README](../Electrical/) for hardware design
+- See [Mechanical README](../Mechanical/) for mechanical design
