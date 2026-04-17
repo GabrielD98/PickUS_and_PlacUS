@@ -10,7 +10,7 @@ The project is made with pieces and component purchased on the internet. Includi
 
 ### Pieces to Print or Laser cut
 
-All the STL files needed are provided in the Mechanical folder in a folder named STL_Files. We recommend to print all the pieces before starting the assembly, but the pieces needed in each instruction will be cited so can be printed in order. All the pieces are printed with PLA for reduced costs.
+All the STL files needed are provided in the Mechanical folder in a folder named STL Files. We recommend to print all the pieces before starting the assembly, but the pieces needed in each instruction will be cited so can be printed in order. All the pieces are printed with PLA for reduced costs.
 
 There is also a MakerWord project created with all the pieces ready to print. https://makerworld.com/en/models/2670527-pickus-and-plackus#profileId-2955730
 
@@ -18,13 +18,13 @@ The base plate is laser cutted for a size reason and is made of wood.
 
 ### Pieces to Buy
 
-All the pieces or component to buy are in the Mechanical folder named BOM. The Bill of Material contain all the pieces needed to complete de Project with links to the websites. Please note that the product were purchased and delivered in Canada so some of the links may not work or be discontinued.
+All the pieces or component to buy are in the Mechanical folder named Bill of Material. The BOM contain all the pieces needed to complete de Project with links to the websites. Please note that the product were purchased and delivered in Canada so some of the links may not work or be discontinued.
 
 The pieces were bought principally on Amazon.ca and Aliexpress.com. 
 
 ## Instructions
 
-The complete assembly is provided in the STL_Files folder to guide you during the assembly process.
+The complete assembly is provided in the STL Files folder to guide you during the assembly process.
 
 ### Step 1 : Base
 
