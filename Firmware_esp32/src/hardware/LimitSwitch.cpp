@@ -1,4 +1,4 @@
-#include "LimitSwitch.h"
+#include "limitswitch.h"
 
 LimitSwitch::LimitSwitch(uint8_t pin, bool activeLOW)
 {

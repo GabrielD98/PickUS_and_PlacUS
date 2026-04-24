@@ -1,8 +1,8 @@
 #include "Arduino.h"
 #include "../lib/data.hpp"
-#include "BoardConfig.h"
-#include "Controller.h"
-#include "Tests/TestRunner.h"
+#include "boardconfig.h"
+#include "controller.h"
+#include "tests/testrunner.h"
 
 Controller ctrl;
 TestRunner testRunner(&ctrl);

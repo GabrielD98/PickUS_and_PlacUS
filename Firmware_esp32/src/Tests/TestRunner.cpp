@@ -1,4 +1,4 @@
-#include "TestRunner.h"
+#include "testrunner.h"
 
 TestRunner::TestRunner(Controller* ctrl) : ctrl(ctrl), testCom(ctrl)
 {

@@ -9,7 +9,7 @@
 #ifndef TESTPLACE_H
 #define TESTPLACE_H
 
-#include "../Controller.h"
+#include "../controller.h"
 
 /**
  * @brief Confirms the machine can activate the valve once the nozzle reaches the board,

@@ -1,4 +1,4 @@
-#include "Mosfet.h"
+#include "mosfet.h"
 #include <Arduino.h>
 
 Mosfet::Mosfet(uint8_t pin)

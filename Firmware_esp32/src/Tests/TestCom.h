@@ -9,7 +9,7 @@
 #ifndef TESTCOM_H
 #define TESTCOM_H
 
-#include "../Controller.h"
+#include "../controller.h"
 
 /**
  * @brief Integration test for the serial communication protocol between the HMI and the ESP32.

@@ -1,5 +1,5 @@
-#include "Controller.h"
-#include "Geometry.h"
+#include "controller.h"
+#include "geometry.h"
 
 #define HOME_DIRECTION_X -1.0f
 #define HOME_DIRECTION_Y -1.0f

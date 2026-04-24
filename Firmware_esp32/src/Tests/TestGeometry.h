@@ -9,7 +9,7 @@
 #ifndef TESTGEOMETRY_H
 #define TESTGEOMETRY_H
 
-#include "../Controller.h"
+#include "../controller.h"
 
 /**
  * @brief Confirms that the conversion of locations from mm to step, and then back to mm,

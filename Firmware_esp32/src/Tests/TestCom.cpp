@@ -1,4 +1,4 @@
-#include "TestCom.h"
+#include "testcom.h"
 
 TestCom::TestCom(Controller* ctrl) : ctrl(ctrl)
 {

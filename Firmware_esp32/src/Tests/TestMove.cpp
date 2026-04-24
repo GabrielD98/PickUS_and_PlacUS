@@ -1,4 +1,4 @@
-#include "TestMove.h"
+#include "testmove.h"
 
 TestMove::TestMove()
 {

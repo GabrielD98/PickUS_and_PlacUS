@@ -1,4 +1,4 @@
-#include "TestPick.h"
+#include "testpick.h"
 
 TestPick::TestPick()
 {

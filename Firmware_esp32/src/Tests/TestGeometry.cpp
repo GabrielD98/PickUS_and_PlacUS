@@ -1,4 +1,4 @@
-#include "TestGeometry.h"
+#include "testgeometry.h"
 
 TestGeometry::TestGeometry()
 {

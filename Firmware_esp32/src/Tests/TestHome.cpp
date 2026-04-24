@@ -1,4 +1,4 @@
-#include "TestHome.h"
+#include "testhome.h"
 
 TestHome::TestHome()
 {

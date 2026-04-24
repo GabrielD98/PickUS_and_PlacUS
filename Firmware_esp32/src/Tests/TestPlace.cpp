@@ -1,4 +1,4 @@
-#include "TestPlace.h"
+#include "testplace.h"
 
 TestPlace::TestPlace()
 {

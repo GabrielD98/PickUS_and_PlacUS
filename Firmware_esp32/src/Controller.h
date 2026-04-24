@@ -12,13 +12,13 @@
 #include <Arduino.h>
 #include <AccelStepper.h>
 #include <MultiStepper.h>
-#include "BoardConfig.h"
+#include "boardconfig.h"
 #include "../lib/data.hpp"
-#include "DataModel.h"
-#include "Mosfet.h"
-#include "LimitSwitch.h"
-#include "pressureSensor.h"
-#include "Geometry.h"
+#include "datamodel.h"
+#include "hardware/mosfet.h"
+#include "hardware/limitswitch.h"
+#include "hardware/pressuresensor.h"
+#include "geometry.h"
 
 /**
  * @brief Control hardware components in response to commands received from the UI.

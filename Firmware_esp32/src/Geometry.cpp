@@ -1,4 +1,4 @@
-#include "Geometry.h"
+#include "geometry.h"
 
 positionCartesian_t dimensionLimits(positionCartesian_t targetPosition)
 {

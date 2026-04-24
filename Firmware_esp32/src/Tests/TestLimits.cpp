@@ -1,4 +1,4 @@
-#include "TestLimits.h"
+#include "testlimits.h"
 
 TestLimits::TestLimits()
 {

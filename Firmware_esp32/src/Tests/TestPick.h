@@ -9,7 +9,7 @@
 #ifndef TESTPICK_H
 #define TESTPICK_H
 
-#include "../Controller.h"
+#include "../controller.h"
 
 /**
  * @brief Confirms the machine can activate the pump and the valve before descending to the board,

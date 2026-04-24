@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#include "pressureSensor.h"
+#include "pressuresensor.h"
 #include "assert.h"
 
 

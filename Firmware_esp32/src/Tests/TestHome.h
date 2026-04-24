@@ -9,7 +9,7 @@
 #ifndef TESTHOME_H
 #define TESTHOME_H
 
-#include "../Controller.h"
+#include "../controller.h"
 
 /**
  * @brief Confirms the machine moves towards the origin corner until it reaches a limit switch,

@@ -1,4 +1,4 @@
-#include "DataModel.h"
+#include "datamodel.h"
 
 DataModel::DataModel() 
 {

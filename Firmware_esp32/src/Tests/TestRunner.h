@@ -9,14 +9,14 @@
 #ifndef TESTRUNNER_H
 #define TESTRUNNER_H
 
-#include "../Controller.h"
-#include "TestCom.h"
-#include "TestMove.h"
-#include "TestPick.h"
-#include "TestPlace.h"
-#include "TestHome.h"
-#include "TestLimits.h"
-#include "TestGeometry.h"
+#include "../controller.h"
+#include "testcom.h"
+#include "testmove.h"
+#include "testpick.h"
+#include "testplace.h"
+#include "testhome.h"
+#include "testlimits.h"
+#include "testgeometry.h"
 
 /**
  * @brief Manage tests of every software features on the ESP.

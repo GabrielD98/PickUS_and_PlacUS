@@ -9,7 +9,7 @@
 #ifndef TESTMOVE_H
 #define TESTMOVE_H
 
-#include "../Controller.h"
+#include "../controller.h"
 
 /**
  * @brief Confirms the machine can move the toolhead to a specified location in X, Y, Z and YAW.
