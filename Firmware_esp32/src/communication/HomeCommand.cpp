@@ -32,21 +32,20 @@ CommandState HomeCommand::run()
             break;
 
             
-            // Homing Z-axis first in order to avoid collisions with the nozzle
-            case HomingState::Z:
-            if(homingHardware->limSwitchZ->isTriggered())
-            {
-                homingHardware->motorZ->setCurrentPosition(0);
-                homingState = HomingState::X;
-                homingHardware->motorX->setMaxSpeed(homingPayload.homingVelocity.x);
-                homingHardware->motorX->setSpeed(homingPayload.homingVelocity.x);
-            }
-            else
-            {
-                homingHardware->motorZ->runSpeed();
-            }
-            break;
-
+		// Homing Z-axis first in order to avoid collisions with the nozzle
+		case HomingState::Z:
+			if(homingHardware->limSwitchZ->isTriggered())
+			{
+				homingHardware->motorZ->setCurrentPosition(0);
+				homingState = HomingState::X;
+				homingHardware->motorX->setMaxSpeed(homingPayload.homingVelocity.x);
+				homingHardware->motorX->setSpeed(homingPayload.homingVelocity.x);
+			}
+			else
+			{
+				homingHardware->motorZ->runSpeed();
+			}
+			break;
 
         case HomingState::X:
             if(homingHardware->limSwitchX->isTriggered())
@@ -77,7 +76,6 @@ CommandState HomeCommand::run()
 
 
         case HomingState::Yaw:
-
             homingHardware->motorYaw->setCurrentPosition(0);
             homingState = HomingState::HomingDone;
             break;

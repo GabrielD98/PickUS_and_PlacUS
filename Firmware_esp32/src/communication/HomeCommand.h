@@ -19,14 +19,50 @@
 #include "hardware/limitswitch.h"
 #include "../lib/data.hpp"
 
+/**
+ * @brief Data received to complete the command
+ */
+struct HomingPayload
+{
+	velocityStep_t homingVelocity;
+};
+
+/**
+ * @brief Lists all states required to home the machine.
+ */
+enum class HomingState : uint8_t
+{
+	Init,
+	X,
+	Y,
+	Z,
+	Yaw,
+	HomingDone
+};
+
+/**
+ * @brief All hardware addresses needed for homing
+ */
+struct HomingHardware
+{
+	AccelStepper* motorX;
+	AccelStepper* motorY;
+	AccelStepper* motorZ;
+	AccelStepper* motorYaw;
+	LimitSwitch* limSwitchX;
+	LimitSwitch* limSwitchY;
+	LimitSwitch* limSwitchZ;
+};
+
 
 class HomeCommand : public Command
 {
 	public:
 	
 	/**
-	 * @brief Destroy the Home Command object
+	 * @brief Construct a new Home Command object
 	 * 
+	 * @param homingHardware all hardware address needed for homing
 	 */
 	HomeCommand(HomingHardware* homingHardware);
 	
@@ -73,44 +109,6 @@ class HomeCommand : public Command
 		HomingPayload homingPayload;
 		HomingState homingState;
 
-};
-
-/**
- * @brief Data received to complete the command
- * 
- */
-struct HomingPayload
-{
-	velocityStep_t homingVelocity;
-
-};
-
-/**
- * @brief Lists all states required to home the machine.
- */
-enum class HomingState : uint8_t
-{
-	Init,
-	X,
-	Y,
-	Z,
-	Yaw,
-	HomingDone
-};
-
-/**
- * @brief All hardware address needed for homing
- * 
- */
-struct HomingHardware
-{
-    AccelStepper* motorX;
-    AccelStepper* motorY;
-    AccelStepper* motorZ;
-    AccelStepper* motorYaw;
-    LimitSwitch* limSwitchX;
-    LimitSwitch* limSwitchY;
-    LimitSwitch* limSwitchZ;
 };
 
 #endif
