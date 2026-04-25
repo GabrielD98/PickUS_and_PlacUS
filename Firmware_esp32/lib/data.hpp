@@ -45,10 +45,10 @@ typedef struct __attribute__((packed)) positionCartesian
  */
 typedef struct __attribute__((packed)) velocityStep
 {
-	float x		=	0;
-	float y		=	0;
-	float z		=	0;
-	float yaw	=	0;
+	int16_t x		=	0;
+	int16_t y		=	0;
+	int16_t z		=	0;
+	int16_t yaw	=	0;
 
 }velocityStep_t;
 
@@ -93,21 +93,6 @@ enum class MachineState : uint8_t
 	PLACING		=	4,
 	HOMING		=	5
 };
-
-
-/**
- * @brief Lists all states required to home the machine.
- */
-enum class HomingState : uint8_t
-{
-	INIT		=	0,
-	X			=	1,
-	Y			=	2,
-	Z			=	3,
-	YAW			=	4,
-	HOMING_DONE	=	5
-};
-
 
 /**
  * @brief Specify if the machine is in the process of picking or placing.
