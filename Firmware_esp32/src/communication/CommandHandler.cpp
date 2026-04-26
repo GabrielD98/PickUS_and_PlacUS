@@ -39,6 +39,13 @@ Command* CommandHandler::getCurrentCommand()
 	return registeredCommands[currentCommandId];
 }
 
+uint8_t CommandHandler::getCurrentCommandId()
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+
+	return currentCommandId;
+}
+
 bool CommandHandler::setCurrentCommand(uint8_t commandId, uint8_t* payload, uint16_t payloadSize)
 {
 	std::lock_guard<std::mutex> lock(mutex_);

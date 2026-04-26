@@ -55,6 +55,13 @@ class CommandHandler
 		Command* getCurrentCommand();
 
 		/**
+		 * @brief Get the identifier of the currently selected command.
+		 *
+		 * @return uint8_t Current command identifier.
+		 */
+		uint8_t getCurrentCommandId();
+
+		/**
 		 * @brief Select the active command and forward its payload.
 		 *
 		 * @param commandId Identifier of the command to activate.
