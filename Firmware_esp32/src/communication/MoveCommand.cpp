@@ -1,3 +1,4 @@
+#include <cstring>
 #include "MoveCommand.h"
 
 MoveCommand::MoveCommand(MovingHardware* movingHardware)
