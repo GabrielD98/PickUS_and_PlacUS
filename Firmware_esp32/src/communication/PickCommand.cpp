@@ -14,14 +14,13 @@ PickCommand::~PickCommand()
 void PickCommand::prepare()
 {
 	pickHardware->pump->on();
-	pickHardware->valve[pickingPayload.toolheadNumber]->on();
+	pickHardware->valve[pickingPayload.toolheadNumber]->off();
 }
 
 CommandState PickCommand::run()
 {
 	CommandState currentCommandState = CommandState::InProgress;
 
-	pickHardware->valve[pickingPayload.toolheadNumber]->off();
 	if (pickHardware->pressureSensor[pickingPayload.toolheadNumber]->getPressureKPa() < pickingPayload.pressureThresholdKPa)
 	{
 		currentCommandState = CommandState::Done;
