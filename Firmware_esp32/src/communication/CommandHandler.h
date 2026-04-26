@@ -13,7 +13,7 @@
 
 #include <stdint.h>
 #include <mutex>
-#include "Commands/Command.h"
+#include "commands/Command.h"
 
 /**
  * @brief Maximum number of command instances that can be registered.
@@ -49,10 +49,28 @@ class CommandHandler
 
 		/**
 		 * @brief Access the currently selected command entry.
-		 * 
+		 *
 		 * @return Command* pointer to the function to run
 		 */
 		Command* getCurrentCommand();
+
+		/**
+		 * @brief Check whether a new command has been received.
+		 *
+		 * @return true when the current command differs from the last consumed one.
+		 */
+		bool hasNewCommand();
+
+		/**
+		 * @brief Atomically consume the next pending command.
+		 *
+		 * If a new command is pending, this method returns its pointer in one
+		 * locked operation and clears the pending flag.
+		 *
+		 * @param command Output pointer to the command to execute.
+		 * @return true if a pending command was consumed, false otherwise.
+		 */
+		bool tryGetNextCommand(Command*& command);
 
 		/**
 		 * @brief Get the identifier of the currently selected command.
@@ -62,14 +80,22 @@ class CommandHandler
 		uint8_t getCurrentCommandId();
 
 		/**
-		 * @brief Select the active command and forward its payload.
+		 * @brief Get the command request number of the current command.
+		 *
+		 * @return uint32_t Current command request number.
+		 */
+		uint32_t getCurrentCommandNumber();
+
+		/**
+		 * @brief Select the active command and forward its payload with a request number.
 		 *
 		 * @param commandId Identifier of the command to activate.
 		 * @param payload Pointer to payload bytes associated with this command.
 		 * @param payloadSize Size of payload in bytes.
+		 * @param commandNumber Unique request number for this command invocation.
 		 * @return true if the command exists and accepts the payload, false otherwise.
 		 */
-		bool setCurrentCommand(uint8_t commandId, uint8_t* payload, uint16_t payloadSize);
+		bool setCurrentCommand(uint8_t commandId, uint8_t* payload, uint16_t payloadSize, uint32_t commandNumber);
 
 		/**
 		 * @brief Reset all registered commands to their initial state.
@@ -80,6 +106,9 @@ class CommandHandler
 	private:
 		std::mutex mutex_;
 		uint8_t currentCommandId;
+		uint32_t currentCommandNumber;
+		uint32_t lastProcessedCommandNumber;
+		bool hasPendingCommand;
 		Command* registeredCommands[MAX_COMMAND];
 		uint8_t numberOfRegisteredCommands;
 

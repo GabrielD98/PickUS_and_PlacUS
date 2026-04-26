@@ -1,7 +1,7 @@
 /**
  * @file controller.h
  * @author PickusAndPlacus
- * @brief Class to manage commands from the UI, update machine states and control hardware.
+ * @brief Controller interface coordinating command execution and machine state updates.
  * @version 1.0
  * @date 17/04/2026
  */
@@ -10,85 +10,54 @@
 #define CONTROLLER_H
 
 #include <Arduino.h>
-#include <AccelStepper.h>
-#include <MultiStepper.h>
-#include "boardconfig.h"
 #include "../lib/data.hpp"
 #include "datamodel.h"
-#include "hardware/mosfet.h"
-#include "hardware/limitswitch.h"
-#include "hardware/pressuresensor.h"
-#include "geometry.h"
+#include "communication/CommandHandler.h"
+
 
 /**
- * @brief Control hardware components in response to commands received from the UI.
- * Exchange information with the UI via a shared chain of data.
+ * @brief Central coordinator for command-driven machine control.
+ *
+ * The controller consumes commands from the shared data model, executes the
+ * corresponding hardware actions, and periodically publishes machine status
+ * back to the shared data model for the UI.
  */
 class Controller
 {
 public :
     /**
-     * @brief Instantiates all hardware components, enable stepper drivers and initialize all system states.
+     * @brief Construct a controller instance.
+     *
+     * @param commanddHandler Command registry/dispatcher used to access and
+     * execute concrete command implementations.
      */
-    Controller();
+    Controller(CommandHandler* commandHandler);
 
     /**
-     * @brief Control hardware components in response to the command, regarding the current system states.
-     * Updates machine state and current toolhead position to the dataModel at a time interval.
+     * @brief Execute one control-cycle iteration.
+     *
+     * This method reads the latest command from the shared data model,
+     * advances the controller state machine, drives hardware accordingly, and
+     * periodically publishes machine state and position feedback.
      */
     void update();
-    
-    /**
-     * @brief Shared chain of data with UI.
-     * Used to make current toolhead position and machine state accessible informations to the UI.
-     */
-    DataModel dataModel;
+
 
 private :
-    // Hardware components
-    AccelStepper motorX;
-    AccelStepper motorY;
-    AccelStepper motorZ;
-    AccelStepper motorYAW;
-    MultiStepper motorSystem;
 
-    Mosfet valve;
-    Mosfet pump;
-    PressureSensor pressureSensor;
 
-    LimitSwitch limSwitchX;
-    LimitSwitch limSwitchY;
-    LimitSwitch limSwitchZ;
+    CommandHandler* commandHandler;
 
-    // System states
+    /**
+     * @brief Current high-level machine operating state.
+     */
     MachineState machineState;
-    HomingState homingState;
-    PickPlaceState pickPlaceState;
-
-    // Stores the last time information was updated to the dataModel.
-    uint64_t lastPositionUpdateMS;
 
     /**
-     * @brief Set target positions and desired speed to all motors.
-     * @param position targeted coordinates (mm and degree)
-     * @param speed maximum speed (mm/s and degree/s)
+     * @brief Timestamp of the last status publication to the shared data model.
      */
-    void setTargets(positionCartesian_t position, float speed);
+    uint64_t lastDataUpdateMS;
 
-    /**
-     * @brief Homing action to calibrate all motors, one axis at a time (Order : Z, X, Y)
-     * Yaw current position is simply set to 0.
-     * Updates the homing state.
-     */
-    void goHome();
-
-    /**
-     * @brief Controls pump and valve's activation during toolhead's ascencion and descent.
-     * Updates the picking and placing state.
-     * Reacts to pressure changes when contact is made at the nozzle.
-     * @param mode 
-     */
-    void executePickPlace(PickPlaceMode mode);
 };
 
 #endif

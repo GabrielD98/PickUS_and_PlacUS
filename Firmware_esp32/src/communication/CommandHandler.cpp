@@ -1,7 +1,7 @@
 #include "CommandHandler.h"
 
 CommandHandler::CommandHandler()
-	: currentCommandId(0), numberOfRegisteredCommands(0)
+	: currentCommandId(0), currentCommandNumber(0), lastProcessedCommandNumber(UINT32_MAX), hasPendingCommand(false), numberOfRegisteredCommands(0)
 {
 	for (uint8_t i = 0; i < MAX_COMMAND; i++)
 	{
@@ -39,6 +39,40 @@ Command* CommandHandler::getCurrentCommand()
 	return registeredCommands[currentCommandId];
 }
 
+bool CommandHandler::hasNewCommand()
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+
+	return hasPendingCommand;
+}
+
+bool CommandHandler::tryGetNextCommand(Command*& command)
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	bool result = false;
+
+	if (!hasPendingCommand)
+	{
+		command = nullptr;
+	}
+	else
+	{
+		command = registeredCommands[currentCommandId];
+		if (command == nullptr)
+		{
+			hasPendingCommand = false;
+		}
+		else
+		{
+			lastProcessedCommandNumber = currentCommandNumber;
+			hasPendingCommand = false;
+			result = true;
+		}
+	}
+
+	return result;
+}
+
 uint8_t CommandHandler::getCurrentCommandId()
 {
 	std::lock_guard<std::mutex> lock(mutex_);
@@ -46,7 +80,14 @@ uint8_t CommandHandler::getCurrentCommandId()
 	return currentCommandId;
 }
 
-bool CommandHandler::setCurrentCommand(uint8_t commandId, uint8_t* payload, uint16_t payloadSize)
+uint32_t CommandHandler::getCurrentCommandNumber()
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+
+	return currentCommandNumber;
+}
+
+bool CommandHandler::setCurrentCommand(uint8_t commandId, uint8_t* payload, uint16_t payloadSize, uint32_t commandNumber)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 
@@ -61,6 +102,8 @@ bool CommandHandler::setCurrentCommand(uint8_t commandId, uint8_t* payload, uint
 			{
 				result = true;
 				currentCommandId = commandId;
+				currentCommandNumber = commandNumber;
+				hasPendingCommand = (currentCommandNumber != lastProcessedCommandNumber);
 			}
 		}
 	}
@@ -71,6 +114,7 @@ bool CommandHandler::setCurrentCommand(uint8_t commandId, uint8_t* payload, uint
 void CommandHandler::resetAllCommand()
 {
 	std::lock_guard<std::mutex> lock(mutex_);
+	hasPendingCommand = false;
 
 	for (uint8_t i = 0; i < numberOfRegisteredCommands; i++)
 	{

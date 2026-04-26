@@ -72,12 +72,12 @@ typedef struct __attribute__((packed)) velocityCartesian
  */
 enum class CommandId : uint8_t
 {
-	STOP	=	0,
-	MOVE	=	1,
-	PICK	=	2, 
-	PLACE	=	3, 
-	HOME	=	4, 
-	EMPTY	=	5
+	Stop,
+	Pause,
+	Move,
+	Pick,
+	Place,
+	Home
 };
 
 
@@ -86,35 +86,11 @@ enum class CommandId : uint8_t
  */
 enum class MachineState : uint8_t
 {
-	ERROR		=	0,
-	READY		=	1,
-	MOVING		=	2,
-	PICKING		=	3,
-	PLACING		=	4,
-	HOMING		=	5
+	Error,
+	Ready,
+	Running
+
 };
-
-/**
- * @brief Specify if the machine is in the process of picking or placing.
- */
-enum class PickPlaceMode : uint8_t
-{
-	PICK	=	0,
-	PLACE	=	1
-};
-
-
-/**
- * @brief Lists all states required for the picking or the placing of a component.
- */
-enum class PickPlaceState : uint8_t
-{
-	INIT		=	0,
-	GOING_DOWN	=	1,
-	CONTACT		=	2,
-	DONE		=	3
-};
-
 
 /**
  * @brief Lists every parameters to define a command from the interface to the controller.
