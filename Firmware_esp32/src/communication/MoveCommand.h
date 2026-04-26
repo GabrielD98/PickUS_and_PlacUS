@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include "Command.h"
 #include <MultiStepper.h>
+#include <AccelStepper.h>
 #include "../lib/data.hpp"
 
 /**
@@ -33,6 +34,10 @@ struct MovingPayload
 struct MovingHardware
 {
 	MultiStepper* motorSystem;
+	AccelStepper* motorX;
+	AccelStepper* motorY;
+	AccelStepper* motorZ;
+	AccelStepper* motorYaw;
 };
 
 
