@@ -14,6 +14,7 @@
 #define MOVECOMMAND_H
 
 #include <stdint.h>
+#include <mutex>
 #include "Command.h"
 #include <MultiStepper.h>
 #include <AccelStepper.h>
@@ -86,6 +87,8 @@ class MoveCommand : public Command
 	bool setPayload(uint8_t* payload, uint16_t payloadSize) override;
 
 	private:
+
+		std::mutex commandMutex_;
 
 		MovingHardware* movingHardware;
 		MovingPayload movingPayload;

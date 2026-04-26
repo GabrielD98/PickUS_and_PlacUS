@@ -12,6 +12,7 @@
 #define PICKCOMMAND_H
 
 #include <stdint.h>
+#include <mutex>
 #include "Command.h"
 #include "hardware/mosfet.h"
 #include "hardware/pressureSensor.h"
@@ -79,6 +80,7 @@ class PickCommand : public Command
 	bool setPayload(uint8_t* payload, uint16_t payloadSize) override;
 
 	private:
+	std::mutex commandMutex_;
 	PickingHardware* pickingHardware;
 	PickingPayload pickingPayload;
 };

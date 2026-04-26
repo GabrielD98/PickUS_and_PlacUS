@@ -13,12 +13,14 @@ PickCommand::~PickCommand()
 
 void PickCommand::prepare()
 {
+	std::lock_guard<std::mutex> lock(commandMutex_);
 	pickingHardware->pump->on();
 	pickingHardware->valve[pickingPayload.toolheadNumber]->off();
 }
 
 CommandState PickCommand::run()
 {
+	std::lock_guard<std::mutex> lock(commandMutex_);
 	CommandState currentCommandState = CommandState::InProgress;
 
 	if (pickingHardware->pressureSensor[pickingPayload.toolheadNumber]->getPressureKPa() < pickingPayload.pressureThresholdKPa)
@@ -31,6 +33,7 @@ CommandState PickCommand::run()
 
 void PickCommand::reset()
 {
+	std::lock_guard<std::mutex> lock(commandMutex_);
 	pickingHardware->pump->off();
 	for(int i=0;i<MAX_TOOLHEAD;i++)
 	{
@@ -40,6 +43,7 @@ void PickCommand::reset()
 
 bool PickCommand::setPayload(uint8_t* payload, uint16_t payloadSize)
 {
+	std::lock_guard<std::mutex> lock(commandMutex_);
 	bool result = false;
 
 	if(payload != nullptr && payloadSize == sizeof(PickingPayload))

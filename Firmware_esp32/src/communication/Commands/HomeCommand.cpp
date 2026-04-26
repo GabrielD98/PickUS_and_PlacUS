@@ -15,6 +15,7 @@ HomeCommand::~HomeCommand()
 
 void HomeCommand::prepare()
 {
+    std::lock_guard<std::mutex> lock(commandMutex_);
 	homingState = HomingState::Init;
 }
 
@@ -22,6 +23,7 @@ void HomeCommand::prepare()
 //TODO: ADD ERROR if timeout
 CommandState HomeCommand::run()
 {
+    std::lock_guard<std::mutex> lock(commandMutex_);
 	CommandState currentCommandState = CommandState::InProgress;
 
 	switch (homingState)
@@ -92,11 +94,13 @@ CommandState HomeCommand::run()
 
 void HomeCommand::reset()
 {
+    std::lock_guard<std::mutex> lock(commandMutex_);
 	homingState = HomingState::Init;
 }
 
 bool HomeCommand::setPayload(uint8_t* payload, uint16_t payloadSize)
 {
+    std::lock_guard<std::mutex> lock(commandMutex_);
 	bool result = false;
 
 	if(payload != nullptr && payloadSize == sizeof(HomingPayload))

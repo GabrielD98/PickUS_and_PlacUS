@@ -12,6 +12,7 @@
 #define PAUSECOMMAND_H
 
 #include <stdint.h>
+#include <mutex>
 #include "Command.h"
 #include <MultiStepper.h>
 
@@ -55,6 +56,9 @@ class PauseCommand : public Command
 	 * @return true always, as pause accepts any payload.
 	 */
 	bool setPayload(uint8_t* payload, uint16_t payloadSize) override;
+
+	private:
+	std::mutex commandMutex_;
 
 };
 

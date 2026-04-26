@@ -13,6 +13,7 @@ MoveCommand::~MoveCommand()
 
 void MoveCommand::prepare()
 {
+	std::lock_guard<std::mutex> lock(commandMutex_);
     long target[4] =
     {
         movingPayload.targetPosition.x,
@@ -33,6 +34,7 @@ void MoveCommand::prepare()
 
 CommandState MoveCommand::run()
 {
+	std::lock_guard<std::mutex> lock(commandMutex_);
     CommandState currentCommandState = CommandState::InProgress; 
 
     if(!movingHardware->motorSystem->run())
@@ -44,10 +46,12 @@ CommandState MoveCommand::run()
 
 void MoveCommand::reset()
 {
+    std::lock_guard<std::mutex> lock(commandMutex_);
 }
 
 bool MoveCommand::setPayload(uint8_t* payload, uint16_t payloadSize)
 {
+    std::lock_guard<std::mutex> lock(commandMutex_);
 	bool result = false;
 
 	if(payload != nullptr && payloadSize == sizeof(MovingPayload))
