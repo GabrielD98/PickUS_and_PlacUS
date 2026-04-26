@@ -95,9 +95,8 @@ class HomeCommand : public Command
 	/**
 	 * @brief Accept payload for interface compatibility.
 	 *
-	 * Home command currently does not require payload data.
-	 * @param payload Pointer to the payload buffer (unused for HOME).
-	 * @param payloadSize Size of the payload buffer in bytes (unused for HOME).
+	 * @param payload Pointer to the payload buffer.
+	 * @param payloadSize Size of the payload buffer in bytes.
 	 * 
 	 * @return true if payload was set, false if payload is not equal to intern struct size
 	*/
