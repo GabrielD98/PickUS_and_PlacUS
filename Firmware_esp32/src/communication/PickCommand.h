@@ -16,7 +16,7 @@
 #include "hardware/mosfet.h"
 #include "hardware/pressureSensor.h"
 
-#define MAX_TOOLHEAD 2
+#define MAX_TOOLHEAD 2 //TODO: Put this somewhere more global
 
 /**
  * @brief Payload used by PickCommand.
@@ -30,7 +30,7 @@ struct PickingPayload
 /**
  * @brief Hardware dependencies required by PickCommand.
  */
-struct PickHardware
+struct PickingHardware
 {
 	Mosfet* valve[MAX_TOOLHEAD];
 	Mosfet* pump;
@@ -45,7 +45,7 @@ class PickCommand : public Command
 	 *
 	 * @param pickHardware All hardware addresses needed for picking.
 	 */
-	PickCommand(PickHardware* pickHardware);
+	PickCommand(PickingHardware* pickHardware);
 
 	/**
 	 * @brief Destroy the Pick Command object.
@@ -79,7 +79,7 @@ class PickCommand : public Command
 	bool setPayload(uint8_t* payload, uint16_t payloadSize) override;
 
 	private:
-	PickHardware* pickHardware;
+	PickingHardware* pickingHardware;
 	PickingPayload pickingPayload;
 };
 

@@ -41,6 +41,11 @@ CommandState PlaceCommand::run()
 
 void PlaceCommand::reset()
 {
+	placingHardware->pump->off();
+	for(int i=0;i<MAX_TOOLHEAD;i++)
+	{
+		placingHardware->valve[i]->off();
+	}
 }
 
 bool PlaceCommand::setPayload(uint8_t* payload, uint16_t payloadSize)

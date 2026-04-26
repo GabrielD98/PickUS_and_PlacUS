@@ -1,8 +1,8 @@
 #include <cstring>
 #include "PickCommand.h"
 
-PickCommand::PickCommand(PickHardware* pickHardware)
-	: pickHardware(pickHardware)
+PickCommand::PickCommand(PickingHardware* pickingHardware)
+	: pickingHardware(pickingHardware)
 {
 	pickingPayload = {};
 }
@@ -13,15 +13,15 @@ PickCommand::~PickCommand()
 
 void PickCommand::prepare()
 {
-	pickHardware->pump->on();
-	pickHardware->valve[pickingPayload.toolheadNumber]->off();
+	pickingHardware->pump->on();
+	pickingHardware->valve[pickingPayload.toolheadNumber]->off();
 }
 
 CommandState PickCommand::run()
 {
 	CommandState currentCommandState = CommandState::InProgress;
 
-	if (pickHardware->pressureSensor[pickingPayload.toolheadNumber]->getPressureKPa() < pickingPayload.pressureThresholdKPa)
+	if (pickingHardware->pressureSensor[pickingPayload.toolheadNumber]->getPressureKPa() < pickingPayload.pressureThresholdKPa)
 	{
 		currentCommandState = CommandState::Done;
 	}
@@ -31,6 +31,11 @@ CommandState PickCommand::run()
 
 void PickCommand::reset()
 {
+	pickingHardware->pump->off();
+	for(int i=0;i<MAX_TOOLHEAD;i++)
+	{
+		pickingHardware->valve[i]->off();
+	}
 }
 
 bool PickCommand::setPayload(uint8_t* payload, uint16_t payloadSize)

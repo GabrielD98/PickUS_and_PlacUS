@@ -16,7 +16,7 @@
 #include "hardware/mosfet.h"
 #include "hardware/pressureSensor.h"
 
-#define MAX_TOOLHEAD 2
+#define MAX_TOOLHEAD 2 //TODO: Put this somewhere more global
 
 /**
  * @brief Payload used by PlaceCommand.
