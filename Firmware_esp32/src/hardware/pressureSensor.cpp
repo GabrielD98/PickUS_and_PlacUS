@@ -12,6 +12,7 @@ PressureSensor::PressureSensor(uint8_t clkPin, uint8_t dataPin)
 	this->clkPin = clkPin;
 	this->dataPin = dataPin;
 	this->zeroValue = 0;
+  this->pressureKPa = 0.0f;
 	pinMode(clkPin, OUTPUT);
 	pinMode(dataPin, INPUT);
 }
@@ -47,20 +48,29 @@ long PressureSensor::getRawPressure()
 
 void PressureSensor::init()
 {
-	this->zeroValue = this->getRawPressure();
+  std::lock_guard<std::mutex> lock(this->mutex_);
+  this->zeroValue = this->getRawPressure();
+  this->pressureKPa = 101.3f;
+}
+
+
+void PressureSensor::update()
+{
+  assert(this->zeroValue != 0);
+  
+	long pressureValue = this->getRawPressure();
+	// Calculate differential from zero reading (which is at 101.3 kPa)
+	// Convert to kPa: 24-bit range (16777216) covers 40 kPa
+	float differential = (pressureValue - this->zeroValue) * (40.0 / 16777216.0);
+  
+  std::lock_guard<std::mutex> lock(this->mutex_);
+  this->pressureKPa = 101.3f + differential;
+
 }
 
 
 float PressureSensor::getPressureKPa()
 {
-	assert(this->zeroValue != 0);
-
-	long pressureValue = this->getRawPressure();
-	// Calculate differential from zero reading (which is at 101.3 kPa)
-	// Convert to kPa: 24-bit range (16777216) covers 40 kPa
-	float differential = (pressureValue - this->zeroValue) * (40.0 / 16777216.0);
-	float pressureKPa = 101.3 + differential;
-
-	return pressureKPa;
-
+  std::lock_guard<std::mutex> lock(this->mutex_);
+  return this->pressureKPa;
 }

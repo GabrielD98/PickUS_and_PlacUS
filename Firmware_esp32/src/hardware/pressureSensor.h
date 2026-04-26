@@ -10,6 +10,7 @@
 #define PRESSURESENSOR_H
 
 #include <stdint.h>
+#include <mutex>
 
 /**
  * @brief Converts and interprets raw data from a pressure sensor.
@@ -32,7 +33,12 @@ class PressureSensor
 		void init();
 
 		/**
-		 * @brief Converts the raw data into an approximate pressure value in kPa.
+		 * @brief Update the cached pressure value from the raw sensor reading.
+		 */
+		void update();
+
+		/**
+		 * @brief Get the last cached pressure value in kPa.
 		 * @return Pressure in kPa.
 		 */
 		float getPressureKPa();
@@ -53,6 +59,16 @@ class PressureSensor
 		 * @brief Zero-pressure raw reference value.
 		 */
 		long zeroValue;
+
+		/**
+		 * @brief Last computed pressure value in kPa.
+		 */
+		float pressureKPa;
+
+		/**
+		 * @brief Protects pressureKPa and zeroValue during read/update operations.
+		 */
+		std::mutex mutex_;
 
 };
 
