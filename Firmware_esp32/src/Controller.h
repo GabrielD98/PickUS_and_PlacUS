@@ -11,9 +11,8 @@
 
 #include <Arduino.h>
 #include "../lib/data.hpp"
-#include "datamodel.h"
+#include "DataHandler.h"
 #include "communication/CommandHandler.h"
-
 
 /**
  * @brief Central coordinator for command-driven machine control.
@@ -28,10 +27,12 @@ public :
     /**
      * @brief Construct a controller instance.
      *
-     * @param commanddHandler Command registry/dispatcher used to access and
+     * @param commandHandler Command registry/dispatcher used to access and
      * execute concrete command implementations.
+     * @param dataHandler Pointer to the shared data handler for command and
+     * status communication.
      */
-    Controller(CommandHandler* commandHandler);
+    Controller(CommandHandler* commandHandler, DataHandler* dataHandler);
 
     /**
      * @brief Execute one control-cycle iteration.
@@ -42,11 +43,10 @@ public :
      */
     void update();
 
-
 private :
 
-
     CommandHandler* commandHandler;
+    DataHandler* dataHandler;
 
     /**
      * @brief Current high-level machine operating state.

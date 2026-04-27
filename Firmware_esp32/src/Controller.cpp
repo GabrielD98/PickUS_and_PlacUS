@@ -3,8 +3,8 @@
 
 #define POSITION_UPDATE_FREQ 100    // ms
 
-Controller::Controller(CommandHandler* commandHandler)
-    : commandHandler(commandHandler), machineState(MachineState::Ready), lastDataUpdateMS(millis())
+Controller::Controller(CommandHandler* commandHandler, DataHandler* dataHandler)
+    : commandHandler(commandHandler), dataHandler(dataHandler), machineState(MachineState::Ready), lastDataUpdateMS(millis())
 {
 }
 
@@ -53,7 +53,7 @@ void Controller::update()
 
             }
             break;   
-                }
+        }
     }
 
 
@@ -61,6 +61,7 @@ void Controller::update()
     if((millis() - lastDataUpdateMS) >= 1000 / POSITION_UPDATE_FREQ)
     {
         //TODO: Add data update (position,command id, p sensor)
+        dataHandler->updateInfo(machineState);
     }
 }
 
