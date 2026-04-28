@@ -14,7 +14,7 @@
 #include <AccelStepper.h>
 #include "hardware/mosfet.h"
 #include "hardware/pressureSensor.h"
-#include "communication/CommandHandler.h"
+#include "CommandHandler.h"
 #include "boardconfig.h"
 
 

@@ -12,7 +12,7 @@
 #include <Arduino.h>
 #include "../lib/data.hpp"
 #include "DataHandler.h"
-#include "communication/CommandHandler.h"
+#include "CommandHandler.h"
 
 /**
  * @brief Central coordinator for command-driven machine control.
