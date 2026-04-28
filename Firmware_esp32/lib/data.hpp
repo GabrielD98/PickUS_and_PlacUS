@@ -26,20 +26,6 @@ typedef struct __attribute__((packed)) positionStep
 
 
 /**
- * @brief Contains coordinates of the X, Y and Z-axis, as well as an orientation in YAW.
- * X, Y and Z-axis are given in millimeters. Yaw is given in degree.
- */
-typedef struct __attribute__((packed)) positionCartesian
-{
-	float x		=	0;
-	float y		=	0;
-	float z		=	0;
-	float yaw	=	0;
-
-}positionCartesian_t;
-
-
-/**
  * @brief Contains motor speeds of the X, Y, Z and YAW-axis motors.
  * Values are given in step/s.
  */
@@ -51,21 +37,6 @@ typedef struct __attribute__((packed)) velocityStep
 	int16_t yaw	=	0;
 
 }velocityStep_t;
-
-
-/**
- * @brief Contains toolhead translation speeds on the X, Y and Z-axis, as well as rotation speed in YAW.
- * Speeds in X, Y and Z are in millimeter/second, 
- */
-typedef struct __attribute__((packed)) velocityCartesian
-{
-	float x		=	0;
-	float y		=	0;
-	float z		=	0;
-	float yaw	=	0;
-
-}velocityCartesian_t;
-
 
 /**
  * @brief Lists all interface command id recognizable by the controller.
@@ -91,31 +62,5 @@ enum class MachineState : uint8_t
 	Running
 
 };
-
-/**
- * @brief Lists every parameters to define a command from the interface to the controller.
- */
-typedef struct __attribute__((packed)) command
-{
-	CommandId id;
-	float velocityCartesian;
-	positionCartesian_t requestedPosition;
-
-}command_t;
-
-
-/**
- * @brief Lists every parameters to define a status from the controller to the interface.
- */
-typedef struct __attribute__((packed)) statusFrame
-{
-	MachineState state;
-	positionCartesian_t position;
-
-}statusFrame_t;
-
-
-static_assert(sizeof(command_t) == 21, "command_t size must remain 21 bytes for protocol compatibility");
-static_assert(sizeof(statusFrame_t) == 17, "statusFrame_t size must remain 17 bytes for protocol compatibility");
 
 #endif

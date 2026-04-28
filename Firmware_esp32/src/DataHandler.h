@@ -86,7 +86,7 @@ class DataHandler
 
     private :
         // Chain of data accessible to both Controller and Interface to exchange informations and commands.
-        dataModel_t dataModel;
+        dataModel_t lastSystemInfo;
         // Mutex to lock the chain of data while used.
         std::mutex mutex_;
         // Hardware references for status updates
