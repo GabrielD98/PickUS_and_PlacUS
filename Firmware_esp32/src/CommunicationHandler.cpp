@@ -1,8 +1,7 @@
 #include "CommunicationHandler.h"
 
-CommunicationHandler::CommunicationHandler(Stream* stream, DataHandler* dataHandler, 
-                                             CommandHandler* commandHandler)
-    : stream(stream), dataHandler(dataHandler), commandHandler(commandHandler)
+CommunicationHandler::CommunicationHandler(Stream* stream)
+    : stream(stream)
 {
 }
 
@@ -39,57 +38,57 @@ bool CommunicationHandler::readPayload(uint8_t* buf, uint16_t size)
 	return (read == (size_t)size);
 }
 
-void CommunicationHandler::handleIncoming()
+bool CommunicationHandler::handleIncoming(uint8_t* payload, uint16_t &payloadSize)
 {
-    if (stream != nullptr && dataHandler != nullptr && commandHandler != nullptr)
+	bool result = false;
+
+    if (stream != nullptr)
 	{
 		ComHeader header;
 		if (readHeader(header))
 		{
 			if (header.payloadSize < MAX_PAYLOAD_SIZE)
 			{
-				uint8_t payload[MAX_PAYLOAD_SIZE] = {0};
+				uint8_t receivedPayload[MAX_PAYLOAD_SIZE] = {0};
 				if (header.payloadSize > 0)
 				{
-					if (!readPayload(payload, header.payloadSize))
-						return;
+					if (!readPayload(receivedPayload, header.payloadSize))
+						return result;
 				}
 			
 				// Validate checksum (sum of payload bytes)
-				uint16_t computed = computeChecksum(payload, header.payloadSize);
+				uint16_t computed = computeChecksum(receivedPayload, header.payloadSize);
 				if (computed == header.checkSum)
 				{
-					commandHandler->setCurrentCommand(header.commandId, payload, header.payloadSize, header.commandNumber);
+					if (payload != nullptr)
+					{
+						memcpy(payload, receivedPayload, header.payloadSize);
+					}
+					payloadSize = header.payloadSize;
+					result = true;
 				}
 
 			}
 
 		}
-			
-		// Reply with a status frame built from the DataHandler snapshot
-		writeStatus();
 	}
+
+	return result;
 }
 
-void CommunicationHandler::writeStatus()
+void CommunicationHandler::write(uint8_t* msg, uint16_t size)
 {
-	if (stream != nullptr && dataHandler != nullptr)
+	if (stream != nullptr)
 	{
-		// Prepare payload (copy snapshot)
-		const uint8_t* payload = (const uint8_t *)&dataHandler->getInfo();
-		uint16_t payloadSize = (uint16_t)sizeof(dataModel_t);
-
 		// Build output header (status reply). Use 0xFF as default status commandId.
 		ComHeader outHeader;
 		outHeader.magicNumber = MAGIC_NUMBER;
-		outHeader.commandId = 0xFF;
-		outHeader.commandNumber = 0;
-		outHeader.payloadSize = payloadSize;
-		outHeader.checkSum = computeChecksum(payload, payloadSize);
+		outHeader.payloadSize = size;
+		outHeader.checkSum = computeChecksum(msg, size);
 
 		// Send header then payload
 		stream->write((const uint8_t *)(&outHeader), sizeof(ComHeader));
-		stream->write(payload, payloadSize);
+		stream->write(msg, size);
 	}
 
 }
