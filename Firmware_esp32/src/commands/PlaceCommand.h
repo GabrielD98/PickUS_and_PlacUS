@@ -16,8 +16,8 @@
 #include "Command.h"
 #include "hardware/mosfet.h"
 #include "hardware/pressureSensor.h"
+#include "boardconfig.h"
 
-#define MAX_TOOLHEAD 2 //TODO: Put this somewhere more global
 
 /**
  * @brief Payload used by PlaceCommand.

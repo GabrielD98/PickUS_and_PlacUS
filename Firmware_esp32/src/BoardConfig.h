@@ -43,4 +43,7 @@
 #define PIN_PSENSOR_CLK 2   /// Pressure sensor clock pin
 #define PIN_PSENSOR_DATA 1  /// Pressure sensor output pin
 
+// --- Hardware counts / limits ---
+#define MAX_TOOLHEAD 2 // Number of toolheads supported
+
 #endif

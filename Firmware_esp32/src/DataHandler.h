@@ -12,14 +12,24 @@
 #include "../lib/data.hpp"
 #include <mutex>
 #include <AccelStepper.h>
+#include "hardware/mosfet.h"
+#include "hardware/pressureSensor.h"
+#include "communication/CommandHandler.h"
+#include "boardconfig.h"
+
+
 
 /**
  * @brief Chain of data used to exchange information.
  */
 typedef struct dataModel
 {
-    positionStep_t position;
     MachineState state;
+    CommandId currentCommandId;
+    positionStep_t position;
+    float pressure[MAX_TOOLHEAD];
+    bool valveState[MAX_TOOLHEAD];
+    bool pumpState;
 
 }dataModel_t;
 
@@ -32,6 +42,10 @@ struct DataHandlerHardware
     AccelStepper* motorY;
     AccelStepper* motorZ;
     AccelStepper* motorYaw;
+    Mosfet* valve[MAX_TOOLHEAD];
+	Mosfet* pump;
+	PressureSensor* pressureSensor[MAX_TOOLHEAD];
+
 };
 
 /**
@@ -45,8 +59,10 @@ class DataHandler
          *
          * @param hardware Struct containing pointers to all hardware needed
          * for reading position and state information.
+         * @param commandHandler Pointer to the command manager used to
+         * query or update the currently executing command Id.
          */
-        DataHandler(DataHandlerHardware* hardware);
+        DataHandler(DataHandlerHardware* hardware, CommandHandler* commandHandler);
 
         /**
          * @brief Update the shared data model with current hardware state.
@@ -57,8 +73,6 @@ class DataHandler
          * @param machineState Current machine state to store.
          */
         void updateInfo(MachineState machineState);
-
-
 
         /**
          * @brief Get a copy of the current data model state.
@@ -77,6 +91,8 @@ class DataHandler
         std::mutex mutex_;
         // Hardware references for status updates
         DataHandlerHardware* hardware;
+
+        CommandHandler* commandHandler;
 };
 
 #endif
