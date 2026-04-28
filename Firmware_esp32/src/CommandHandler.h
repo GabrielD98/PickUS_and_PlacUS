@@ -20,6 +20,14 @@
  */
 #define MAX_COMMAND 6
 
+struct __attribute__((packed)) CommmandFrameHeader
+{
+	uint8_t commandId;
+	uint32_t commandNumber;
+	uint16_t commandPayloadSize;
+
+};
+
 /**
  * @brief Stores and manages available commands for the communication layer.
  *
@@ -87,15 +95,13 @@ class CommandHandler
 		uint32_t getCurrentCommandNumber();
 
 		/**
-		 * @brief Select the active command and forward its payload with a request number.
+		 * @brief Select the active command and forward a full command frame.
 		 *
-		 * @param commandId Identifier of the command to activate.
-		 * @param payload Pointer to payload bytes associated with this command.
-		 * @param payloadSize Size of payload in bytes.
-		 * @param commandNumber Unique request number for this command invocation.
+		 * @param payload Pointer to the frame bytes, starting with CommmandFrameHeader.
+		 * @param frameSize Total frame size in bytes, including the header and command payload.
 		 * @return true if the command exists and accepts the payload, false otherwise.
 		 */
-		bool setCurrentCommand(uint8_t commandId, uint8_t* payload, uint16_t payloadSize, uint32_t commandNumber);
+		bool setCurrentCommand(uint8_t* payload, uint16_t frameSize);
 
 		/**
 		 * @brief Reset all registered commands to their initial state.

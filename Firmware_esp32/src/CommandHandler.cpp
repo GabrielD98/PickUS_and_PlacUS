@@ -1,4 +1,5 @@
 #include "CommandHandler.h"
+#include <cstring>
 
 CommandHandler::CommandHandler()
 	: currentCommandId(0), currentCommandNumber(0), lastProcessedCommandNumber(UINT32_MAX), hasPendingCommand(false), numberOfRegisteredCommands(0)
@@ -87,23 +88,33 @@ uint32_t CommandHandler::getCurrentCommandNumber()
 	return currentCommandNumber;
 }
 
-bool CommandHandler::setCurrentCommand(uint8_t commandId, uint8_t* payload, uint16_t payloadSize, uint32_t commandNumber)
+bool CommandHandler::setCurrentCommand(uint8_t* payload, uint16_t frameSize)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 
 	bool result = false;
 
-	if (commandId < numberOfRegisteredCommands)
+	if(payload != nullptr)
 	{
-		Command* selectedCommand = registeredCommands[commandId];
-		if (selectedCommand != nullptr)
+		if (frameSize > sizeof(CommmandFrameHeader))
 		{
-			if (selectedCommand->setPayload(payload, payloadSize))
+			CommmandFrameHeader commmandFrameHeader;
+			memcpy(&commmandFrameHeader, payload, sizeof(CommmandFrameHeader));
+		
+			if (commmandFrameHeader.commandId < numberOfRegisteredCommands &&
+				 frameSize == (sizeof(CommmandFrameHeader) + commmandFrameHeader.commandPayloadSize))
 			{
-				result = true;
-				currentCommandId = commandId;
-				currentCommandNumber = commandNumber;
-				hasPendingCommand = (currentCommandNumber != lastProcessedCommandNumber);
+				Command* selectedCommand = registeredCommands[commmandFrameHeader.commandId];
+				if (selectedCommand != nullptr)
+				{
+					if (selectedCommand->setPayload(payload+sizeof(CommmandFrameHeader), commmandFrameHeader.commandPayloadSize))
+					{
+						result = true;
+						currentCommandId = commmandFrameHeader.commandId;
+						currentCommandNumber = commmandFrameHeader.commandNumber;
+						hasPendingCommand = (currentCommandNumber != lastProcessedCommandNumber);
+					}
+				}
 			}
 		}
 	}
