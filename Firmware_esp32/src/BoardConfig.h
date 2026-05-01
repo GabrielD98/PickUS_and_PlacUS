@@ -44,6 +44,6 @@
 #define PIN_PSENSOR_DATA 1  /// Pressure sensor output pin
 
 // --- Hardware counts / limits ---
-#define MAX_TOOLHEAD 2      // Number of toolheads supported
+#define MAX_TOOLHEAD 1      // Number of toolheads supported
 
 #endif

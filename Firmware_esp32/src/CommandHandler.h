@@ -20,6 +20,18 @@
  */
 #define MAX_COMMAND 6
 
+/**
+ * @brief Lists all interface command id recognizable by the controller.
+ */
+enum class CommandId : uint8_t
+{
+	Stop,
+	Pause,
+	Move,
+	Pick,
+	Place,
+	Home
+};
 struct __attribute__((packed)) CommmandFrameHeader
 {
 	uint8_t commandId;

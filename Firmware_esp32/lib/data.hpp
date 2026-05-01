@@ -39,20 +39,6 @@ typedef struct __attribute__((packed)) velocityStep
 }velocityStep_t;
 
 /**
- * @brief Lists all interface command id recognizable by the controller.
- */
-enum class CommandId : uint8_t
-{
-	Stop,
-	Pause,
-	Move,
-	Pick,
-	Place,
-	Home
-};
-
-
-/**
  * @brief Lists all machine states recognizable by the interface.
  */
 enum class MachineState : uint8_t
