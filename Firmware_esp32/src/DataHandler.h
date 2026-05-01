@@ -22,7 +22,7 @@
 /**
  * @brief Chain of data used to exchange information.
  */
-typedef struct dataModel
+typedef struct __attribute__((packed)) dataModel
 {
     MachineState state;
     CommandId currentCommandId;
