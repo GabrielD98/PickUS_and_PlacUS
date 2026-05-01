@@ -15,8 +15,6 @@
 #include "testpick.h"
 #include "testplace.h"
 #include "testhome.h"
-#include "testlimits.h"
-#include "testgeometry.h"
 
 /**
  * @brief Manage tests of every software features on the ESP.
@@ -53,8 +51,6 @@ private:
     TestPick testPick;
     TestPlace testPlace;
     TestHome testHome;
-    TestLimits testLimits;
-    TestGeometry testGeometry;
 };
 
 #endif

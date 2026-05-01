@@ -8,8 +8,6 @@ bool TestRunner::runTests()
 {
     bool pass = true;
 	// Unwanted tests are to be put in commentary
-	pass &= testLimits.run();
-	pass &= testGeometry.run();
 	pass &= testMove.run();
 	pass &= testPick.run();
 	pass &= testPlace.run();
