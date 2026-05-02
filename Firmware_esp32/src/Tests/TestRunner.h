@@ -10,11 +10,6 @@
 #define TESTRUNNER_H
 
 #include "../controller.h"
-#include "testcom.h"
-#include "testmove.h"
-#include "testpick.h"
-#include "testplace.h"
-#include "testhome.h"
 
 /**
  * @brief Manage tests of every software features on the ESP.
@@ -45,12 +40,6 @@ private:
      * @brief Pointer to the controller instanciated in main() in order to allow communication with UI.
      */
     Controller* ctrl;
-    
-    TestCom testCom;
-    TestMove testMove;
-    TestPick testPick;
-    TestPlace testPlace;
-    TestHome testHome;
 };
 
 #endif
