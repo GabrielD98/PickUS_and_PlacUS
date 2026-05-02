@@ -1,4 +1,10 @@
+import struct
+
 import serial
+
+
+MAGIC_NUMBER = 0xFACE
+
 
 class Communication:
 	"""
@@ -14,12 +20,54 @@ class Communication:
 
 	"""
 
-	def __init__(self, port:str, baudrate:int):
+	def __init__(self, port: str, baudrate: int):
 		self.port = port
 		self.baudrate = baudrate
 		self.ser = None
 
-	
+	def _checksum(self, data: bytes) -> int:
+		return sum(data) & 0xFFFF
+
+	def _readExact(self, size: int) -> bytes | None:
+		if self.ser is None:
+			return None
+
+		buffer = bytearray()
+		while len(buffer) < size:
+			chunk = self.ser.read(size - len(buffer))
+			if not chunk:
+				return None
+			buffer.extend(chunk)
+		return bytes(buffer)
+
+	def _readHeader(self) -> tuple[int, int, int] | None:
+		if self.ser is None:
+			return None
+
+		magicBytes = struct.pack('<H', MAGIC_NUMBER)
+		window = bytearray()
+		discarded = 0
+
+		while True:
+			chunk = self.ser.read(1)
+			if not chunk:
+				return None
+
+			window.append(chunk[0])
+			if len(window) > 2:
+				window.pop(0)
+				discarded += 1
+
+			if len(window) == 2 and bytes(window) == magicBytes:
+				break
+
+		remaining = self._readExact(4)
+		if remaining is None:
+			return None
+
+		checksum, payload_size = struct.unpack('<HH', remaining)
+		return MAGIC_NUMBER, checksum, payload_size
+
 	def open(self):
 		"""Open the serial port."""
 		self.ser = serial.Serial(
@@ -31,14 +79,11 @@ class Communication:
 		self.ser.reset_input_buffer()
 		self.ser.reset_output_buffer()
 
-
 	def close(self):
-		"""Close the serial port if it is open.
-		"""
+		"""Close the serial port if it is open."""
 		if self.isPortOpen():
 			self.ser.close()
 		return
-
 
 	def sendData(self, data: bytes):
 		"""Send data through the serial port.
@@ -49,25 +94,45 @@ class Communication:
 		"""
 		if self.isPortOpen():
 			try:
-				self.ser.write(data)
+				payload = bytes(data)
+				header = struct.pack('<HHH', MAGIC_NUMBER, self._checksum(payload), len(payload))
+				self.ser.write(header)
+				self.ser.write(payload)
 			except serial.SerialException:
 				pass
 		return
 
 	def receiveData(self, numBytes: int) -> bytes | None:
-		"""Read a fixed number of bytes from the serial port (blocking).
+		"""Read and validate a framed packet from the serial port.
 
 		Parameters:
 			numBytes (int):
-				Number of bytes to read
+				Minimum payload size expected by the caller.
 
 		Returns:
-			bytes: The raw bytes read.
-			None: if exception or port not open
+			bytes: The validated payload bytes.
+			None: if the frame is invalid, too small, or the port is not open.
 		"""
 		if self.isPortOpen():
 			try:
-				data = self.ser.read(numBytes)
+				header = self._readHeader()
+				if header is None:
+					return None
+
+				magicNumber, checksum, payload_size = header
+
+				payload = self._readExact(payload_size)
+				if payload is None:
+					return None
+
+
+				if self._checksum(payload) != checksum:
+					return None
+
+				if numBytes > 0 and len(payload) < numBytes:
+					return None
+
+				data = payload
 			except (serial.SerialException, AttributeError):
 				data = None
 		else:
