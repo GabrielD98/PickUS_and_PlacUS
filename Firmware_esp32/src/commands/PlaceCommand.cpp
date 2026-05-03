@@ -28,7 +28,7 @@ CommandState PlaceCommand::run()
 
 		for(int i=0;i<MAX_TOOLHEAD;i++)
 		{
-			canClosePump = canClosePump && !placingHardware->valve[i]->getState();
+			canClosePump = canClosePump && placingHardware->valve[i]->getState();
 		}
 		if(canClosePump)
 		{
