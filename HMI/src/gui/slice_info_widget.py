@@ -13,6 +13,14 @@ from data import Piece, Position
 from slicer import Slicer
 from storage import Storage
 from controller import Controller
+from command_interface import (
+    MoveCommand,
+    PickCommand,
+    PlaceCommand,
+    HomeCommand,
+    PauseCommand,
+    StopCommand,
+)
 
 class SliceInfoWidget(QWidget):
     """
@@ -93,19 +101,47 @@ class SliceInfoWidget(QWidget):
 
         #displays all of the generated steps in the scroll layout
         for command in commands:
-            position = command.position
+            # determine type and relevant fields
+            if isinstance(command, MoveCommand):
+                cmd_name = 'MOVE'
+                position = command.position
+                speedInfo = f"Speed : {command.velocity}"
+                pieceInfo = ''
+            elif isinstance(command, PickCommand):
+                cmd_name = 'PICK'
+                position = getattr(command, 'position', Position(0, 0, 0, 0))
+                speedInfo = ''
+                pieceInfo = ''
+            elif isinstance(command, PlaceCommand):
+                cmd_name = 'PLACE'
+                position = getattr(command, 'position', Position(0, 0, 0, 0))
+                speedInfo = ''
+                pieceInfo = f"Piece : {command.piece.package} | " if command.piece is not None else ''
+            elif isinstance(command, HomeCommand):
+                cmd_name = 'HOME'
+                position = Position(0, 0, 0, 0)
+                speedInfo = ''
+                pieceInfo = ''
+            elif isinstance(command, PauseCommand):
+                cmd_name = 'PAUSE'
+                position = Position(0, 0, 0, 0)
+                speedInfo = ''
+                pieceInfo = ''
+            elif isinstance(command, StopCommand):
+                cmd_name = 'STOP'
+                position = Position(0, 0, 0, 0)
+                speedInfo = ''
+                pieceInfo = ''
+            else:
+                cmd_name = type(command).__name__
+                position = getattr(command, 'position', Position(0, 0, 0, 0))
+                speedInfo = f"Speed : {getattr(command, 'velocity', '')}"
+                pieceInfo = f"Piece : {command.piece.package} | " if getattr(command, 'piece', None) is not None else ''
 
-            commandInfo = f"Command : {command.commandId} | " 
-            pieceInfo = ""
-            if command.piece is not None:
-                pieceInfo = f"Piece : {command.piece.package} | "
-            positionInfo = ""
-            if command.piece is not None:
-                positionInfo = (f"Position : {round(position.x, 2)} " 
-                f"{round(position.y, 2)}  {round(position.z, 2)}  {round(position.yaw, 2)} | ")
-            speedInfo = f"Speed : {command.velocity}"
+            positionInfo = f"Position : {round(position.x, 2)} {round(position.y, 2)} {round(position.z, 2)} {round(position.yaw, 2)} | " if position is not None else ''
 
-            comLabel = QLabel(commandInfo+pieceInfo+positionInfo+speedInfo)
+            commandInfo = f"Command : {cmd_name} | "
+            comLabel = QLabel(commandInfo + pieceInfo + positionInfo + speedInfo)
             self.scrollLayout.addWidget(comLabel)
 
         #tells the command widget that the slicing is done

@@ -54,6 +54,7 @@ class StorageUiInfo(QWidget):
         self.stateLabel = QLabel("state : -")
         self.quantityLabel = QLabel("quantity : -")
         self.automaticLabel = QLabel("automatic : -")
+        self.toolheadLabel = QLabel("toolhead : -")
 
         activeWidget = QWidget()
         activeLayout = QHBoxLayout()
@@ -62,6 +63,7 @@ class StorageUiInfo(QWidget):
         activeLayout.addWidget(self.stateLabel)
         activeLayout.addWidget(self.quantityLabel)
         activeLayout.addWidget(self.automaticLabel)
+        activeLayout.addWidget(self.toolheadLabel)
         activeWidget.setLayout(activeLayout)
 
         # Layout when the piece is not added yet 
@@ -83,7 +85,7 @@ class StorageUiInfo(QWidget):
 
 
 
-    def updateAll(self, name:str, state:StorageState, quantity:int, auto:bool):
+    def updateAll(self, name:str, state:StorageState, quantity:int, auto:bool, toolhead_index:int):
         """
         Update all fields of the storage info widget and switch to the active display.
         
@@ -97,6 +99,7 @@ class StorageUiInfo(QWidget):
         self.updateState(state)
         self.updateQuantity(quantity)
         self.updateAutomaticState(auto)
+        self.updateToolheadIndex(toolhead_index)
         self._stackedWidget.setCurrentIndex(1)
         self.button.setText("Change")
 
@@ -152,6 +155,14 @@ class StorageUiInfo(QWidget):
         if newState == True:
             newText = "automatic : True"
         self.automaticLabel.setText(newText)
+
+
+
+    def updateToolheadIndex(self, toolhead_index:int):
+        """
+        Update the toolhead index shown for the piece.
+        """
+        self.toolheadLabel.setText(f"toolhead : {toolhead_index}")
 
 
 

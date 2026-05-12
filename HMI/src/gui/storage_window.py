@@ -182,6 +182,14 @@ class StorageWindow(QMainWindow):
 		# checkbox for the automation of the storage
 		self._autoCheckbox = QCheckBox("Is the Feeder Automatic")
 		self._autoCheckbox.stateChanged.connect(self._onStateChanged)
+
+		# toolhead selection for this storage entry
+		toolheadLayout = QHBoxLayout()
+		toolheadLabel = QLabel("Toolhead index :")
+		self._toolheadOptions = QComboBox(self)
+		self._toolheadOptions.addItems([str(index) for index in range(MAX_TOOLHEAD)])
+		toolheadLayout.addWidget(toolheadLabel)
+		toolheadLayout.addWidget(self._toolheadOptions)
 		
 		# section for the manual calibration 
 		self._calibrationLayout = QVBoxLayout()
@@ -194,6 +202,7 @@ class StorageWindow(QMainWindow):
 		self._inputsLayout.addWidget(pieceLabel)
 		self._inputsLayout.addLayout(quantityLayout)
 		self._inputsLayout.addWidget(self._autoCheckbox)
+		self._inputsLayout.addLayout(toolheadLayout)
 		self._inputsLayout.addLayout(deltaLayout)
 		self._inputsLayout.addLayout(rotationLayout)
 		self._inputsLayout.addLayout(statesLayout)
@@ -239,6 +248,7 @@ class StorageWindow(QMainWindow):
 		data[self._pieceName]["automatic"] = automatic
 		data[self._pieceName]["state"] = state
 		data[self._pieceName]["rotation"] = rotation
+		data[self._pieceName]["toolhead_index"] = toolhead_index
 		data[self._pieceName]["deltaPos"]["x"] = str(round(deltaPos.x, 2))
 		data[self._pieceName]["deltaPos"]["y"] = str(round(deltaPos.y, 2))
 		data[self._pieceName]["deltaPos"]["z"] = str(round(deltaPos.z, 2))
@@ -271,6 +281,7 @@ class StorageWindow(QMainWindow):
 		self._autoCheckbox.setChecked(bool(data[key]["automatic"]))
 		self._statesOptions.setCurrentIndex(data[key]["state"])
 		self._rotationOptions.setCurrentIndex(data[key]["rotation"])
+		self._toolheadOptions.setCurrentIndex(data[key].get("toolhead_index", 0))
 		self._deltaEntryX.setText(data[key]["deltaPos"]["x"])
 		self._deltaEntryY.setText(data[key]["deltaPos"]["y"])
 		self._deltaEntryZ.setText(data[key]["deltaPos"]["z"])
@@ -384,6 +395,7 @@ class StorageWindow(QMainWindow):
 		automatic = self._autoCheckbox.isChecked()
 		state = self._states[self._statesOptions.currentText()]
 		rotation = int(self._rotationOptions.currentText())
+		toolhead_index = int(self._toolheadOptions.currentText())
 		deltaPos = Position(0,0,0,0)
 		position = self._controller.getGripperPosition()
 		position.yaw = rotation
@@ -394,8 +406,8 @@ class StorageWindow(QMainWindow):
 				return
 
 		# saves the data acquired
-		self._storage.addComponent(self._widgetInfo._piece, position, deltaPos, state, quantity, automatic)
-		self._widgetInfo.updateAll(self._pieceName, state, quantity, automatic)
+		self._storage.addComponent(self._widgetInfo._piece, position, deltaPos, state, quantity, automatic, toolhead_index)
+		self._widgetInfo.updateAll(self._pieceName, state, quantity, automatic, toolhead_index)
 		print("piece added successfully")
 
 		# closes the window

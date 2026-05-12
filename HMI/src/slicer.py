@@ -3,9 +3,8 @@ import os
 from file_interpreter import FileInterpreter
 from storage import Storage
 from data import *
-
-#TODO ficiher de constante?
-Z_SPEED = 10.0 #mm/s
+from geometry import CartesianVelocity, dimensionLimits
+from command_interface import HomeCommand, MoveCommand, PickCommand, PlaceCommand, DEFAULT_HOME_VELOCITY
 
 class Slicer :
     """
@@ -25,7 +24,7 @@ class Slicer :
 
 
     #TODO revalider les units de la vitesse
-    def slice(self, pieces:List[Piece], offset:Position, z_offset:Position, speed:float) -> List[Command]:
+    def slice(self, pieces:List[Piece], offset:Position, z_offset:Position, speed:float) -> List[MoveCommand | PickCommand | PlaceCommand | HomeCommand]:
         """
         Generates all of the commands and setpoints for the placement of components.
         Returns a list of Command objects to be used by the controller class.
@@ -52,7 +51,7 @@ class Slicer :
         for piece in available:
             storage_offset[piece] = Position(0, 0, 0, 0)
 
-        commands:List[Command] = []
+        commands:List[MoveCommand | PickCommand | PlaceCommand | HomeCommand] = []
 
         #commands.append(Command(
         #    commandId=CommandId.HOME,
@@ -70,30 +69,23 @@ class Slicer :
             #for each piece, move towards its place in the storage, 
             #pick it, move towards the placement zone, and place it
             pick_position = self.storage.components[piece].position
+            pick_position = dimensionLimits(pick_position)
+            toolheadIndex = self.storage.components[piece].toolhead_index
             
 
             #PICK
             # Move to storage position
-            commands.append(Command(
-                commandId=CommandId.MOVE,
-                velocity=speed,
-                position=((pick_position*z_mask) + storage_offset[piece])*yaw_mask ,
-                piece=piece
+            commands.append(MoveCommand(
+                position=dimensionLimits(((pick_position*z_mask) + storage_offset[piece])*yaw_mask),
+                velocity=CartesianVelocity.uniform(speed),
             ))
             
             # Pick the piece
-            commands.append(Command(
-                commandId=CommandId.PICK,
-                velocity=Z_SPEED,
-                position=(pick_position + storage_offset[piece])*yaw_mask ,
-                piece=piece
-            ))
+            commands.append(PickCommand(toolheadIndex=toolheadIndex))
 
-            commands.append(Command(
-                commandId=CommandId.MOVE,
-                velocity=Z_SPEED,
-                position=((pick_position*z_mask) + storage_offset[piece])*yaw_mask ,
-                piece=piece
+            commands.append(MoveCommand(
+                position=dimensionLimits(((pick_position*z_mask) + storage_offset[piece])*yaw_mask),
+                velocity=CartesianVelocity.uniform(speed),
             ))
 
             yaw = (piece.position.yaw - pick_position.yaw) % 360 
@@ -105,28 +97,19 @@ class Slicer :
             rotation = Position(0, 0, 0, yaw)
             
             # Move to placement position
-            commands.append(Command(
-                commandId=CommandId.MOVE,
-                velocity=speed,
-                position= (piece.position+ offset)*z_mask*yaw_mask + rotation,
-                piece=piece
+            commands.append(MoveCommand(
+                position=dimensionLimits((piece.position+ offset)*z_mask*yaw_mask + rotation),
+                velocity=CartesianVelocity.uniform(speed),
             ))
 
             
             # Place the piece
-            commands.append(Command(
-                commandId=CommandId.PLACE,
-                velocity=Z_SPEED,
-                position= (piece.position + offset)*yaw_mask + rotation,
-                piece=piece
-            ))
+            commands.append(PlaceCommand(toolheadIndex=toolheadIndex, piece=piece))
 
             # Move to placement position
-            commands.append(Command(
-                commandId=CommandId.MOVE,
-                velocity=speed,
-                position= (piece.position+ offset)*z_mask*yaw_mask + rotation,
-                piece=piece
+            commands.append(MoveCommand(
+                position=dimensionLimits((piece.position+ offset)*z_mask*yaw_mask + rotation),
+                velocity=CartesianVelocity.uniform(speed),
             ))          
             
 
@@ -135,11 +118,6 @@ class Slicer :
                 storage_offset[piece] = storage_offset[piece] + self.storage.components[piece].deltaPos
 
         #when all is done, move to 'home' position
-        commands.append(Command(
-            commandId=CommandId.HOME,
-            velocity=speed,
-            position=None,
-            piece=None
-        ))
+        commands.append(HomeCommand(DEFAULT_HOME_VELOCITY))
         
         return commands
