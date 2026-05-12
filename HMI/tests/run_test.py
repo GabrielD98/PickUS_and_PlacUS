@@ -2,6 +2,8 @@
 
 import unittest
 from test_file_interpreter import TestFileInterpreter
+from test_command_interface import TestCommandInterface
+from test_geometry import TestGeometry
 from test_storage import TestStorage
 from test_slicer import TestSlicer
 from test_controller_communication import TestControllerCommunication
@@ -9,6 +11,8 @@ from test_controller_communication import TestControllerCommunication
 
 if __name__ == '__main__':
     test_classes_to_run = [TestFileInterpreter,
+                           TestCommandInterface,
+                           TestGeometry,
                            TestStorage,
                            TestSlicer,
                            TestControllerCommunication]
