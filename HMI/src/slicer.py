@@ -23,7 +23,6 @@ class Slicer :
 
 
 
-    #TODO revalider les units de la vitesse
     def slice(self, pieces:List[Piece], offset:Position, z_offset:Position, speed:float) -> List[MoveCommand | PickCommand | PlaceCommand | HomeCommand]:
         """
         Generates all of the commands and setpoints for the placement of components.
@@ -38,7 +37,7 @@ class Slicer :
                                 fully retracted vs when z position of the PCB. Allows
                                 the machine to know the height of the placement.
                                 Has to be generated in the calibration step.
-            speed (float): The speed of the movement of the pcb machine (cm/s)
+            speed (float): The speed of the movement of the pcb machine (mm/s)
         
         Returns:
             List[Command]: The list of commands to execute for placing all components.

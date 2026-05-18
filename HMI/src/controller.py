@@ -4,7 +4,10 @@ from typing import List
 
 from command_interface import CommandInterface, CommandPacket, PauseCommand, StopCommand
 from communication import Communication
-from controller_services import CommandDispatcher, HomingService, MachineTelemetryDecoder, PnPStateMachine
+from command_dispatcher import CommandDispatcher
+from homing_service import HomingService
+from machine_telemetry_decoder import MachineTelemetryDecoder
+from pnp_state_machine import PnPStateMachine
 from data import ControllerState, MachineState, Position, TransitionRequest
 from storage import Storage
 

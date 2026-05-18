@@ -32,7 +32,7 @@ class JogWidget(QWidget):
         _jogStep (float):
             the distance traveled by a step querry by the user (mm)
         _speed (float):
-            The speed of the gripper movement. (TODO units?)
+            The speed of the gripper movement. (mm/s)
         _jogEnabled (bool) :
             Indicates if the user is allowed to jog the PnP manually.
     """
