@@ -6,7 +6,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import unittest
 from controller import Controller
-from data import Command, CommandId, Position, ControllerState, MachineState
+from data import Position, ControllerState, MachineState
+from command_interface import MoveCommand, PickCommand, PlaceCommand, HomeCommand, CartesianVelocity
 
 
 ESP32_PORT = os.getenv("ESP32_PORT")
@@ -36,28 +37,26 @@ class TestControllerCommunication(unittest.TestCase):
 
 			# --- MOVE ---
 			move_pos = Position(1.0, 2.0, 3.0, 4.0)
-			controller.queueCommand(Command(CommandId.MOVE, 50.0, move_pos, None))
+			controller.queueCommand(MoveCommand(move_pos, CartesianVelocity.uniform(50.0)))
 			self._wait_for_position(controller, move_pos, ESP32_TEST_TIMEOUT)
 			_, _, pos = controller.getState()
 			self._assertPositionEqual(pos, move_pos, "MOVE")
 
 			# --- PICK ---
-			pick_pos = Position(1.0, 2.0, -1.0, 4.0)
-			controller.queueCommand(Command(CommandId.PICK, 50.0, pick_pos, None))
-			self._wait_for_position(controller, pick_pos, ESP32_TEST_TIMEOUT)
+			controller.queueCommand(PickCommand())
+			self._wait_for_position(controller, move_pos, ESP32_TEST_TIMEOUT)
 			_, _, pos = controller.getState()
-			self._assertPositionEqual(pos, pick_pos, "PICK")
+			self._assertPositionEqual(pos, move_pos, "PICK")
 
 			# --- PLACE ---
-			place_pos = Position(5.0, 6.0, -1.0, 8.0)
-			controller.queueCommand(Command(CommandId.PLACE, 50.0, place_pos, None))
-			self._wait_for_position(controller, place_pos, ESP32_TEST_TIMEOUT)
+			controller.queueCommand(PlaceCommand())
+			self._wait_for_position(controller, move_pos, ESP32_TEST_TIMEOUT)
 			_, _, pos = controller.getState()
-			self._assertPositionEqual(pos, place_pos, "PLACE")
+			self._assertPositionEqual(pos, move_pos, "PLACE")
 
 			# --- HOME ---
 			home_pos = Position(0.0, 0.0, 0.0, 0.0)
-			controller.queueCommand(Command(CommandId.HOME, 50.0, None, None))
+			controller.queueCommand(HomeCommand())
 			self._wait_for_position(controller, home_pos, ESP32_TEST_TIMEOUT)
 			_, _, pos = controller.getState()
 			self._assertPositionEqual(pos, home_pos, "HOME")
@@ -66,7 +65,7 @@ class TestControllerCommunication(unittest.TestCase):
 			self._wait_for_controller_state(controller, ControllerState.DONE, ESP32_TEST_TIMEOUT)
 			controller_state, machine_state, _ = controller.getState()
 			self.assertEqual(controller_state, ControllerState.DONE)
-			self.assertNotEqual(machine_state, MachineState.DISCONNECTED)
+			self.assertNotEqual(machine_state, MachineState.ERROR)
 
 		finally:
 			controller.disconnectionFromMachine()
@@ -108,7 +107,7 @@ class TestControllerCommunication(unittest.TestCase):
 		end_time = time.monotonic() + timeout_seconds
 		while time.monotonic() < end_time:
 			_, machine_state, _ = controller.getState()
-			if machine_state != MachineState.DISCONNECTED:
+			if machine_state != MachineState.HOMING:
 				return
 			time.sleep(0.05)
 		self.fail(f"Machine did not respond within {timeout_seconds}s")

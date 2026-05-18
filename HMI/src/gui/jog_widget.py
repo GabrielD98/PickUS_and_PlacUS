@@ -10,13 +10,15 @@ from PyQt5.QtWidgets import (
     QStackedWidget,
     QSlider
 )
-from data import Command, Position
 from controller import Controller
-from data import *
+from data import Position, MachineState, MAX_SPEED
+from command_interface import MoveCommand
+from geometry import dimensionLimits
 import utils
 
 
 
+from geometry import CartesianVelocity
 
 class JogWidget(QWidget):
     """
@@ -477,8 +479,9 @@ class JogWidget(QWidget):
         Args:
             target (Position): The target position to move the gripper to.
         """
+        target = dimensionLimits(target)
         if self._controller.getMachineState() == MachineState.READY:
-            command = Command(CommandId.MOVE, MAX_SPEED * self._speed/100.0, target, None)
+            command = MoveCommand(target, CartesianVelocity.uniform(MAX_SPEED * self._speed/100.0))
             self._controller.queueCommand(command)
     
 

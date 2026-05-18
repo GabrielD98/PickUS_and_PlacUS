@@ -5,7 +5,9 @@ from PyQt5.QtWidgets import (
     QStackedWidget
 )
 from controller import Controller
-from data import MAX_SPEED, Command, CommandId, Position
+from data import MAX_SPEED, Position
+from geometry import CartesianVelocity
+from command_interface import MoveCommand
 
 
 class CommandWidget(QWidget):
@@ -89,7 +91,7 @@ class CommandWidget(QWidget):
         
         current_position = self._controller.getGripperPosition()
         target = current_position * Position(1,1,0,1)
-        command = Command(CommandId.MOVE, MAX_SPEED * 0.5, target, None)
+        command = MoveCommand(target, CartesianVelocity.uniform(MAX_SPEED * 0.5))
         self._controller.queueCommand(command)
         self._controller.start_pnp()
 
@@ -115,7 +117,7 @@ class CommandWidget(QWidget):
         self._on = False
         self._stackedWidget.setCurrentIndex(0)
         self._mainControlButton.setText("Start")
-        self._controller.toggleIDLEMode()
+        self._controller.stopPnP()
 
 
 

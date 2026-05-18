@@ -79,7 +79,7 @@ class PnPStateWidget(QWidget):
         """
 
         #checks the connection status
-        if not self._controller.isConnected:
+        if not self._controller.isConnected():
             if self._connected:
                 self.setDisconnected()
 
@@ -163,16 +163,19 @@ class PnPStateWidget(QWidget):
         Toggle the connection state to the machine. Connects or disconnects based on current state.
         """
         if self._controller.isPortOpen(): 
+            print("[HMI CONNECT] disconnect requested")
             self._connectButton.setText("Connect")
             self._controller.disconnectionFromMachine()
             self.setDisconnected()
         else :
             try:
-                self._controller.connectionToMachine(self.getSelectedPort(), 115200)
+                selected_port = self.getSelectedPort()
+                print(f"[HMI CONNECT] opening {selected_port} @ 115200")
+                self._controller.connectionToMachine(selected_port, 115200)
                 self.setConnected()
                 self._connectButton.setText("Disconnect")
             except Exception as e:
-                print(e)
+                print(f"[HMI CONNECT] failed: {e}")
 
 
 

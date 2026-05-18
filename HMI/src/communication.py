@@ -70,6 +70,7 @@ class Communication:
 
 	def open(self):
 		"""Open the serial port."""
+		print(f"[COMM OPEN] port={self.port} baudrate={self.baudrate}")
 		self.ser = serial.Serial(
 			port=self.port,
 			baudrate=self.baudrate,
@@ -95,6 +96,7 @@ class Communication:
 		if self.isPortOpen():
 			try:
 				payload = bytes(data)
+				print(f"[COMM SEND] {payload.hex(' ')}")
 				header = struct.pack('<HHH', MAGIC_NUMBER, self._checksum(payload), len(payload))
 				self.ser.write(header)
 				self.ser.write(payload)
@@ -120,6 +122,7 @@ class Communication:
 					return None
 
 				magicNumber, checksum, payload_size = header
+				print(f"[COMM RECV HEADER] magic=0x{magicNumber:04X} checksum=0x{checksum:04X} size={payload_size}")
 
 				payload = self._readExact(payload_size)
 				if payload is None:
@@ -127,12 +130,15 @@ class Communication:
 
 
 				if self._checksum(payload) != checksum:
+					print(f"[COMM RECV] checksum mismatch payload={payload.hex(' ')}")
 					return None
 
 				if numBytes > 0 and len(payload) < numBytes:
+					print(f"[COMM RECV] payload too small ({len(payload)} < {numBytes}) payload={payload.hex(' ')}")
 					return None
 
 				data = payload
+				print(f"[COMM RECV] {data.hex(' ')}")
 			except (serial.SerialException, AttributeError):
 				data = None
 		else:
