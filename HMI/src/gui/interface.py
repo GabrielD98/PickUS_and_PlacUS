@@ -10,13 +10,14 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QLineEdit,
 	QLabel,
-	QScrollArea
+	QScrollArea,
+	QMessageBox
 
 )
 from PyQt5 import QtWidgets
 from pathlib import Path
 from controller import Controller
-from file_interpreter import FileInterpreter
+from file_interpreter import FileInterpreter, ReferenceNotFoundError
 from gui.pnp_state_widget import PnPStateWidget
 from storage import Storage
 from data import *
@@ -95,6 +96,8 @@ class Interface(QMainWindow):
 		self._fileLabel = QLineEdit('No File Selected', alignment=Qt.AlignLeft|Qt.AlignVCenter)
 		self._fileLabel.setReadOnly(True)
 		self._fileLabel.setStyleSheet("color: black; background-color: white")
+		self._referenceLabel = QLineEdit("J4", alignment=Qt.AlignLeft|Qt.AlignVCenter)
+		self._referenceLabel.setPlaceholderText("Reference")
 		
 		self._analyseButton = QPushButton("Analyse")
 		self._analyseButton.clicked.connect(self._analyseFile)
@@ -102,6 +105,7 @@ class Interface(QMainWindow):
 		fileLayout = QHBoxLayout()
 		fileLayout.addWidget(exploreFile, 1)
 		fileLayout.addWidget(self._fileLabel, 5)
+		fileLayout.addWidget(self._referenceLabel, 1)
 		fileLayout.addWidget(self._analyseButton, 1)
 		leftLayout.addLayout(fileLayout, 1)
 
@@ -220,7 +224,19 @@ class Interface(QMainWindow):
 		update the slice widget and piece list.
 		Enable calibration (The user can only calibrate once a file is loaded).
 		"""
-		pieces = FileInterpreter().readPositionFile(self._filePath)
+		referenceRef = self._referenceLabel.text().strip() or "J4"
+		try:
+			pieces = FileInterpreter().readPositionFile(self._filePath, referenceRef)
+		except ReferenceNotFoundError:
+			QMessageBox.critical(
+				self,
+				"Reference not found",
+				f"The reference '{referenceRef}' was not found in the .pos file. Please update it and analyse again."
+			)
+			self._analyseButton.setEnabled(True)
+			self._analyseButton.setText("Analyse")
+			self._calibrateButton.setEnabled(False)
+			return
 		if pieces is None:
 			return
 		
