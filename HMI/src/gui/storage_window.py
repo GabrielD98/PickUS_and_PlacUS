@@ -226,6 +226,7 @@ class StorageWindow(QMainWindow):
 		automatic = self._autoCheckbox.isChecked()
 		state = self._statesOptions.currentIndex()
 		rotation = self._rotationOptions.currentIndex()
+		toolhead_index = int(self._toolheadOptions.currentText())
 		deltaPos = Position(0,0,0,0)
 		position= self._controller.getGripperPosition()
 
