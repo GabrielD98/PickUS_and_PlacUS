@@ -49,6 +49,8 @@ class CommandDispatcher:
             return
 
         if command is None:
+            if not self._controller._connected:
+                return
             heartbeat = PauseCommand()
             packet = self._controller._commandInterface.buildPacket(heartbeat, True)
             if packet is not None:
