@@ -64,10 +64,13 @@ class PnPStateWidget(QWidget):
         self._position = Position(0,0,0,0)
         self._positionLabel = QLabel(f"Position : -")
         self._positionLabel.setAlignment(Qt.AlignCenter) 
+        self._pressureLabel = QLabel("Pressure : -")
+        self._pressureLabel.setAlignment(Qt.AlignCenter)
         layout.addLayout(connectionLayout)
         layout.addWidget(self._machineStateLabel)
         layout.addWidget(self._controllerStateLabel)
         layout.addWidget(self._positionLabel)
+        layout.addWidget(self._pressureLabel)
         self.setLayout(layout)
 
 
@@ -93,6 +96,8 @@ class PnPStateWidget(QWidget):
         self._position = self._controller.getGripperPosition()
         self._positionLabel.setText(f"Position : {self._position.x:.2f}, {self._position.y:.2f},"
                                      + f" {self._position.z:.2f}, {self._position.yaw:.2f}")
+        pressure = self._controller.getMachinePressure()
+        self._pressureLabel.setText(f"Pressure : {pressure:.2f}")
         
         #listenner for when the PnP is DONE with placing components
         #emits a signal for the control panel
@@ -153,6 +158,7 @@ class PnPStateWidget(QWidget):
         self._machineStateLabel.setText("Machine State : -")
         self._controllerStateLabel.setText("Controller State : -")
         self._positionLabel.setText("Position : -")
+        self._pressureLabel.setText("Pressure : -")
         self._connectionLabel.setStyleSheet("background-color: red; border-radius: 10px; max-width: 20px; max-height: 20px;")
 
 

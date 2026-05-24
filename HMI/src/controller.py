@@ -29,6 +29,7 @@ class Controller:
         self._controllerState = ControllerState.IDLE
         self._latestCommandId = 0
         self._latestMachineInfo = (MachineState.READY, Position(0, 0, 0, 0))
+        self._latestMachinePressure: float = 0.0
         self._commandInterface = CommandInterface()
         self._closeEvent = threading.Event()
         self._comThread = None
@@ -38,6 +39,7 @@ class Controller:
         self._connected = False
         self._lastHeartbeatTime: float = 0
         self._HEARTBEAT_INTERVAL_MS = 200
+        self._stopRequested = False
         self.mutex = threading.Lock()
 
         self._commandDispatcher = CommandDispatcher(self)
@@ -119,6 +121,11 @@ class Controller:
         with self.mutex:
             position = self._latestMachineInfo[1]
         return position
+    
+    def getMachinePressure(self) -> float:
+        with self.mutex:
+            pressure = self._latestMachinePressure
+        return pressure
 
     def getControllerState(self) -> ControllerState:
         return self._controllerState

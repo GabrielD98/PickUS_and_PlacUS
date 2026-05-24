@@ -43,6 +43,7 @@ class MachineTelemetryDecoder:
             with self._controller.mutex:
                 self._controller._latestMachineInfo = (MachineState(machineState), position)
                 self._controller._latestCommandId = currentCommandId
+                self._controller._latestMachinePressure = pressure
         except (struct.error, ValueError):
             if self._controller._com.isPortOpen():
                 self._controller._com.ser.reset_input_buffer()
