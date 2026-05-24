@@ -41,15 +41,6 @@ CommandState PlaceCommand::run()
 	return currentCommandState;
 }
 
-void PlaceCommand::reset()
-{
-	std::lock_guard<std::mutex> lock(commandMutex_);
-	placingHardware->pump->off();
-	for(int i=0;i<MAX_TOOLHEAD;i++)
-	{
-		placingHardware->valve[i]->off();
-	}
-}
 
 bool PlaceCommand::setPayload(uint8_t* payload, uint16_t payloadSize)
 {

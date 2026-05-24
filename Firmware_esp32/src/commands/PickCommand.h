@@ -65,10 +65,7 @@ class PickCommand : public Command
 	 */
 	CommandState run() override;
 
-	/**
-	 * @brief Reset the command state to allow a new pick cycle.
-	 */
-	void reset() override;
+
 
 	/**
 	 * @brief Set command payload.

@@ -96,7 +96,7 @@ bool CommandHandler::setCurrentCommand(uint8_t* payload, uint16_t frameSize)
 
 	if(payload != nullptr)
 	{
-		if (frameSize > sizeof(CommmandFrameHeader))
+		if (frameSize >= sizeof(CommmandFrameHeader))
 		{
 			CommmandFrameHeader commmandFrameHeader;
 			memcpy(&commmandFrameHeader, payload, sizeof(CommmandFrameHeader));
@@ -122,16 +122,4 @@ bool CommandHandler::setCurrentCommand(uint8_t* payload, uint16_t frameSize)
 	return result;
 }
 
-void CommandHandler::resetAllCommand()
-{
-	std::lock_guard<std::mutex> lock(mutex_);
-	hasPendingCommand = false;
 
-	for (uint8_t i = 0; i < numberOfRegisteredCommands; i++)
-	{
-		if (registeredCommands[i] != nullptr)
-		{
-			registeredCommands[i]->reset();
-		}
-	}
-}

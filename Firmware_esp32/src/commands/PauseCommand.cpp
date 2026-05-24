@@ -21,11 +21,6 @@ CommandState PauseCommand::run()
 	return CommandState::Done;
 }
 
-void PauseCommand::reset()
-{
-	std::lock_guard<std::mutex> lock(commandMutex_);
-	// No state to reset for pause command
-}
 
 bool PauseCommand::setPayload(uint8_t* payload, uint16_t payloadSize)
 {

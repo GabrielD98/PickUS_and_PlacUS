@@ -31,15 +31,6 @@ CommandState PickCommand::run()
 	return currentCommandState;
 }
 
-void PickCommand::reset()
-{
-	std::lock_guard<std::mutex> lock(commandMutex_);
-	pickingHardware->pump->off();
-	for(int i=0;i<MAX_TOOLHEAD;i++)
-	{
-		pickingHardware->valve[i]->off();
-	}
-}
 
 bool PickCommand::setPayload(uint8_t* payload, uint16_t payloadSize)
 {

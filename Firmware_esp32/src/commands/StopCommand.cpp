@@ -17,7 +17,6 @@ void StopCommand::prepare()
 CommandState StopCommand::run()
 {
 	std::lock_guard<std::mutex> lock(commandMutex_);
-	// Call the reset all callback to halt all motion and deactivate all outputs
 	if (resetAllCb != nullptr)
 	{
 		resetAllCb();
@@ -25,11 +24,6 @@ CommandState StopCommand::run()
 	return CommandState::Done;
 }
 
-void StopCommand::reset()
-{
-	std::lock_guard<std::mutex> lock(commandMutex_);
-	// No state to reset for stop command
-}
 
 bool StopCommand::setPayload(uint8_t* payload, uint16_t payloadSize)
 {

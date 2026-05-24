@@ -43,10 +43,7 @@ class PauseCommand : public Command
 	 */
 	CommandState run() override;
 
-	/**
-	 * @brief Reset the command state.
-	 */
-	void reset() override;
+
 
 	/**
 	 * @brief Set command payload. Pause command does not use payload.

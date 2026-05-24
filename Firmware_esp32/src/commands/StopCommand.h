@@ -42,10 +42,7 @@ class StopCommand : public Command
 	 */
 	CommandState run() override;
 
-	/**
-	 * @brief Reset the command state.
-	 */
-	void reset() override;
+
 
 	/**
 	 * @brief Set command payload. Stop command does not use payload.

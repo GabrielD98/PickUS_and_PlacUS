@@ -92,11 +92,7 @@ CommandState HomeCommand::run()
 	return currentCommandState;
 }
 
-void HomeCommand::reset()
-{
-    std::lock_guard<std::mutex> lock(commandMutex_);
-	homingState = HomingState::Init;
-}
+
 
 bool HomeCommand::setPayload(uint8_t* payload, uint16_t payloadSize)
 {

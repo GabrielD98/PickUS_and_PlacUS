@@ -65,10 +65,7 @@ class PlaceCommand : public Command
 	 */
 	CommandState run() override;
 
-	/**
-	 * @brief Reset the command state to allow a new place cycle.
-	 */
-	void reset() override;
+
 
 	/**
 	 * @brief Set command payload.

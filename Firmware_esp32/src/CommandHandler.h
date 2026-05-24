@@ -115,10 +115,7 @@ class CommandHandler
 		 */
 		bool setCurrentCommand(uint8_t* payload, uint16_t frameSize);
 
-		/**
-		 * @brief Reset all registered commands to their initial state.
-		 */
-		void resetAllCommand();
+
 
 
 	private:

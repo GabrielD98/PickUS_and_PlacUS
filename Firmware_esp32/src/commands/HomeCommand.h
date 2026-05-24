@@ -88,10 +88,7 @@ class HomeCommand : public Command
 	 */
 	CommandState run() override;
 
-	/**
-	 * @brief Reset the command state to allow a new homing cycle.
-	 */
-	void reset() override;
+
 
 	/**
 	 * @brief Accept payload for interface compatibility.

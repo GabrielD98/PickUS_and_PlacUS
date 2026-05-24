@@ -111,7 +111,8 @@ static PressureTaskContext pressureTaskContext = {
 
 static void resetAllCommandsCallback()
 {
-	commandHandler.resetAllCommand();
+	pump.off();
+	valve0.off();
 }
 
 static void initializeHardware()

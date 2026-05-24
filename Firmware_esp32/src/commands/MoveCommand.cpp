@@ -44,10 +44,6 @@ CommandState MoveCommand::run()
 	return currentCommandState;
 }
 
-void MoveCommand::reset()
-{
-    std::lock_guard<std::mutex> lock(commandMutex_);
-}
 
 bool MoveCommand::setPayload(uint8_t* payload, uint16_t payloadSize)
 {

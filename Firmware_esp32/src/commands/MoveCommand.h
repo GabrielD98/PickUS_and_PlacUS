@@ -71,10 +71,7 @@ class MoveCommand : public Command
 	 */
 	CommandState run() override;
 
-	/**
-	 * @brief No state to reset for this command
-	 */
-	void reset() override;
+
 
 	/**
 	 * @brief Accept payload for interface compatibility.

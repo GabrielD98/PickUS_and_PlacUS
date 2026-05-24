@@ -41,12 +41,6 @@ class Command
 		 * @return CommandState Indicates whether the command is done, still in progress, or failed.
 		 */
 		virtual CommandState run() = 0;
-
-		/**
-		 * @brief Reset the command to its initial state.
-		 */
-		virtual void reset() = 0;
-
 		/**
 		 * @brief Provide the raw payload associated with the command.
 		 *
