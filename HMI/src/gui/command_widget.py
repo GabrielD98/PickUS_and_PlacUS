@@ -75,9 +75,11 @@ class CommandWidget(QWidget):
 
     def pnpDone(self):
         """
-        Stop the Pick and Place process when the operation is complete.
+        Reset the UI when the operation is complete without sending Stop.
         """
-        self._stop()
+        self._on = False
+        self._stackedWidget.setCurrentIndex(0)
+        self._mainControlButton.setText("Start")
 
 
 
