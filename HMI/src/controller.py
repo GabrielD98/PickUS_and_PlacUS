@@ -3,6 +3,7 @@ import time
 from typing import List
 
 from command_interface import CommandInterface, CommandPacket, PauseCommand, StopCommand
+from comm_parser import CommParser
 from communication import Communication
 from command_dispatcher import CommandDispatcher
 from homing_service import HomingService
@@ -31,6 +32,7 @@ class Controller:
         self._latestMachineInfo = (MachineState.READY, Position(0, 0, 0, 0))
         self._latestMachinePressure: float = 0.0
         self._commandInterface = CommandInterface()
+        self._commParser = CommParser()
         self._closeEvent = threading.Event()
         self._comThread = None
         self._controllerRequestTransitionField = 0
@@ -40,6 +42,7 @@ class Controller:
         self._lastHeartbeatTime: float = 0
         self._HEARTBEAT_INTERVAL_MS = 200
         self._stopRequested = False
+        self._commandParsingEnabled = True
         self.mutex = threading.Lock()
 
         self._commandDispatcher = CommandDispatcher(self)
@@ -74,8 +77,9 @@ class Controller:
 
     def connectionToMachine(self, comPort: str, baudrate: int):
         self._timeSinceLastResponse = time.time() * 1000
-        self._com = Communication(comPort, baudrate)
+        self._com = Communication(comPort, baudrate, self._commParser)
         self._com.open()
+        self._commParser.setEnabled(self._commandParsingEnabled)
         self._closeEvent = threading.Event()
         self._comThread = threading.Thread(target=self._controlLoop)
         self._comThread.start()
@@ -98,6 +102,10 @@ class Controller:
 
     def isPortOpen(self):
         return self._comThread is not None
+
+    def setCommandParsingEnabled(self, enabled: bool):
+        self._commandParsingEnabled = enabled
+        self._commParser.setEnabled(enabled)
 
     def start_pnp(self):
         if self.blocked:

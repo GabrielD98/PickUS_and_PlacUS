@@ -2,6 +2,8 @@ import struct
 
 import serial
 
+from comm_parser import CommParser
+
 
 MAGIC_NUMBER = 0xFACE
 
@@ -20,10 +22,11 @@ class Communication:
 
 	"""
 
-	def __init__(self, port: str, baudrate: int):
+	def __init__(self, port: str, baudrate: int, parser: CommParser | None = None):
 		self.port = port
 		self.baudrate = baudrate
 		self.ser = None
+		self._parser = parser if parser is not None else CommParser(False)
 
 	def _checksum(self, data: bytes) -> int:
 		return sum(data) & 0xFFFF
@@ -70,7 +73,6 @@ class Communication:
 
 	def open(self):
 		"""Open the serial port."""
-		print(f"[COMM OPEN] port={self.port} baudrate={self.baudrate}")
 		self.ser = serial.Serial(
 			port=self.port,
 			baudrate=self.baudrate,
@@ -96,7 +98,7 @@ class Communication:
 		if self.isPortOpen():
 			try:
 				payload = bytes(data)
-				print(f"[COMM SEND] {payload.hex(' ')}")
+				self._parser.logOutgoing(payload)
 				header = struct.pack('<HHH', MAGIC_NUMBER, self._checksum(payload), len(payload))
 				self.ser.write(header)
 				self.ser.write(payload)
@@ -122,23 +124,19 @@ class Communication:
 					return None
 
 				magicNumber, checksum, payload_size = header
-				print(f"[COMM RECV HEADER] magic=0x{magicNumber:04X} checksum=0x{checksum:04X} size={payload_size}")
-
 				payload = self._readExact(payload_size)
 				if payload is None:
 					return None
 
 
 				if self._checksum(payload) != checksum:
-					print(f"[COMM RECV] checksum mismatch payload={payload.hex(' ')}")
 					return None
 
 				if numBytes > 0 and len(payload) < numBytes:
-					print(f"[COMM RECV] payload too small ({len(payload)} < {numBytes}) payload={payload.hex(' ')}")
 					return None
 
 				data = payload
-				print(f"[COMM RECV] {data.hex(' ')}")
+				self._parser.logIncoming(data)
 			except (serial.SerialException, AttributeError):
 				data = None
 		else:
