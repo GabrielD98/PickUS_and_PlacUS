@@ -23,7 +23,7 @@ CommandState PickCommand::run()
 	std::lock_guard<std::mutex> lock(commandMutex_);
 	CommandState currentCommandState = CommandState::InProgress;
 
-	if (pickingHardware->pressureSensor[pickingPayload.toolheadNumber]->getPressureKPa() < pickingPayload.pressureThresholdKPa)
+	if (pickingHardware->pressureSensor[pickingPayload.toolheadNumber]->getPressureKPa() <= pickingPayload.pressureThresholdKPa)
 	{
 		currentCommandState = CommandState::Done;
 	}

@@ -22,7 +22,7 @@ CommandState PlaceCommand::run()
 	std::lock_guard<std::mutex> lock(commandMutex_);
 	CommandState currentCommandState = CommandState::InProgress;
 
-	if (placingHardware->pressureSensor[placingPayload.toolheadNumber]->getPressureKPa() > placingPayload.pressureThresholdKPa)
+	if (placingHardware->pressureSensor[placingPayload.toolheadNumber]->getPressureKPa() >= placingPayload.pressureThresholdKPa)
 	{
 		bool canClosePump = true;
 
