@@ -9,7 +9,7 @@ from command_dispatcher import CommandDispatcher
 from homing_service import HomingService
 from machine_telemetry_decoder import MachineTelemetryDecoder
 from pnp_state_machine import PnPStateMachine
-from data import ControllerState, MachineState, Position, TransitionRequest
+from data import ControllerState, MachineState, Position, TransitionRequest, MAX_TOOLHEAD
 from storage import Storage
 
 
@@ -31,6 +31,9 @@ class Controller:
         self._latestCommandId = 0
         self._latestMachineInfo = (MachineState.READY, Position(0, 0, 0, 0))
         self._latestMachinePressure: float = 0.0
+        self._latestMachinePressures: list[float] = [0.0 for _ in range(MAX_TOOLHEAD)]
+        self._latestMachineValveStates: list[bool] = [False for _ in range(MAX_TOOLHEAD)]
+        self._latestMachinePumpState: bool = False
         self._commandInterface = CommandInterface()
         self._commParser = CommParser()
         self._closeEvent = threading.Event()
@@ -107,6 +110,15 @@ class Controller:
         self._commandParsingEnabled = enabled
         self._commParser.setEnabled(enabled)
 
+    def isCommandParsingEnabled(self) -> bool:
+        return self._commandParsingEnabled
+
+    def addCommLogListener(self, listener):
+        self._commParser.addListener(listener)
+
+    def removeCommLogListener(self, listener):
+        self._commParser.removeListener(listener)
+
     def start_pnp(self):
         if self.blocked:
             return
@@ -134,6 +146,26 @@ class Controller:
         with self.mutex:
             pressure = self._latestMachinePressure
         return pressure
+
+    def getMachinePressures(self) -> list[float]:
+        with self.mutex:
+            pressures = list(self._latestMachinePressures)
+        return pressures
+
+    def getMachineValveStates(self) -> list[bool]:
+        with self.mutex:
+            valves = list(self._latestMachineValveStates)
+        return valves
+
+    def getMachinePumpState(self) -> bool:
+        with self.mutex:
+            pump = self._latestMachinePumpState
+        return pump
+
+    def getLatestCommandId(self) -> int:
+        with self.mutex:
+            command_id = self._latestCommandId
+        return command_id
 
     def getControllerState(self) -> ControllerState:
         return self._controllerState

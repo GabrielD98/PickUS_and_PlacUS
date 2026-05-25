@@ -14,6 +14,8 @@
 #include "commands/PlaceCommand.h"
 #include "commands/PauseCommand.h"
 #include "commands/StopCommand.h"
+#include "commands/ValveCommand.h"
+#include "commands/PumpCommand.h"
 #include "hardware/LimitSwitch.h"
 #include "hardware/Mosfet.h"
 #include "hardware/PressureSensor.h"
@@ -22,7 +24,7 @@
 namespace
 {
 constexpr uint32_t SERIAL_BAUD_RATE = 115200;
-constexpr uint32_t SERIAL_STARTUP_DELAY_MS = 3000;
+constexpr uint32_t SERIAL_STARTUP_DELAY_MS = 500;
 constexpr uint32_t TEST_TASK_STACK = 10000;
 constexpr uint32_t COMMUNICATION_TASK_STACK = 10000;
 constexpr uint32_t CONTROL_TASK_STACK = 10000;
@@ -87,6 +89,14 @@ static PlacingHardware placingHardware = {
 	{&pressureSensor0}
 };
 
+static ValveHardware valveHardware = {
+	{&valve0}
+};
+
+static PumpHardware pumpHardware = {
+	&pump
+};
+
 static DataHandler dataHandler(&dataHandlerHw, &commandHandler);
 static Controller controller(&commandHandler, &dataHandler);
 static CommunicationHandler communicationHandler(&Serial);
@@ -148,13 +158,17 @@ static void registerCommands()
 	static PickCommand pickCommand(&pickingHardware);
 	static PlaceCommand placeCommand(&placingHardware);
 	static HomeCommand homeCommand(&homingHardware);
+	static ValveCommand valveCommand(&valveHardware);
+	static PumpCommand pumpCommand(&pumpHardware);
 
 	if (!commandHandler.registerCommand(&stopCommand) ||
 		!commandHandler.registerCommand(&pauseCommand) ||
 		!commandHandler.registerCommand(&moveCommand) ||
 		!commandHandler.registerCommand(&pickCommand) ||
 		!commandHandler.registerCommand(&placeCommand) ||
-		!commandHandler.registerCommand(&homeCommand))
+		!commandHandler.registerCommand(&homeCommand) ||
+		!commandHandler.registerCommand(&valveCommand) ||
+		!commandHandler.registerCommand(&pumpCommand))
 	{
 		while (true)
 		{

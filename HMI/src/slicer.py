@@ -4,7 +4,15 @@ from file_interpreter import FileInterpreter
 from storage import Storage
 from data import *
 from geometry import CartesianVelocity, dimensionLimits
-from command_interface import HomeCommand, MoveCommand, PickCommand, PlaceCommand, DEFAULT_HOME_VELOCITY
+from command_interface import (
+    HomeCommand,
+    MoveCommand,
+    PickCommand,
+    PlaceCommand,
+    DEFAULT_HOME_VELOCITY,
+    DEFAULT_PICK_PRESSURE_KPA,
+    DEFAULT_PLACE_PRESSURE_KPA,
+)
 
 class Slicer :
     """
@@ -20,6 +28,15 @@ class Slicer :
 
     def __init__(self ):
         self.storage = Storage()    
+        self._pickPressureThresholdKpa = DEFAULT_PICK_PRESSURE_KPA
+        self._placePressureThresholdKpa = DEFAULT_PLACE_PRESSURE_KPA
+
+    def setPressureThresholds(self, pick_kpa: int, place_kpa: int):
+        self._pickPressureThresholdKpa = int(pick_kpa)
+        self._placePressureThresholdKpa = int(place_kpa)
+
+    def getPressureThresholds(self) -> tuple[int, int]:
+        return self._pickPressureThresholdKpa, self._placePressureThresholdKpa
 
 
 
@@ -80,7 +97,7 @@ class Slicer :
             ))
             
             # Pick the piece
-            commands.append(PickCommand(toolheadIndex=toolheadIndex))
+            commands.append(PickCommand(toolheadIndex=toolheadIndex, pressureThresholdKpa=self._pickPressureThresholdKpa))
 
             commands.append(MoveCommand(
                 position=dimensionLimits(((pick_position*z_mask) + storage_offset[piece])*yaw_mask),
@@ -103,7 +120,7 @@ class Slicer :
 
             
             # Place the piece
-            commands.append(PlaceCommand(toolheadIndex=toolheadIndex, piece=piece))
+            commands.append(PlaceCommand(toolheadIndex=toolheadIndex, pressureThresholdKpa=self._placePressureThresholdKpa, piece=piece))
 
             # Move to placement position
             commands.append(MoveCommand(

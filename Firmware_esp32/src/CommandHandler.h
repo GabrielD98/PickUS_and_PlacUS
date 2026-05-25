@@ -18,7 +18,7 @@
 /**
  * @brief Maximum number of command instances that can be registered.
  */
-#define MAX_COMMAND 6
+#define MAX_COMMAND 8
 
 /**
  * @brief Lists all interface command id recognizable by the controller.
@@ -30,7 +30,9 @@ enum class CommandId : uint8_t
 	Move,
 	Pick,
 	Place,
-	Home
+	Home,
+	SetValve,
+	SetPump
 };
 struct __attribute__((packed)) CommmandFrameHeader
 {

@@ -7,7 +7,7 @@ position by unpacking the binary status frame sent by the ESP32 firmware.
 import struct
 import time
 
-from data import MachineState, Position, get_status_packet_format
+from data import MachineState, Position, get_status_packet_format, MAX_TOOLHEAD
 from geometry import StepPosition, stepToCoord
 
 
@@ -38,12 +38,26 @@ class MachineTelemetryDecoder:
             return
 
         try:
-            machineState, currentCommandId, x, y, z, yaw, pressure, valveState, pumpState = struct.unpack(format, bytesBuffer[:size])
+            unpacked = struct.unpack(format, bytesBuffer[:size])
+            machineState = unpacked[0]
+            currentCommandId = unpacked[1]
+            x, y, z, yaw = unpacked[2:6]
+            pressure_start = 6
+            pressure_end = pressure_start + MAX_TOOLHEAD
+            valve_start = pressure_end
+            valve_end = valve_start + MAX_TOOLHEAD
+            pressures = list(unpacked[pressure_start:pressure_end])
+            valves = [bool(v) for v in unpacked[valve_start:valve_end]]
+            pump_state = bool(unpacked[-1])
+
             position = stepToCoord(StepPosition(x, y, z, yaw))
             with self._controller.mutex:
                 self._controller._latestMachineInfo = (MachineState(machineState), position)
                 self._controller._latestCommandId = currentCommandId
-                self._controller._latestMachinePressure = pressure
+                self._controller._latestMachinePressure = pressures[0] if pressures else 0.0
+                self._controller._latestMachinePressures = pressures
+                self._controller._latestMachineValveStates = valves
+                self._controller._latestMachinePumpState = pump_state
         except (struct.error, ValueError):
             if self._controller._com.isPortOpen():
                 self._controller._com.ser.reset_input_buffer()

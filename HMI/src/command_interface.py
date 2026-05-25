@@ -8,8 +8,8 @@ from geometry import CartesianVelocity, coordToStep, velocityToStep
 
 
 DEFAULT_TOOLHEAD_INDEX = 0
-DEFAULT_PICK_PRESSURE_KPA = 80
-DEFAULT_PLACE_PRESSURE_KPA = 90
+DEFAULT_PICK_PRESSURE_KPA = 75
+DEFAULT_PLACE_PRESSURE_KPA = 0
 # Backwards-compatible default (used where a single default existed previously)
 DEFAULT_PRESSURE_THRESHOLD_KPA = DEFAULT_PLACE_PRESSURE_KPA
 DEFAULT_HOME_VELOCITY = CartesianVelocity(-50.0, -50.0, 50.0, 50.0)
@@ -22,6 +22,8 @@ class FirmwareCommandId(IntEnum):
     PICK = 3
     PLACE = 4
     HOME = 5
+    SET_VALVE = 6
+    SET_PUMP = 7
 
 
 @dataclass(frozen=True)
@@ -144,7 +146,42 @@ class PlaceCommand:
         return struct.pack('<BxH', toolheadIndex, pressureThresholdKpa)
 
 
-CommandPacket = StopCommand | PauseCommand | MoveCommand | HomeCommand | PickCommand | PlaceCommand
+@dataclass(frozen=True)
+class SetValveCommand:
+    toolheadIndex: int | None = DEFAULT_TOOLHEAD_INDEX
+    enabled: bool = False
+
+    @property
+    def commandId(self) -> FirmwareCommandId:
+        return FirmwareCommandId.SET_VALVE
+
+    def toPayload(self, defaults: PacketDefaults) -> bytes:
+        toolheadIndex = defaults.resolveToolheadIndex(self.toolheadIndex)
+        return struct.pack('<BB', toolheadIndex, 1 if self.enabled else 0)
+
+
+@dataclass(frozen=True)
+class SetPumpCommand:
+    enabled: bool = False
+
+    @property
+    def commandId(self) -> FirmwareCommandId:
+        return FirmwareCommandId.SET_PUMP
+
+    def toPayload(self, defaults: PacketDefaults) -> bytes:
+        return struct.pack('<B', 1 if self.enabled else 0)
+
+
+CommandPacket = (
+    StopCommand
+    | PauseCommand
+    | MoveCommand
+    | HomeCommand
+    | PickCommand
+    | PlaceCommand
+    | SetValveCommand
+    | SetPumpCommand
+)
 
 
 class CommandInterface:

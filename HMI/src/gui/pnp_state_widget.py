@@ -62,15 +62,21 @@ class PnPStateWidget(QWidget):
         self._controllerStateLabel = QLabel("Controller State : -")
         self._controllerStateLabel.setAlignment(Qt.AlignCenter) 
         self._position = Position(0,0,0,0)
-        self._positionLabel = QLabel(f"Position : -")
+        self._positionLabel = QLabel("Position (mm) : -")
         self._positionLabel.setAlignment(Qt.AlignCenter) 
         self._pressureLabel = QLabel("Pressure : -")
         self._pressureLabel.setAlignment(Qt.AlignCenter)
+        self._valveStateLabel = QLabel("Valves : -")
+        self._valveStateLabel.setAlignment(Qt.AlignCenter)
+        self._pumpStateLabel = QLabel("Pump : -")
+        self._pumpStateLabel.setAlignment(Qt.AlignCenter)
         layout.addLayout(connectionLayout)
         layout.addWidget(self._machineStateLabel)
         layout.addWidget(self._controllerStateLabel)
         layout.addWidget(self._positionLabel)
         layout.addWidget(self._pressureLabel)
+        layout.addWidget(self._valveStateLabel)
+        layout.addWidget(self._pumpStateLabel)
         self.setLayout(layout)
 
 
@@ -94,10 +100,16 @@ class PnPStateWidget(QWidget):
         state_c = self._controller.getControllerState()
         self._controllerStateLabel.setText(f"Controller State : {state_c}")
         self._position = self._controller.getGripperPosition()
-        self._positionLabel.setText(f"Position : {self._position.x:.2f}, {self._position.y:.2f},"
+        self._positionLabel.setText(f"Position (mm) : {self._position.x:.2f}, {self._position.y:.2f},"
                                      + f" {self._position.z:.2f}, {self._position.yaw:.2f}")
-        pressure = self._controller.getMachinePressure()
-        self._pressureLabel.setText(f"Pressure : {pressure:.2f}")
+        pressures = self._controller.getMachinePressures()
+        pressure_text = ", ".join([f"{pressure:.2f}" for pressure in pressures]) if pressures else "-"
+        self._pressureLabel.setText(f"Pressure : {pressure_text}")
+        valves = self._controller.getMachineValveStates()
+        valve_text = ", ".join(["ON" if state else "OFF" for state in valves]) if valves else "-"
+        self._valveStateLabel.setText(f"Valves : {valve_text}")
+        pump_state = self._controller.getMachinePumpState()
+        self._pumpStateLabel.setText(f"Pump : {'ON' if pump_state else 'OFF'}")
         
         #listenner for when the PnP is DONE with placing components
         #emits a signal for the control panel
@@ -157,8 +169,10 @@ class PnPStateWidget(QWidget):
         self._connected = False
         self._machineStateLabel.setText("Machine State : -")
         self._controllerStateLabel.setText("Controller State : -")
-        self._positionLabel.setText("Position : -")
+        self._positionLabel.setText("Position (mm) : -")
         self._pressureLabel.setText("Pressure : -")
+        self._valveStateLabel.setText("Valves : -")
+        self._pumpStateLabel.setText("Pump : -")
         self._connectionLabel.setStyleSheet("background-color: red; border-radius: 10px; max-width: 20px; max-height: 20px;")
 
 

@@ -159,6 +159,14 @@ class SliceInfoWidget(QWidget):
         """
         self._pieces = pieces
 
+    def setPressureThresholds(self, pick_kpa: int, place_kpa: int):
+        """Update pick/place pressure thresholds for future slices."""
+        self._slicer.setPressureThresholds(pick_kpa, place_kpa)
+
+    def getPressureThresholds(self) -> tuple[int, int]:
+        """Return pick/place pressure thresholds used by the slicer."""
+        return self._slicer.getPressureThresholds()
+
 
 
 

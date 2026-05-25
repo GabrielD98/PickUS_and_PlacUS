@@ -53,11 +53,53 @@ class CartesianVelocity:
         return cls(speed, speed, speed, speed)
 
 
+@dataclass
+class WorkspaceLimits:
+    x_min: float
+    x_max: float
+    y_min: float
+    y_max: float
+    z_min: float
+    z_max: float
+
+
+WORKSPACE_LIMITS = WorkspaceLimits(
+    x_min=P_X_MIN,
+    x_max=P_X_MAX,
+    y_min=P_Y_MIN,
+    y_max=P_Y_MAX,
+    z_min=P_Z_MIN,
+    z_max=P_Z_MAX,
+)
+
+
+def setWorkspaceLimits(x_min: float, x_max: float, y_min: float, y_max: float, z_min: float, z_max: float):
+    if x_min > x_max or y_min > y_max or z_min > z_max:
+        raise ValueError("min values must be <= max values")
+    WORKSPACE_LIMITS.x_min = x_min
+    WORKSPACE_LIMITS.x_max = x_max
+    WORKSPACE_LIMITS.y_min = y_min
+    WORKSPACE_LIMITS.y_max = y_max
+    WORKSPACE_LIMITS.z_min = z_min
+    WORKSPACE_LIMITS.z_max = z_max
+
+
+def getWorkspaceLimits() -> WorkspaceLimits:
+    return WorkspaceLimits(
+        x_min=WORKSPACE_LIMITS.x_min,
+        x_max=WORKSPACE_LIMITS.x_max,
+        y_min=WORKSPACE_LIMITS.y_min,
+        y_max=WORKSPACE_LIMITS.y_max,
+        z_min=WORKSPACE_LIMITS.z_min,
+        z_max=WORKSPACE_LIMITS.z_max,
+    )
+
+
 def dimensionLimits(targetPosition: Position) -> Position:
     """Clamp a cartesian position to the machine workspace."""
-    x = min(max(targetPosition.x, P_X_MIN), P_X_MAX)
-    y = min(max(targetPosition.y, P_Y_MIN), P_Y_MAX)
-    z = min(max(targetPosition.z, P_Z_MIN), P_Z_MAX)
+    x = min(max(targetPosition.x, WORKSPACE_LIMITS.x_min), WORKSPACE_LIMITS.x_max)
+    y = min(max(targetPosition.y, WORKSPACE_LIMITS.y_min), WORKSPACE_LIMITS.y_max)
+    z = min(max(targetPosition.z, WORKSPACE_LIMITS.z_min), WORKSPACE_LIMITS.z_max)
     return Position(x, y, z, targetPosition.yaw)
 
 
