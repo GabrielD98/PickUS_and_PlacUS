@@ -3,7 +3,7 @@ import time
 from typing import List
 
 from command_interface import CommandInterface, CommandPacket, PauseCommand, StopCommand
-from comm_parser import CommParser
+from comm_parser import CommLogFilter, CommParser
 from communication import Communication
 from command_dispatcher import CommandDispatcher
 from homing_service import HomingService
@@ -115,6 +115,9 @@ class Controller:
 
     def addCommLogListener(self, listener):
         self._commParser.addListener(listener)
+
+    def updateCommLogListenerFilter(self, listener, log_filter: CommLogFilter | None):
+        self._commParser.updateListenerFilter(listener, log_filter)
 
     def removeCommLogListener(self, listener):
         self._commParser.removeListener(listener)

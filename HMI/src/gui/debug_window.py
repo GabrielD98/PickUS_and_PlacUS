@@ -16,7 +16,8 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from command_interface import FirmwareCommandId, SetPumpCommand, SetValveCommand
+from command_interface import SetPumpCommand, SetValveCommand
+from comm_parser import CommLogFilter
 from controller import Controller
 from gui.jog_widget import JogWidget
 from settings import read_debug_settings, write_debug_settings
@@ -35,7 +36,7 @@ class DebugWindow(QWidget):
         self._logQueue = deque()
         self._logHistory = deque(maxlen=1000)
         self._logListener = self._onLogEntry
-        self._commandFilterName: str | None = None
+        self._commandFilterIds: set[int] | None = None
 
         self._controller.addCommLogListener(self._logListener)
 
@@ -68,12 +69,12 @@ class DebugWindow(QWidget):
         filterLayout = QHBoxLayout()
         self._inCheck = QCheckBox("IN")
         self._inCheck.setChecked(True)
-        self._inCheck.toggled.connect(self._refreshLogView)
+        self._inCheck.toggled.connect(self._updateLogFilter)
         self._outCheck = QCheckBox("OUT")
         self._outCheck.setChecked(True)
-        self._outCheck.toggled.connect(self._refreshLogView)
+        self._outCheck.toggled.connect(self._updateLogFilter)
         self._cmdFilterEntry = QLineEdit()
-        self._cmdFilterEntry.setPlaceholderText("Cmd id/name")
+        self._cmdFilterEntry.setPlaceholderText("Cmd id(s)")
         self._cmdFilterEntry.textChanged.connect(self._updateCommandFilter)
 
         filterLayout.addWidget(QLabel("Filter"))
@@ -210,21 +211,24 @@ class DebugWindow(QWidget):
     def _updateCommandFilter(self):
         text = self._cmdFilterEntry.text().strip()
         if not text:
-            self._commandFilterName = None
-            self._refreshLogView()
+            self._commandFilterIds = None
+            self._updateLogFilter()
             return
 
-        if text.isdigit():
-            try:
-                self._commandFilterName = FirmwareCommandId(int(text)).name
-            except ValueError:
-                self._commandFilterName = None
-        else:
-            try:
-                self._commandFilterName = FirmwareCommandId[text.upper()].name
-            except KeyError:
-                self._commandFilterName = text.upper()
+        self._commandFilterIds = CommLogFilter.parse_command_ids(text)
+        self._updateLogFilter()
 
+    def _updateLogFilter(self):
+        directions: set[str] | None = None
+        if self._inCheck.isChecked() or self._outCheck.isChecked():
+            directions = set()
+            if self._inCheck.isChecked():
+                directions.add("IN")
+            if self._outCheck.isChecked():
+                directions.add("OUT")
+
+        log_filter = CommLogFilter(directions=directions, command_ids=self._commandFilterIds)
+        self._controller.updateCommLogListenerFilter(self._logListener, log_filter)
         self._refreshLogView()
 
     def _passesLogFilter(self, direction: str, message: str) -> bool:
@@ -233,26 +237,7 @@ class DebugWindow(QWidget):
         if direction == "OUT" and not self._outCheck.isChecked():
             return False
 
-        if self._commandFilterName is None:
-            return True
-
-        cmd_name = self._extractCommandName(message)
-        if cmd_name is None:
-            return False
-
-        return cmd_name.upper() == self._commandFilterName.upper()
-
-    @staticmethod
-    def _extractCommandName(message: str) -> str | None:
-        marker = "cmd="
-        start = message.find(marker)
-        if start == -1:
-            return None
-        start += len(marker)
-        end = message.find(" ", start)
-        if end == -1:
-            end = len(message)
-        return message[start:end]
+        return True
 
     def _updateTelemetry(self):
         machine_state = self._controller.getMachineState()

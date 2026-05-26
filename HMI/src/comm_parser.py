@@ -22,6 +22,20 @@ class CommLogFilter:
                 return False
         return True
 
+    @staticmethod
+    def parse_command_ids(text: str) -> set[int] | None:
+        tokens = [token.strip() for token in text.split(",") if token.strip()]
+        if not tokens:
+            return None
+
+        command_ids: set[int] = set()
+        for token in tokens:
+            if not token.isdigit():
+                continue
+            command_ids.add(int(token))
+
+        return command_ids or None
+
 
 class CommParser:
     """Parse and log serial frames for debugging.
