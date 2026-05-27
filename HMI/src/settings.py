@@ -6,6 +6,7 @@ from data import DATA_DIR, DEBUG_SETTINGS_PATH
 
 
 def read_debug_settings() -> dict[str, Any]:
+    """Return settings or an empty dict when the file is missing or invalid."""
     try:
         with open(DEBUG_SETTINGS_PATH, "r") as file:
             data = json.load(file)

@@ -24,6 +24,7 @@ class CommLogFilter:
 
     @staticmethod
     def parse_command_ids(text: str) -> set[int] | None:
+        """Parse comma-separated numeric ids, ignoring non-numeric tokens."""
         tokens = [token.strip() for token in text.split(",") if token.strip()]
         if not tokens:
             return None
@@ -84,6 +85,7 @@ class CommParser:
         self._emit("IN", info, command_id)
 
     def _emit(self, direction: str, message: str, command_id: int | None):
+        """Emit log entries to listeners that pass their filter."""
         for entry in list(self._listeners):
             log_filter = entry.get("filter")
             if not self._passesFilter(log_filter, direction, command_id):

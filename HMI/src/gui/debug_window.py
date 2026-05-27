@@ -28,6 +28,7 @@ class DebugWindow(QWidget):
     """Debug window for comm logs, manual control, and telemetry."""
 
     def __init__(self, controller: Controller):
+        """Initialize UI state, log buffers, and the comm log listener."""
         super().__init__()
         self.setWindowTitle("Debug")
         self._controller = controller
@@ -219,6 +220,7 @@ class DebugWindow(QWidget):
         self._updateLogFilter()
 
     def _updateLogFilter(self):
+        """Update parser filtering (affects only new log entries) and refresh the view."""
         directions: set[str] | None = None
         if self._inCheck.isChecked() or self._outCheck.isChecked():
             directions = set()
@@ -240,6 +242,7 @@ class DebugWindow(QWidget):
         return True
 
     def _updateTelemetry(self):
+        """Refresh telemetry labels and cache output states for toggle buttons."""
         machine_state = self._controller.getMachineState()
         position = self._controller.getGripperPosition()
         pressures = self._controller.getMachinePressures()

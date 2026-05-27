@@ -101,6 +101,7 @@ class SettingsWindow(QWidget):
         self._saveSettings()
 
     def _loadSettings(self):
+        """Load persisted pressure and geometry values into the UI."""
         if self._sliceWidget is not None:
             pick, place = self._sliceWidget.getPressureThresholds()
             self._pickThreshold.setValue(int(pick))
@@ -140,6 +141,7 @@ class SettingsWindow(QWidget):
                 pass
 
     def _saveSettings(self):
+        """Persist current UI values in the debug settings file."""
         settings = read_debug_settings()
         settings["pressure"] = {
             "pick": int(self._pickThreshold.value()),
