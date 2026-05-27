@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
 
 from geometry import getWorkspaceLimits, setWorkspaceLimits
 from gui.slice_info_widget import SliceInfoWidget
-from settings import read_debug_settings, write_debug_settings
+from settings import read_settings, write_settings
 
 
 class SettingsWindow(QWidget):
@@ -107,7 +107,7 @@ class SettingsWindow(QWidget):
             self._pickThreshold.setValue(int(pick))
             self._placeThreshold.setValue(int(place))
 
-        settings = read_debug_settings()
+        settings = read_settings()
         if not settings:
             return
 
@@ -142,7 +142,7 @@ class SettingsWindow(QWidget):
 
     def _saveSettings(self):
         """Persist current UI values in the debug settings file."""
-        settings = read_debug_settings()
+        settings = read_settings()
         settings["pressure"] = {
             "pick": int(self._pickThreshold.value()),
             "place": int(self._placeThreshold.value()),
@@ -155,7 +155,7 @@ class SettingsWindow(QWidget):
             "z_min": round(float(self._zMin.value()), 2),
             "z_max": round(float(self._zMax.value()), 2),
         }
-        write_debug_settings(settings)
+        write_settings(settings)
 
     @staticmethod
     def _coerce_float(value, fallback: float) -> float:

@@ -31,7 +31,7 @@ from gui.calibration_window import CalibrationWindow
 from gui.debug_window import DebugWindow
 from gui.settings_window import SettingsWindow
 from geometry import setWorkspaceLimits
-from settings import read_debug_settings
+from settings import read_settings
 import utils
 import random
 
@@ -203,7 +203,7 @@ class Interface(QMainWindow):
 
 
 	def _applySavedSettings(self):
-		settings = read_debug_settings()
+		settings = read_settings()
 		if not settings:
 			return
 

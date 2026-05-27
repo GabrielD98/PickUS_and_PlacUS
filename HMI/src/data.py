@@ -7,7 +7,7 @@ MAX_SPEED = 100 #mm/s
 MAX_TOOLHEAD = 1
 DATA_DIR = Path(__file__).resolve().parents[1] / 'data'
 CALIB_PATH = str(DATA_DIR / 'calib.json')
-DEBUG_SETTINGS_PATH = str(DATA_DIR / 'debug_settings.json')
+SETTINGS_PATH = str(DATA_DIR / 'settings.json')
 
 
 def get_status_packet_format() -> str:

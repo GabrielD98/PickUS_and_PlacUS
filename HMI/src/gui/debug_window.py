@@ -20,7 +20,6 @@ from command_interface import SetPumpCommand, SetValveCommand
 from comm_parser import CommLogFilter
 from controller import Controller
 from gui.jog_widget import JogWidget
-from settings import read_debug_settings, write_debug_settings
 from data import MAX_TOOLHEAD, MachineState
 
 
@@ -42,7 +41,6 @@ class DebugWindow(QWidget):
         self._controller.addCommLogListener(self._logListener)
 
         self._buildUI()
-        self._loadSettings()
         self._startLogTimer()
         self._startTelemetryTimer()
 
@@ -149,24 +147,12 @@ class DebugWindow(QWidget):
 
     def _toggleParsing(self, enabled: bool):
         self._controller.setCommandParsingEnabled(enabled)
-        self._saveSettings()
 
     def _clearLogs(self):
         self._logView.clear()
         with self._logLock:
             self._logQueue.clear()
             self._logHistory.clear()
-
-    def _loadSettings(self):
-        settings = read_debug_settings()
-        if not settings:
-            return
-
-        if "parsing_enabled" in settings:
-            self._controller.setCommandParsingEnabled(bool(settings.get("parsing_enabled")))
-            self._parseCheck.blockSignals(True)
-            self._parseCheck.setChecked(self._controller.isCommandParsingEnabled())
-            self._parseCheck.blockSignals(False)
 
     def _toggleValve(self):
         if self._controller.getMachineState() != MachineState.READY:
