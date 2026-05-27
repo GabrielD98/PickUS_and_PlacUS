@@ -6,6 +6,21 @@ Firmware_esp32/.piolibdeps/
 Firmware_esp32/.clang_complete
 Firmware_esp32/.gcc-flags.json
 
+# Host test builds
+Firmware_esp32/tests/build/
+Firmware_esp32/tests/**/build/
+
+# CMake/build outputs
+build/
+**/build/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json
+Makefile
+**/CMakeFiles/
+Testing/
+
 # KiCad
 *-backups/
 *.pos

@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
         "./HMI/src"
-    ]
+    ],
+    "cmake.sourceDirectory": "${workspaceFolder}/Firmware_esp32/tests"
 }

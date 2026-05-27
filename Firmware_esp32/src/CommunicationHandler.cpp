@@ -1,4 +1,5 @@
 #include "CommunicationHandler.h"
+#include <cstring>
 
 CommunicationHandler::CommunicationHandler(Stream* stream)
     : stream(stream)

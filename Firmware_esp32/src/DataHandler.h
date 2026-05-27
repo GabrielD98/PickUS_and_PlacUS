@@ -12,8 +12,13 @@
 #include "../lib/data.hpp"
 #include <mutex>
 #include <AccelStepper.h>
+#if defined(HOST_TEST)
+#include <hardware/mosfet.h>
+#include <hardware/pressureSensor.h>
+#else
 #include "hardware/mosfet.h"
 #include "hardware/pressureSensor.h"
+#endif
 #include "CommandHandler.h"
 #include "boardconfig.h"
 

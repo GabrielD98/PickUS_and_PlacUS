@@ -19,18 +19,15 @@
 #include "hardware/LimitSwitch.h"
 #include "hardware/Mosfet.h"
 #include "hardware/PressureSensor.h"
-#include "tests/TestRunner.h"
 
 namespace
 {
 constexpr uint32_t SERIAL_BAUD_RATE = 115200;
 constexpr uint32_t SERIAL_STARTUP_DELAY_MS = 500;
-constexpr uint32_t TEST_TASK_STACK = 10000;
 constexpr uint32_t COMMUNICATION_TASK_STACK = 10000;
 constexpr uint32_t CONTROL_TASK_STACK = 10000;
 constexpr uint32_t PRESSURE_TASK_STACK = 4096;
 constexpr TickType_t COMMUNICATION_IDLE_DELAY = pdMS_TO_TICKS(10);
-constexpr TickType_t TEST_LOOP_DELAY = pdMS_TO_TICKS(100);
 constexpr TickType_t PRESSURE_LOOP_DELAY = pdMS_TO_TICKS(50);
 
 static AccelStepper motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR);
@@ -100,14 +97,11 @@ static PumpHardware pumpHardware = {
 static DataHandler dataHandler(&dataHandlerHw, &commandHandler);
 static Controller controller(&commandHandler, &dataHandler);
 static CommunicationHandler communicationHandler(&Serial);
-static TestRunner testRunner(&controller);
-
 static void resetAllCommandsCallback();
 static void initializeHardware();
 static void registerCommands();
 static void communicationLoop(void* pvParameters);
 static void controlLoop(void* pvParameters);
-static void testLoop(void* pvParameters);
 static void pressureUpdateLoop(void* pvParameters);
 
 struct PressureTaskContext
@@ -213,25 +207,6 @@ static void controlLoop(void* pvParameters)
 	}
 }
 
-static void testLoop(void* pvParameters)
-{
-	(void)pvParameters;
-
-	if (ENABLE_COM_TEST)
-	{
-		testRunner.runComTest();
-	}
-	else if (ENABLE_TEST)
-	{
-		testRunner.runTests();
-	}
-
-	while (true)
-	{
-		vTaskDelay(TEST_LOOP_DELAY);
-	}
-}
-
 static void pressureUpdateLoop(void* pvParameters)
 {
 	PressureTaskContext* context = static_cast<PressureTaskContext*>(pvParameters);
@@ -266,23 +241,9 @@ void setup()
 	initializeHardware();
 	registerCommands();
 
-	if (ENABLE_TEST)
-	{
-		xTaskCreatePinnedToCore(testLoop, "testTask", TEST_TASK_STACK, &controller, 1, nullptr, 1);
-		xTaskCreatePinnedToCore(pressureUpdateLoop, "pressureTask", PRESSURE_TASK_STACK, &pressureTaskContext, 2, nullptr, 0);
-	}
-	else if (ENABLE_COM_TEST)
-	{
-		xTaskCreatePinnedToCore(testLoop, "testTask", TEST_TASK_STACK, &controller, 1, nullptr, 1);
-		xTaskCreatePinnedToCore(communicationLoop, "communicationTask", COMMUNICATION_TASK_STACK, &controller, 1, nullptr, 0);
-		xTaskCreatePinnedToCore(pressureUpdateLoop, "pressureTask", PRESSURE_TASK_STACK, &pressureTaskContext, 2, nullptr, 0);
-	}
-	else
-	{
 		xTaskCreatePinnedToCore(communicationLoop, "communicationTask", COMMUNICATION_TASK_STACK, &controller, 1, nullptr, 0);
 		xTaskCreatePinnedToCore(pressureUpdateLoop, "pressureTask", PRESSURE_TASK_STACK, &pressureTaskContext, 2, nullptr, 0);
 		xTaskCreatePinnedToCore(controlLoop, "controlTask", CONTROL_TASK_STACK, &controller, 1, nullptr, 1);
-	}
 }
 
 void loop()
