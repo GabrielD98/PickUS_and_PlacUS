@@ -1,6 +1,13 @@
 {
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
     "python.analysis.extraPaths": [
         "./HMI/src"
     ],
-    "cmake.sourceDirectory": "${workspaceFolder}/Firmware_esp32/tests"
+    "cmake.sourceDirectory": "${workspaceFolder}/Firmware_esp32/tests",
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "HMI/tests"
+    ],
+    "python.testing.autoTestDiscoverOnSaveEnabled": true
 }

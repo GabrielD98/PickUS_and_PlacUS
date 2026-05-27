@@ -11,6 +11,7 @@ class TestStorage(unittest.TestCase):
 
     def setUp(self):
         self.storage = Storage()
+        self.storage.components = {}
 
 
 
