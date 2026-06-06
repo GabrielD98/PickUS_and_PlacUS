@@ -19,5 +19,22 @@ TEST(HomeCommandTest, AcceptsPayloadAndReturnsDone)
     EXPECT_TRUE(command.setPayload(reinterpret_cast<uint8_t*>(&payload), sizeof(payload)));
 
     command.prepare();
+
+    EXPECT_EQ(command.run(), CommandState::InProgress);
+
+    switchZ.setTriggered(true);
+    EXPECT_EQ(command.run(), CommandState::InProgress);
+
+    EXPECT_EQ(command.run(), CommandState::InProgress);
+
+    switchX.setTriggered(true);
+    EXPECT_EQ(command.run(), CommandState::InProgress);
+
+    EXPECT_EQ(command.run(), CommandState::InProgress);
+
+    switchY.setTriggered(true);
+    EXPECT_EQ(command.run(), CommandState::InProgress);
+
+    EXPECT_EQ(command.run(), CommandState::InProgress);
     EXPECT_EQ(command.run(), CommandState::Done);
 }

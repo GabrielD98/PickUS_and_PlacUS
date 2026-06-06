@@ -95,8 +95,12 @@ class Slicer :
                 position=dimensionLimits(((pick_position*z_mask) + storage_offset[piece])*yaw_mask),
                 velocity=CartesianVelocity.uniform(speed),
             ))
+            commands.append(MoveCommand(
+                position=dimensionLimits(((pick_position) + storage_offset[piece])*yaw_mask),
+                velocity=CartesianVelocity.uniform(speed),
+            ))
             
-            # Pick the piece
+            # Pick the pieces
             commands.append(PickCommand(toolheadIndex=toolheadIndex, pressureThresholdKpa=self._pickPressureThresholdKpa))
 
             commands.append(MoveCommand(
@@ -117,9 +121,13 @@ class Slicer :
                 position=dimensionLimits((piece.position+ offset)*z_mask*yaw_mask + rotation),
                 velocity=CartesianVelocity.uniform(speed),
             ))
+            commands.append(MoveCommand(
+                position=dimensionLimits((piece.position+ offset)*yaw_mask + rotation),
+                velocity=CartesianVelocity.uniform(speed),
+            ))
 
             
-            # Place the piece
+            # Place the pieces
             commands.append(PlaceCommand(toolheadIndex=toolheadIndex, pressureThresholdKpa=self._placePressureThresholdKpa, piece=piece))
 
             # Move to placement position

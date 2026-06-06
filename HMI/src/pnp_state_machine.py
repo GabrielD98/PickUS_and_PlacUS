@@ -62,7 +62,8 @@ class PnPStateMachine:
             with self._controller.mutex:
                 lastCommand = self._controller._lastCommand
 
-            if isinstance(lastCommand, HomeCommand):
+            # Mark cycle done only after HOME has completed (queue empty and machine ready again).
+            if nextCommand is None and isinstance(lastCommand, HomeCommand):
                 with self._controller.mutex:
                     self._controller._controllerState = ControllerState.DONE
         elif self._controller._lastCommand is not None:

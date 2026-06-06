@@ -37,16 +37,18 @@ class TestSlicer(unittest.TestCase):
         commands = slicer.slice(self.pieces, Position(10, 20, 0, 0), Position(0, 0, -2, 0), 2.0)
 
         self.assertIsInstance(commands, list)
-        self.assertEqual(len(commands), 31)
+        self.assertEqual(len(commands), 41)
 
         self.assertIsInstance(commands[0], MoveCommand)
-        self.assertIsInstance(commands[1], PickCommand)
-        self.assertIsInstance(commands[4], PlaceCommand)
-        self.assertEqual(commands[4].piece, self.pieces[0])
+        self.assertIsInstance(commands[1], MoveCommand)
+        self.assertIsInstance(commands[2], PickCommand)
+        self.assertIsInstance(commands[6], PlaceCommand)
+        self.assertEqual(commands[6].piece, self.pieces[0])
         self.assertIsInstance(commands[-1], HomeCommand)
 
         self.assertEqual(commands[0].position, Position(piece1.position.x, piece1.position.y, piece1.position.z, 0))
-        self.assertEqual(commands[2].position, commands[0].position)
+        self.assertEqual(commands[1].position, Position(piece1.position.x, piece1.position.y, piece1.position.z, 0))
+        self.assertEqual(commands[3].position, commands[0].position)
 
 
 if __name__ == '__main__':
