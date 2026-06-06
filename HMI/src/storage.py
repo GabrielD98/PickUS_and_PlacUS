@@ -37,23 +37,25 @@ class Storage :
 
 
 
-    def addComponent(self, piece:Piece, position:Position, deltaPos:Position, 
-                      state:StorageState, quantity:int, automatic:bool):
+    def addComponent(self, piece:Piece, position:Position, deltaPos:Position = None, 
+                      state:StorageState = None, quantity:int = 0, automatic:bool = False, toolhead_index:int = 0):
         """
         Adds a component to the storage. This allows the slicer to know wich components will be
         available to place. 
 
         Parameters:
             piece (Piece): The component's data to be added to this storage unit.
+            position (Position): The position of this storage unit.
             deltaPos (Position): The offset of each pieces in this storage unit. 
             state (StorageState): The state of this unit -> USING, IGNORE, EMPTY.
             quantity (int): The amount of available components in this unit. 
             automatic (bool): Is the component feeder automatic or not.
+            toolhead_index (int): The toolhead index for this component.
         """
         if piece.package in self.components:
             return
         component = StorageUnit(piece=piece, position=position, deltaPos=deltaPos, state=state, 
-                                quantity=quantity, automatic=automatic)
+                    quantity=quantity, automatic=automatic, toolhead_index=toolhead_index)
         self.components[piece] = component
 
 
