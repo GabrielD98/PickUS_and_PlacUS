@@ -10,13 +10,14 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QLineEdit,
 	QLabel,
-	QScrollArea
+	QScrollArea,
+	QMessageBox
 
 )
 from PyQt5 import QtWidgets
 from pathlib import Path
 from controller import Controller
-from file_interpreter import FileInterpreter
+from file_interpreter import FileInterpreter, ReferenceNotFoundError
 from gui.pnp_state_widget import PnPStateWidget
 from storage import Storage
 from data import *
@@ -27,6 +28,10 @@ from gui.jog_widget import JogWidget
 from gui.command_widget import CommandWidget
 from gui.slice_info_widget import SliceInfoWidget
 from gui.calibration_window import CalibrationWindow
+from gui.debug_window import DebugWindow
+from gui.settings_window import SettingsWindow
+from geometry import setWorkspaceLimits
+from settings import read_settings
 import utils
 import random
 
@@ -61,6 +66,8 @@ class Interface(QMainWindow):
 		self._controller = Controller()
 		self._pieces:List[Piece] = []
 		self._filePath = "No file selected"
+		self._debugWindow = None
+		self._settingsWindow = None
 
 		self._initializeGUI()
 
@@ -95,6 +102,8 @@ class Interface(QMainWindow):
 		self._fileLabel = QLineEdit('No File Selected', alignment=Qt.AlignLeft|Qt.AlignVCenter)
 		self._fileLabel.setReadOnly(True)
 		self._fileLabel.setStyleSheet("color: black; background-color: white")
+		self._referenceLabel = QLineEdit("J4", alignment=Qt.AlignLeft|Qt.AlignVCenter)
+		self._referenceLabel.setPlaceholderText("Reference")
 		
 		self._analyseButton = QPushButton("Analyse")
 		self._analyseButton.clicked.connect(self._analyseFile)
@@ -102,6 +111,7 @@ class Interface(QMainWindow):
 		fileLayout = QHBoxLayout()
 		fileLayout.addWidget(exploreFile, 1)
 		fileLayout.addWidget(self._fileLabel, 5)
+		fileLayout.addWidget(self._referenceLabel, 1)
 		fileLayout.addWidget(self._analyseButton, 1)
 		leftLayout.addLayout(fileLayout, 1)
 
@@ -147,6 +157,16 @@ class Interface(QMainWindow):
 		stateLayout.addWidget(self._stateWidget)
 		rightLayout.addLayout(stateLayout, 1)
 
+		#DEBUG LAYOUT
+		debugLayout = QHBoxLayout()
+		self._debugButton = QPushButton("Debug")
+		self._debugButton.clicked.connect(self._openDebugWindow)
+		self._settingsButton = QPushButton("Settings")
+		self._settingsButton.clicked.connect(self._openSettingsWindow)
+		debugLayout.addWidget(self._debugButton)
+		debugLayout.addWidget(self._settingsButton)
+		rightLayout.addLayout(debugLayout, 0)
+
 
 		# JOG AND MANUAL CONTROL LAYOUT
 		jogLayout = QHBoxLayout()
@@ -169,6 +189,7 @@ class Interface(QMainWindow):
 		#overall setup of the window
 		self.setCentralWidget(globalWidget)
 		self.showMaximized()
+		self._applySavedSettings()
 
 		# sets up signals to get info when a task is ended
 		self._sliceWidget.sliceDoneSignal.connect(commandWidget.sliceDone)
@@ -179,6 +200,51 @@ class Interface(QMainWindow):
 		self.timer.setInterval(100) # Update every 100 milliseconds
 		self.timer.timeout.connect(self._updateGUI) 
 		self.timer.start() 
+
+
+	def _applySavedSettings(self):
+		settings = read_settings()
+		if not settings:
+			return
+
+		pressure = settings.get("pressure")
+		if isinstance(pressure, dict):
+			pick = self._coerce_int(pressure.get("pick"), None)
+			place = self._coerce_int(pressure.get("place"), None)
+			if pick is not None and place is not None:
+				self._sliceWidget.setPressureThresholds(pick, place)
+
+		geometry = settings.get("geometry")
+		if isinstance(geometry, dict):
+			x_min = self._coerce_float(geometry.get("x_min"), None)
+			x_max = self._coerce_float(geometry.get("x_max"), None)
+			y_min = self._coerce_float(geometry.get("y_min"), None)
+			y_max = self._coerce_float(geometry.get("y_max"), None)
+			z_min = self._coerce_float(geometry.get("z_min"), None)
+			z_max = self._coerce_float(geometry.get("z_max"), None)
+			if None not in (x_min, x_max, y_min, y_max, z_min, z_max):
+				try:
+					setWorkspaceLimits(x_min, x_max, y_min, y_max, z_min, z_max)
+				except ValueError:
+					pass
+
+		if "parsing_enabled" in settings:
+			self._controller.setCommandParsingEnabled(bool(settings.get("parsing_enabled")))
+
+
+	@staticmethod
+	def _coerce_float(value, fallback: float | None):
+		try:
+			return float(value)
+		except (TypeError, ValueError):
+			return fallback
+
+	@staticmethod
+	def _coerce_int(value, fallback: int | None):
+		try:
+			return int(value)
+		except (TypeError, ValueError):
+			return fallback
 
 
 
@@ -220,7 +286,19 @@ class Interface(QMainWindow):
 		update the slice widget and piece list.
 		Enable calibration (The user can only calibrate once a file is loaded).
 		"""
-		pieces = FileInterpreter().readPositionFile(self._filePath)
+		referenceRef = self._referenceLabel.text().strip() or "J4"
+		try:
+			pieces = FileInterpreter().readPositionFile(self._filePath, referenceRef)
+		except ReferenceNotFoundError:
+			QMessageBox.critical(
+				self,
+				"Reference not found",
+				f"The reference '{referenceRef}' was not found in the .pos file. Please update it and analyse again."
+			)
+			self._analyseButton.setEnabled(True)
+			self._analyseButton.setText("Analyse")
+			self._calibrateButton.setEnabled(False)
+			return
 		if pieces is None:
 			return
 		
@@ -295,6 +373,24 @@ class Interface(QMainWindow):
 		self._calibrationWindow = CalibrationWindow(position=self._calibrationPos)
 		self._calibrationWindow.show()
 		self._sliceWidget.enableSlicing()
+
+	def _openDebugWindow(self):
+		"""Open the debug window for comm logs and manual controls."""
+		if self._debugWindow is None or not self._debugWindow.isVisible():
+			self._debugWindow = DebugWindow(self._controller)
+			self._debugWindow.show()
+		else:
+			self._debugWindow.raise_()
+			self._debugWindow.activateWindow()
+
+	def _openSettingsWindow(self):
+		"""Open the settings window for pressure and geometry."""
+		if self._settingsWindow is None or not self._settingsWindow.isVisible():
+			self._settingsWindow = SettingsWindow(self._sliceWidget)
+			self._settingsWindow.show()
+		else:
+			self._settingsWindow.raise_()
+			self._settingsWindow.activateWindow()
 
 
 

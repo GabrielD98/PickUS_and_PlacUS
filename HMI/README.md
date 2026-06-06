@@ -61,6 +61,10 @@ To find your port:
 | Module | Responsibility |
 |--------|---|
 | `Controller` | Manages state, command queue, and background control loop |
+| `CommandDispatcher` | Queues commands and serializes them for transport |
+| `PnPStateMachine` | Resolves controller state transitions and next commands |
+| `MachineTelemetryDecoder` | Decodes telemetry packets from the ESP32 |
+| `HomingService` | Runs the homing workflow in a background thread |
 | `Communication` | Low-level UART wrapper around `pyserial` |
 | `FileInterpreter` | Parses KiCad `.pos` placement files into `Piece` objects |
 | `Slicer` | Generates ordered `Command` sequence: pick → move → place per component |
@@ -100,9 +104,13 @@ HMI/
 │   ├── main.py              # Entry point
 │   ├── communication.py      # Serial protocol
 │   ├── controller.py         # Command orchestration
+│   ├── command_dispatcher.py # Controller command queue management
 │   ├── data.py              # Data models
 │   ├── file_interpreter.py  # KiCad .pos parser
+│   ├── homing_service.py    # Homing workflow
+│   ├── machine_telemetry_decoder.py # Telemetry packet decoding
 │   ├── slicer.py            # Command generation
+│   ├── pnp_state_machine.py  # Controller state transitions
 │   ├── storage.py           # Component inventory
 │   ├── utils.py             # Utilities
 │   └── gui/                 # GUI components

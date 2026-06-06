@@ -32,7 +32,7 @@ Firmware for motor control, sensor reading, and command execution on the PickUS 
 
 ## Configuration
 
-### Pin Mapping (`BoardConfig.h`)
+### Pin Mapping (`boardconfig.h`)
 
 | Signal | Pin | Direction |
 |--------|-----|-----------|
@@ -64,13 +64,13 @@ The firmware consists of these key modules:
 
 | Module | File | Responsibility |
 |--------|------|---|
-| `Controller` | `Controller.h/cpp` | Coordinates command handling, motion, homing, pick/place sequences, and machine state updates |
-| `DataModel` | `DataModel.h/cpp` | Thread-safe shared command/position/state buffer between the controller and the communication task |
+| `Controller` | `controller.h/cpp` | Coordinates command handling, motion, homing, pick/place sequences, and machine state updates |
+| `DataModel` | `datamodel.h/cpp` | Thread-safe shared command/position/state buffer between the controller and the communication task |
 | `Communication` | `main.cpp` | UART protocol that receives `command_t` packets and sends back `statusFrame_t` replies |
-| `Geometry` | `Geometry.h/cpp` | Converts between cartesian coordinates and motor steps / velocities |
-| `Mosfet` | `Mosfet.h/cpp` | Controls the vacuum pump and valve outputs |
-| `Pressure Sensor` | `pressureSensor.h/cpp` | Reads and converts the bit-banged pressure sensor signal into kPa |
-| `Limit Switch` | `LimitSwitch.h/cpp` | Monitors X, Y, Z end-stops for homing and safety |
+| `Geometry` | `geometry.h/cpp` | Converts between cartesian coordinates and motor steps / velocities |
+| `Mosfet` | `mosfet.h/cpp` | Controls the vacuum pump and valve outputs |
+| `Pressure Sensor` | `pressuresensor.h/cpp` | Reads and converts the bit-banged pressure sensor signal into kPa |
+| `Limit Switch` | `limitswitch.h/cpp` | Monitors X, Y, Z end-stops for homing and safety |
 
 ### Command IDs
 
@@ -113,15 +113,15 @@ The firmware includes test hooks controlled by `platformio.ini` build flags:
 ```
 Firmware_esp32/
 ├── src/                     # Firmware source files
-│   ├── BoardConfig.h
-│   ├── Controller.cpp/h
-│   ├── DataModel.cpp/h
-│   ├── Geometry.cpp/h
-│   ├── LimitSwitch.cpp/h
+│   ├── boardconfig.h
+│   ├── controller.cpp/h
+│   ├── datamodel.cpp/h
+│   ├── geometry.cpp/h
+│   ├── limitswitch.cpp/h
 │   ├── main.cpp
-│   ├── Mosfet.cpp/h
-│   ├── pressureSensor.cpp/h
-│   └── Tests/               # Internal test helpers and scenarios
+│   ├── mosfet.cpp/h
+│   ├── pressuresensor.cpp/h
+│   └── tests/               # Internal test helpers and scenarios
 ├── lib/                     # Shared data types and external libraries
 │   ├── data.hpp
 │   └── AccelStepper/

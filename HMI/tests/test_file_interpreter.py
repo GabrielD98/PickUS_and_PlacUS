@@ -1,5 +1,6 @@
 import sys
 import os
+from pathlib import Path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import unittest
@@ -11,46 +12,47 @@ class TestFileInterpreter(unittest.TestCase):
     def setUp(self):
 
         self.fileInterpreter = FileInterpreter()
-        self.file = "tests/data/testKicad.txt"
+        self.file = Path(__file__).parent / "data" / "testKicad.txt"
+        self.referenceRef = "J1"
 
         self.pieces = [
-            Piece(position=Position(66.0000, -36.0000, 0.0, 90.0000),
+            Piece(position=Position(9.0000, -1.0000, 0.0, 90.0000),
                   package="LED_TEST",
                   type=Type.LED,
                   value = ''),
-            Piece(position=Position(45.5000, -46.0000, 0.0, 45.0000),
+            Piece(position=Position(-11.5000, -11.0000, 0.0, 45.0000),
                   package="LED_TEST",
                   type=Type.LED,
                   value = ''),
-            Piece(position=Position(50.0000, -5.50000, 0.0, 0.0000),
+            Piece(position=Position(-7.0000, 29.5000, 0.0, 0.0000),
                   package="LED_TEST",
                   type=Type.LED,
                   value = ''),
-            Piece(position=Position(76.5000, -65.0000, 0.0, -90.0000),
+            Piece(position=Position(19.5000, -30.0000, 0.0, -90.0000),
                   package="R_0805",
                   type=Type.RESISTOR,
                   value = ''),
-            Piece(position=Position(76.5000, -69.0000, 0.0, -90.0000),
+            Piece(position=Position(19.5000, -34.0000, 0.0, -90.0000),
                   package="R_0805",
                   type=Type.RESISTOR,
                   value = ''),
-            Piece(position=Position(69.5000, -65.0000, 0.0, -90.0000),
+            Piece(position=Position(12.5000, -30.0000, 0.0, -90.0000),
                   package="R_0603",
                   type=Type.RESISTOR,
                   value = ''),
-            Piece(position=Position(69.5000, -69.0000, 0.0, -90.0000),
+            Piece(position=Position(12.5000, -34.0000, 0.0, -90.0000),
                   package="R_0603",
                   type=Type.RESISTOR,
                   value = ''),
-            Piece(position=Position(71.5000, -73.0000, 0.0, -90.0000),
+            Piece(position=Position(14.5000, -38.0000, 0.0, -90.0000),
                   package="R_0603",
                   type=Type.RESISTOR,
                   value = ''),
-            Piece(position=Position(34.5000, -77.0000, 0.0, -90.0000),
+            Piece(position=Position(-22.5000, -42.0000, 0.0, -90.0000),
                   package="R_0603",
                   type=Type.RESISTOR,
                   value = ''),
-            Piece(position=Position(32.5000, -81.0000, 0.0, -90.0000),
+            Piece(position=Position(-24.5000, -46.0000, 0.0, -90.0000),
                   package="R_0603",
                   type=Type.RESISTOR,
                   value = '')
@@ -60,7 +62,7 @@ class TestFileInterpreter(unittest.TestCase):
     def test_reading(self):
 
         print("TEST FILE READING")
-        pieces = self.fileInterpreter.readPositionFile(self.file)
+        pieces = self.fileInterpreter.readPositionFile(self.file, self.referenceRef)
 
         self.assertEqual(len(pieces), len(self.pieces))
         for index in range(0, len(pieces)) :

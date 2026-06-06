@@ -11,6 +11,7 @@ class TestStorage(unittest.TestCase):
 
     def setUp(self):
         self.storage = Storage()
+        self.storage.components = {}
 
 
 
@@ -29,7 +30,7 @@ class TestStorage(unittest.TestCase):
         state = StorageState.USING
         quantity = 50
         automatic = False
-        self.storage.addComponent(piece, deltaPos, state, quantity, automatic)
+        self.storage.addComponent(piece, piece.position, deltaPos, state, quantity, automatic)
         self.assertEqual(len(self.storage.components), 1)
         storage_unit = self.storage.components[piece]
         self.assertEqual(storage_unit.piece.package, piece.package)
@@ -49,7 +50,7 @@ class TestStorage(unittest.TestCase):
         state = StorageState.EMPTY
         quantity = 60
         automatic = False
-        self.storage.addComponent(piece, deltaPos, state, quantity, automatic)
+        self.storage.addComponent(piece, piece.position, deltaPos, state, quantity, automatic)
         self.assertEqual(len(self.storage.components), 2)
         storage_unit = self.storage.components[piece]
         self.assertEqual(storage_unit.piece.package, piece.package)
@@ -68,7 +69,7 @@ class TestStorage(unittest.TestCase):
         state = StorageState.EMPTY
         quantity = 98
         automatic = False
-        self.storage.addComponent(piece, deltaPos, state, quantity, automatic)
+        self.storage.addComponent(piece, piece.position, deltaPos, state, quantity, automatic)
         self.assertEqual(len(self.storage.components), 3)
         storage_unit = self.storage.components[piece]
         self.assertEqual(storage_unit.piece.package, piece.package)
@@ -87,7 +88,7 @@ class TestStorage(unittest.TestCase):
         state = StorageState.USING
         quantity = 23
         automatic = True
-        self.storage.addComponent(piece, deltaPos, state, quantity, automatic)
+        self.storage.addComponent(piece, piece.position, deltaPos, state, quantity, automatic)
         self.assertEqual(len(self.storage.components), 3)
         storage_unit = self.storage.components[piece]
         self.assertEqual(storage_unit.piece.package, piece.package)
