@@ -4169,6 +4169,12 @@
 		(uuid "0cb29309-d63a-4df7-bbc0-76054fadeaf6")
 	)
 	(junction
+		(at 39.37 151.13)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "130d8609-9352-45d3-81c1-2f5b81efa588")
+	)
+	(junction
 		(at 60.96 184.15)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4323,12 +4329,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b474656d-67aa-45ea-86d4-c0e548880c52")
-	)
-	(junction
-		(at 39.37 151.13)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b6d2aa4e-2575-4fd3-b19a-96b7cc42ea2e")
 	)
 	(junction
 		(at 229.87 41.91)
@@ -4560,7 +4560,7 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 143.51) (xy 52.07 143.51)
+			(xy 54.61 156.21) (xy 52.07 156.21)
 		)
 		(stroke
 			(width 0)
@@ -4930,16 +4930,6 @@
 	)
 	(wire
 		(pts
-			(xy 39.37 151.13) (xy 54.61 151.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "69e5226a-572e-439b-a19a-c2608fd90631")
-	)
-	(wire
-		(pts
 			(xy 27.94 160.02) (xy 25.4 160.02)
 		)
 		(stroke
@@ -5260,16 +5250,6 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 146.05) (xy 54.61 143.51)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9720621a-56e9-4eb6-820a-791e1eaa3b39")
-	)
-	(wire
-		(pts
 			(xy 229.87 20.32) (xy 229.87 29.21)
 		)
 		(stroke
@@ -5397,6 +5377,16 @@
 			(type default)
 		)
 		(uuid "b46ea930-b56a-49c1-a499-fefbecb1a636")
+	)
+	(wire
+		(pts
+			(xy 39.37 151.13) (xy 54.61 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b6ad53ef-ad21-4fe6-b514-9eb45c10689b")
 	)
 	(wire
 		(pts
@@ -11526,7 +11516,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Barrel_Jack_MountingPin")
-		(at 62.23 148.59 180)
+		(at 62.23 153.67 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -11535,7 +11525,7 @@
 		(fields_autoplaced yes)
 		(uuid "1fcd67a4-0d44-42da-a821-4a02dfd3bf09")
 		(property "Reference" "J8"
-			(at 68.58 146.9643 0)
+			(at 68.58 152.0443 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11544,7 +11534,7 @@
 			)
 		)
 		(property "Value" "Barrel_Jack_MountingPin"
-			(at 68.58 149.5043 0)
+			(at 68.58 154.5843 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11553,7 +11543,7 @@
 			)
 		)
 		(property "Footprint" "Connector_BarrelJack:BarrelJack_CUI_PJ-063AH_Horizontal"
-			(at 60.96 147.574 0)
+			(at 60.96 152.654 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11562,7 +11552,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 60.96 147.574 0)
+			(at 60.96 152.654 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11571,7 +11561,7 @@
 			)
 		)
 		(property "Description" "DC Barrel Jack with a mounting pin"
-			(at 62.23 148.59 0)
+			(at 62.23 153.67 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14377,7 +14367,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 52.07 143.51 0)
+		(at 52.07 156.21 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -14385,7 +14375,7 @@
 		(dnp no)
 		(uuid "d14e5bfd-ed8d-41fc-86a3-c3adb4244b1e")
 		(property "Reference" "#PWR05"
-			(at 52.07 149.86 0)
+			(at 52.07 162.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14394,7 +14384,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 49.53 142.494 0)
+			(at 49.53 155.194 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14402,7 +14392,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 52.07 143.51 0)
+			(at 52.07 156.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14411,7 +14401,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 52.07 143.51 0)
+			(at 52.07 156.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14420,7 +14410,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 52.07 143.51 0)
+			(at 52.07 156.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
