@@ -178,14 +178,17 @@ static void communicationLoop(void* pvParameters)
 
 	while (true)
 	{
-		uint16_t payloadSize = 0;
-		if (communicationHandler.handleIncoming(payload, payloadSize))
+		ComHeader header;
+		if(communicationHandler.readHeader(header))
 		{
-			commandHandler.setCurrentCommand(payload, payloadSize);
-			vTaskDelay(pdMS_TO_TICKS(10));
-
-			dataModel_t info = dataHandler.getInfo();
-			communicationHandler.write(reinterpret_cast<uint8_t*>(&info), sizeof(info));
+			if(communicationHandler.readPayload(payload, header.payloadSize, header.checkSum))
+			{
+				commandHandler.setCurrentCommand(payload, header.payloadSize);
+				vTaskDelay(pdMS_TO_TICKS(10));
+	
+				dataModel_t info = dataHandler.getInfo();
+				communicationHandler.write(reinterpret_cast<uint8_t*>(&info), sizeof(info));
+			}
 		}
 		else
 		{

@@ -42,19 +42,7 @@ public:
     /**
      * @brief Read a payload of given size into buffer. Blocks until size read or returns false.
      */
-    bool readPayload(uint8_t* buf, uint16_t size);
-
-    /**
-        * @brief Handle an incoming packet by reading the header, then the payload.
-     *
-        * Reads a ComHeader, validates it, then reads the variable-size payload and
-        * copies it into the caller-provided buffer when non-null.
-     *
-        * @param payload Output buffer for the received payload bytes.
-        * @param payloadSize In: ignored. Out: payload size in bytes when the packet is valid.
-        * This is a convenience wrapper suitable for use from a task loop.
-     */
-    bool handleIncoming(uint8_t* payload, uint16_t &payloadSize);
+    bool readPayload(uint8_t* buf, uint16_t size, uint16_t checkSum);
 
     /**
         * @brief Write a framed payload back on the stream.
