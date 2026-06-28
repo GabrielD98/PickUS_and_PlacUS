@@ -28,8 +28,8 @@ class Controller:
         self._lastCommand: CommandPacket | None = None
         self._controllerState = ControllerState.IDLE
         self._latestCommandId = 0
+        self._latestCommandNumber = 0
         self._latestMachineState = MachineState.READY
-        self._lastMachineState = MachineState.READY
         self._latestMachinePosition = Position(0, 0, 0, 0)
         self._latestMachinePressure: float = 0.0
         self._latestMachinePressures: list[float] = [0.0 for _ in range(MAX_TOOLHEAD)]
@@ -132,10 +132,10 @@ class Controller:
             state = self._latestMachineState
         return state
     
-    def getLastMachineState(self) -> MachineState:
+    def getMachineCommandNumber(self) -> int:
         with self.mutex:
-            state = self._lastMachineState
-        return state
+            commandNumber = self._latestCommandNumber
+        return commandNumber
     
     def getGripperPosition(self) -> Position:
         with self.mutex:

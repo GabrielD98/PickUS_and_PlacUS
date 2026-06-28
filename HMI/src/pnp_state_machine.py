@@ -49,13 +49,17 @@ class PnPStateMachine:
         machineState = self._controller.getMachineState()
 
         if machineState == MachineState.READY:
-            nextCommand = self._dispatcher.nextCommand()
-            if nextCommand is not None:
-                commandToSend = nextCommand
-            if isinstance(commandToSend, PlaceCommand):
-                if commandToSend.piece is not None and commandToSend.piece in self._controller._storage.components:
-                    self._controller._storage.components[commandToSend.piece].quantity -= 1
-                    self._controller._storage.components[commandToSend.piece].piece = commandToSend.piece
+            nextCommand = None
+            if self._controller._commandInterface.getCommandNumber() == self._controller.getMachineCommandNumber():
+                nextCommand = self._dispatcher.nextCommand()
+                if nextCommand is not None:
+                    commandToSend = nextCommand
+                if isinstance(commandToSend, PlaceCommand):
+                    if commandToSend.piece is not None and commandToSend.piece in self._controller._storage.components:
+                        self._controller._storage.components[commandToSend.piece].quantity -= 1
+                        self._controller._storage.components[commandToSend.piece].piece = commandToSend.piece
+            else:
+                commandToSend = self._controller.getLastCommand()
 
 
             lastCommand = self._controller.getLastCommand()
@@ -63,8 +67,6 @@ class PnPStateMachine:
             if nextCommand is None and isinstance(lastCommand, HomeCommand):
                 with self._controller.mutex:
                     self._controller._controllerState = ControllerState.DONE
-        elif self._controller._lastCommand is not None:
-            commandToSend = self._controller._lastCommand
 
         self._checkAndTransition(TransitionRequest.TO_PAUSE, ControllerState.PAUSE)
         return commandToSend
@@ -76,11 +78,12 @@ class PnPStateMachine:
         machineState = self._controller.getMachineState()
 
         if machineState == MachineState.READY:
-            nextCommand = self._dispatcher.nextCommand()
-            if nextCommand is not None:
-                commandToSend = nextCommand
-        elif self._controller._lastCommand is not None:
-            commandToSend = self._controller._lastCommand
+            if self._controller._commandInterface.getCommandNumber() == self._controller.getMachineCommandNumber() :
+                nextCommand = self._dispatcher.nextCommand()
+                if nextCommand is not None:
+                    commandToSend = nextCommand
+            else:
+                commandToSend = self._controller.getLastCommand()
 
         self._checkAndTransition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING)
         self._checkAndTransition(TransitionRequest.TO_IDLE, ControllerState.IDLE)

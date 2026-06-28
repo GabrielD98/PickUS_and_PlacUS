@@ -71,6 +71,7 @@ void DataHandler::updateInfo(MachineState machineState)
     if (commandHandler != nullptr)
     {
         lastSystemInfo.currentCommandId = static_cast<CommandId>(commandHandler->getCurrentCommandId());
+        lastSystemInfo.currentCommandNumber = commandHandler->getCurrentCommandNumber();
     }
 }
 

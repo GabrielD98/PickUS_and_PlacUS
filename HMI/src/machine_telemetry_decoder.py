@@ -33,8 +33,9 @@ class MachineTelemetryDecoder:
             unpacked = struct.unpack(format, bytesBuffer[:size])
             machineState = unpacked[0]
             currentCommandId = unpacked[1]
-            x, y, z, yaw = unpacked[2:6]
-            pressure_start = 6
+            currentCommandNumber = unpacked[2]
+            x, y, z, yaw = unpacked[3:7]
+            pressure_start = 7
             pressure_end = pressure_start + MAX_TOOLHEAD
             valve_start = pressure_end
             valve_end = valve_start + MAX_TOOLHEAD
@@ -45,9 +46,9 @@ class MachineTelemetryDecoder:
             position = stepToCoord(StepPosition(x, y, z, yaw))
             with self._controller.mutex:
                 self._controller._latestMachineState = MachineState(machineState)
-                self._controller._lastMachineState = lastMachineState
                 self._controller._latestMachinePosition = position
                 self._controller._latestCommandId = currentCommandId
+                self._controller._latestCommandNumber = currentCommandNumber
                 self._controller._latestMachinePressure = pressures[0] if pressures else 0.0
                 self._controller._latestMachinePressures = pressures
                 self._controller._latestMachineValveStates = valves
