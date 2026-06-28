@@ -27,7 +27,8 @@ constexpr uint32_t SERIAL_STARTUP_DELAY_MS = 500;
 constexpr uint32_t COMMUNICATION_TASK_STACK = 10000;
 constexpr uint32_t CONTROL_TASK_STACK = 10000;
 constexpr uint32_t PRESSURE_TASK_STACK = 4096;
-constexpr TickType_t COMMUNICATION_IDLE_DELAY = pdMS_TO_TICKS(10);
+constexpr TickType_t COMMUNICATION_IDLE_DELAY = pdMS_TO_TICKS(1);
+constexpr TickType_t COMMUNICATION_DELAY = pdMS_TO_TICKS(10);
 constexpr TickType_t PRESSURE_LOOP_DELAY = pdMS_TO_TICKS(50);
 
 static AccelStepper motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR);
@@ -184,16 +185,16 @@ static void communicationLoop(void* pvParameters)
 			if(communicationHandler.readPayload(payload, header.payloadSize, header.checkSum))
 			{
 				commandHandler.setCurrentCommand(payload, header.payloadSize);
-				vTaskDelay(pdMS_TO_TICKS(10));
-	
-				dataModel_t info = dataHandler.getInfo();
-				communicationHandler.write(reinterpret_cast<uint8_t*>(&info), sizeof(info));
 			}
 		}
 		else
 		{
 			vTaskDelay(COMMUNICATION_IDLE_DELAY);
 		}
+
+		vTaskDelay(COMMUNICATION_DELAY);
+		dataModel_t info = dataHandler.getInfo();
+		communicationHandler.write(reinterpret_cast<uint8_t*>(&info), sizeof(info));
 	}
 }
 

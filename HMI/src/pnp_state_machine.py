@@ -7,7 +7,6 @@ controller state, machine readiness, and pending transition requests.
 from command_interface import CommandPacket, HomeCommand, PauseCommand, PlaceCommand
 from data import ControllerState, MachineState, TransitionRequest
 
-
 class PnPStateMachine:
     """Resolve controller state transitions and next commands to send."""
 
@@ -47,8 +46,7 @@ class PnPStateMachine:
         """Resolve commands while the controller is running."""
         commandToSend = None
 
-        with self._controller.mutex:
-            machineState = self._controller._latestMachineInfo[0]
+        machineState = self._controller.getMachineState()
 
         if machineState == MachineState.READY:
             nextCommand = self._dispatcher.nextCommand()
@@ -59,9 +57,8 @@ class PnPStateMachine:
                     self._controller._storage.components[commandToSend.piece].quantity -= 1
                     self._controller._storage.components[commandToSend.piece].piece = commandToSend.piece
 
-            with self._controller.mutex:
-                lastCommand = self._controller._lastCommand
 
+            lastCommand = self._controller.getLastCommand()
             # Mark cycle done only after HOME has completed (queue empty and machine ready again).
             if nextCommand is None and isinstance(lastCommand, HomeCommand):
                 with self._controller.mutex:
@@ -76,8 +73,7 @@ class PnPStateMachine:
         """Resolve commands while the controller is in manual mode."""
         commandToSend = None
 
-        with self._controller.mutex:
-            machineState = self._controller._latestMachineInfo[0]
+        machineState = self._controller.getMachineState()
 
         if machineState == MachineState.READY:
             nextCommand = self._dispatcher.nextCommand()
