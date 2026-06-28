@@ -159,10 +159,11 @@ class CommParser:
         machine_state = self._machineStateName(unpacked[0])
         command_name = self._commandName(unpacked[1])
         command_id = unpacked[1]
-        x, y, z, yaw = unpacked[2:6]
+        command_number = unpacked[2]
+        x, y, z, yaw = unpacked[3:7]
 
-        pressures = list(unpacked[6:6 + MAX_TOOLHEAD])
-        valve_start = 6 + MAX_TOOLHEAD
+        pressures = list(unpacked[7:7 + MAX_TOOLHEAD])
+        valve_start = 7 + MAX_TOOLHEAD
         valve_end = valve_start + MAX_TOOLHEAD
         valves = list(unpacked[valve_start:valve_end])
         pump_state = unpacked[-1]
@@ -170,7 +171,7 @@ class CommParser:
         pressures_str = self._formatFloatList(pressures)
         valves_str = self._formatBoolList(valves)
         return (
-            f"state={machine_state} cmd={command_name} pos=({x},{y},{z},{yaw}) "
+            f"state={machine_state} cmd={command_name} cmdNum={command_number} pos=({x},{y},{z},{yaw}) "
             f"pressure={pressures_str} valve={valves_str} pump={bool(pump_state)}"
         ), command_id
 

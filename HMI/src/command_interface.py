@@ -207,6 +207,9 @@ class CommandInterface:
 
         payload = serializableCommand.toPayload(self._defaults)
         return self._buildFrame(serializableCommand.commandId, payload, isNewCommand)
+    
+    def getCommandNumber(self) -> int:
+        return self._commandNumber
 
     def _buildFrame(self, firmwareCommandId: FirmwareCommandId, payload: bytes, isNewCommand: bool = True) -> bytes:
         if isNewCommand:
