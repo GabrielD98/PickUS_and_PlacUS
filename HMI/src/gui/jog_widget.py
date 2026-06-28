@@ -324,7 +324,6 @@ class JogWidget(QWidget):
         """
         Move the gripper up (positive Y direction) by the jog step.
         """
-        print("up")
         step = self._validateStepInput()
         if step is None:
             return
@@ -338,7 +337,6 @@ class JogWidget(QWidget):
         """
         Move the gripper down (negative Y direction) by the jog step.
         """
-        print("down")
         step = self._validateStepInput()
         if step is None:
             return
@@ -357,7 +355,7 @@ class JogWidget(QWidget):
             return
         currentPos = self.getGripperPosition()
         self._moveGripper(target=currentPos+Position(-1*step, 0, 0, 0))
-        print("left")
+
 
 
 
@@ -371,7 +369,7 @@ class JogWidget(QWidget):
             return
         currentPos = self.getGripperPosition()
         self._moveGripper(target=currentPos+Position(step, 0, 0, 0))
-        print("right")
+
 
 
 
@@ -385,7 +383,7 @@ class JogWidget(QWidget):
             return
         currentPos = self.getGripperPosition()
         self._moveGripper(target=currentPos+Position(0, 0, -1*step, 0))
-        print("left")
+
 
 
 
@@ -399,7 +397,7 @@ class JogWidget(QWidget):
             return
         currentPos = self.getGripperPosition()
         self._moveGripper(target=currentPos+Position(0, 0, step, 0))
-        print("right")
+
 
 
 
@@ -413,7 +411,6 @@ class JogWidget(QWidget):
             return
         currentPos = self.getGripperPosition()
         self._moveGripper(target=currentPos+Position(0, 0, 0, -1*step))
-        print("rotate left")
 
 
 
@@ -427,7 +424,6 @@ class JogWidget(QWidget):
             return
         currentPos = self.getGripperPosition()
         self._moveGripper(target=currentPos+Position(0, 0, 0, step))
-        print("rotate right")
 
 
 

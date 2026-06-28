@@ -34,7 +34,6 @@ class CommandDispatcher:
         with self._controller.mutex:
             if self._controller._commands:
                 nextCommand = self._controller._commands.pop(0)
-                self._controller._lastCommand = nextCommand
         return nextCommand
 
     def requeueLastCommand(self):
@@ -44,23 +43,15 @@ class CommandDispatcher:
                 self._controller._commands.insert(0, self._controller._lastCommand)
 
     def sendCommand(self, command: CommandPacket | None):
-        """Serialize and send a command, or send a heartbeat when idle."""
+        """Serialize and send a command."""
         if self._controller._com is None:
             return
 
-        if command is None:
-            if not self._controller._connected:
-                return
-            heartbeat = PauseCommand()
-            packet = self._controller._commandInterface.buildPacket(heartbeat, True)
-            if packet is not None:
-                self._controller._com.sendData(packet)
-                self._controller._lastSentCommand = heartbeat
-            return
+        if command is not None:
+            is_new_command = command is not self._controller.getLastCommand()
+            with self._controller.mutex:
+                packet = self._controller._commandInterface.buildPacket(command, is_new_command)
 
-        is_new_command = command is not self._controller._lastSentCommand
-        packet = self._controller._commandInterface.buildPacket(command, is_new_command)
-
-        if packet is not None:
-            self._controller._com.sendData(packet)
-            self._controller._lastSentCommand = command
+                if packet is not None:
+                    self._controller._com.sendData(packet)
+                    self._controller._lastCommand = command

@@ -8,72 +8,59 @@ CommunicationHandler::CommunicationHandler(Stream* stream)
 
 bool CommunicationHandler::readHeader(ComHeader &header)
 {
-	bool result = false;
+    bool result = false;
 
-	if (stream != nullptr)
-	{
-		size_t needed = sizeof(ComHeader);
-		if ((size_t)stream->available() >= needed)
+    if (stream != nullptr && stream->available() >= (int)sizeof(ComHeader))
+    {
+        uint8_t b0 = 0;
+        uint8_t b1 = 0;
+        bool    aligned = false;
+
+        // Sliding-window realignment: scan until magic number is found
+        // or not enough bytes remain
+        while (!aligned && stream->available() >= (int)sizeof(ComHeader))
+        {
+            b0 = (uint8_t)stream->read();
+
+            if (b0 == (uint8_t)(MAGIC_NUMBER & 0xFF))
+            {
+                b1 = (uint8_t)stream->peek();
+
+                uint16_t candidate = (uint16_t)(b0 | (b1 << 8));
+                if (candidate == MAGIC_NUMBER)
+                {
+                    stream->read(); // consume b1
+                    aligned = true;
+                }
+            }
+        }
+
+		if (aligned)
 		{
 			uint8_t buf[sizeof(ComHeader)];
-			size_t read = stream->readBytes(buf, needed);
-			if (read == needed)
+			
+			size_t remaining = sizeof(ComHeader) - sizeof(uint16_t);
+			
+			if (stream->readBytes(buf, remaining) == remaining)
 			{
-				memcpy(&header, buf, sizeof(ComHeader));
-				// Validate magic number
-				if (header.magicNumber == MAGIC_NUMBER)
-				{
-					result = true;
-				}
+				header.magicNumber = MAGIC_NUMBER;
+				memcpy(&header.checkSum, buf, remaining);
+				result = (header.payloadSize < MAX_PAYLOAD_SIZE);
 			}
 		}
-	}
+    }
 
-	return result;
+    return result;
 }
 
-bool CommunicationHandler::readPayload(uint8_t* buf, uint16_t size)
-{
-    if (stream == nullptr || buf == nullptr) return false;
-	size_t read = stream->readBytes(buf, (size_t)size);
-	return (read == (size_t)size);
-}
-
-bool CommunicationHandler::handleIncoming(uint8_t* payload, uint16_t &payloadSize)
+bool CommunicationHandler::readPayload(uint8_t* buf, uint16_t size, uint16_t checkSum)
 {
 	bool result = false;
-
-    if (stream != nullptr)
+    if (stream != nullptr && buf != nullptr)
 	{
-		ComHeader header;
-		if (readHeader(header))
-		{
-			if (header.payloadSize < MAX_PAYLOAD_SIZE)
-			{
-				uint8_t receivedPayload[MAX_PAYLOAD_SIZE] = {0};
-				if (header.payloadSize > 0)
-				{
-					if (!readPayload(receivedPayload, header.payloadSize))
-						return result;
-				}
-			
-				// Validate checksum (sum of payload bytes)
-				uint16_t computed = computeChecksum(receivedPayload, header.payloadSize);
-				if (computed == header.checkSum)
-				{
-					if (payload != nullptr)
-					{
-						memcpy(payload, receivedPayload, header.payloadSize);
-					}
-					payloadSize = header.payloadSize;
-					result = true;
-				}
-
-			}
-
-		}
+		size_t read = stream->readBytes(buf, (size_t)size);
+		result = (read == (size_t)size) && computeChecksum(buf, checkSum);
 	}
-
 	return result;
 }
 
