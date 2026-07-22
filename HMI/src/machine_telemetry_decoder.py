@@ -10,39 +10,32 @@ import time
 from data import MachineState, Position, get_status_packet_format, MAX_TOOLHEAD
 from geometry import StepPosition, stepToCoord
 
-
-RESPONSE_TIMOUT = 200 #ms
-MAX_MISSED_RESPONSES = 3
-
-
 class MachineTelemetryDecoder:
     """Decode the latest telemetry frame and update controller state."""
 
     def __init__(self, controller):
         self._controller = controller
 
-    def updateMachineInfo(self):
+    def updateMachineInfo(self) -> bool:
         """Refresh the controller with the latest packet from the machine."""
         if self._controller._com is None:
-            return
+            return False
 
         format = get_status_packet_format()
         size = struct.calcsize(format)
         bytesBuffer = self._controller._com.receiveData(size)
 
         if bytesBuffer is None or len(bytesBuffer) < size:
-            if (time.time() * 1000) - self._controller._timeSinceLastResponse > RESPONSE_TIMOUT:
-                self._controller._missedResponses += 1
-                if self._controller._missedResponses >= MAX_MISSED_RESPONSES:
-                    self._controller._connected = False
-            return
+                return False
 
         try:
+            lastMachineState = self._controller.getMachineState()
             unpacked = struct.unpack(format, bytesBuffer[:size])
             machineState = unpacked[0]
             currentCommandId = unpacked[1]
-            x, y, z, yaw = unpacked[2:6]
-            pressure_start = 6
+            currentCommandNumber = unpacked[2]
+            x, y, z, yaw = unpacked[3:7]
+            pressure_start = 7
             pressure_end = pressure_start + MAX_TOOLHEAD
             valve_start = pressure_end
             valve_end = valve_start + MAX_TOOLHEAD
@@ -52,8 +45,10 @@ class MachineTelemetryDecoder:
 
             position = stepToCoord(StepPosition(x, y, z, yaw))
             with self._controller.mutex:
-                self._controller._latestMachineInfo = (MachineState(machineState), position)
+                self._controller._latestMachineState = MachineState(machineState)
+                self._controller._latestMachinePosition = position
                 self._controller._latestCommandId = currentCommandId
+                self._controller._latestCommandNumber = currentCommandNumber
                 self._controller._latestMachinePressure = pressures[0] if pressures else 0.0
                 self._controller._latestMachinePressures = pressures
                 self._controller._latestMachineValveStates = valves
@@ -64,5 +59,4 @@ class MachineTelemetryDecoder:
             return
 
         self._controller._connected = True
-        self._controller._missedResponses = 0
-        self._controller._timeSinceLastResponse = time.time() * 1000
+        return True

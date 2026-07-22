@@ -83,10 +83,10 @@ TEST(CommunicationHandlerTest, ReadsValidPacket)
     stream.pushReadData(buildPacket(payload));
 
     uint8_t outPayload[MAX_PAYLOAD_SIZE] = {};
-    uint16_t payloadSize = 0;
 
-    EXPECT_TRUE(handler.handleIncoming(outPayload, payloadSize));
-    EXPECT_EQ(payloadSize, payload.size());
+    ComHeader header;
+    EXPECT_TRUE(handler.readHeader(&header));
+    EXPECT_TRUE(handler.readPayload(outPayload, header.payloadSize);
     EXPECT_TRUE(std::equal(payload.begin(), payload.end(), outPayload));
 }
 

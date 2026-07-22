@@ -7,7 +7,6 @@ controller state, machine readiness, and pending transition requests.
 from command_interface import CommandPacket, HomeCommand, PauseCommand, PlaceCommand
 from data import ControllerState, MachineState, TransitionRequest
 
-
 class PnPStateMachine:
     """Resolve controller state transitions and next commands to send."""
 
@@ -47,27 +46,27 @@ class PnPStateMachine:
         """Resolve commands while the controller is running."""
         commandToSend = None
 
-        with self._controller.mutex:
-            machineState = self._controller._latestMachineInfo[0]
+        machineState = self._controller.getMachineState()
 
         if machineState == MachineState.READY:
-            nextCommand = self._dispatcher.nextCommand()
-            if nextCommand is not None:
-                commandToSend = nextCommand
-            if isinstance(commandToSend, PlaceCommand):
-                if commandToSend.piece is not None and commandToSend.piece in self._controller._storage.components:
-                    self._controller._storage.components[commandToSend.piece].quantity -= 1
-                    self._controller._storage.components[commandToSend.piece].piece = commandToSend.piece
+            nextCommand = None
+            if self._controller._commandInterface.getCommandNumber() == self._controller.getMachineCommandNumber():
+                nextCommand = self._dispatcher.nextCommand()
+                if nextCommand is not None:
+                    commandToSend = nextCommand
+                if isinstance(commandToSend, PlaceCommand):
+                    if commandToSend.piece is not None and commandToSend.piece in self._controller._storage.components:
+                        self._controller._storage.components[commandToSend.piece].quantity -= 1
+                        self._controller._storage.components[commandToSend.piece].piece = commandToSend.piece
+            else:
+                commandToSend = self._controller.getLastCommand()
 
-            with self._controller.mutex:
-                lastCommand = self._controller._lastCommand
 
+            lastCommand = self._controller.getLastCommand()
             # Mark cycle done only after HOME has completed (queue empty and machine ready again).
             if nextCommand is None and isinstance(lastCommand, HomeCommand):
                 with self._controller.mutex:
                     self._controller._controllerState = ControllerState.DONE
-        elif self._controller._lastCommand is not None:
-            commandToSend = self._controller._lastCommand
 
         self._checkAndTransition(TransitionRequest.TO_PAUSE, ControllerState.PAUSE)
         return commandToSend
@@ -76,15 +75,15 @@ class PnPStateMachine:
         """Resolve commands while the controller is in manual mode."""
         commandToSend = None
 
-        with self._controller.mutex:
-            machineState = self._controller._latestMachineInfo[0]
+        machineState = self._controller.getMachineState()
 
         if machineState == MachineState.READY:
-            nextCommand = self._dispatcher.nextCommand()
-            if nextCommand is not None:
-                commandToSend = nextCommand
-        elif self._controller._lastCommand is not None:
-            commandToSend = self._controller._lastCommand
+            if self._controller._commandInterface.getCommandNumber() == self._controller.getMachineCommandNumber() :
+                nextCommand = self._dispatcher.nextCommand()
+                if nextCommand is not None:
+                    commandToSend = nextCommand
+            else:
+                commandToSend = self._controller.getLastCommand()
 
         self._checkAndTransition(TransitionRequest.TO_RUNNING, ControllerState.RUNNING)
         self._checkAndTransition(TransitionRequest.TO_IDLE, ControllerState.IDLE)

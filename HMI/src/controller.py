@@ -26,10 +26,11 @@ class Controller:
         self.commandInWaiting: List[CommandPacket] = []
         self._commands = []
         self._lastCommand: CommandPacket | None = None
-        self._lastSentCommand: CommandPacket | None = None
         self._controllerState = ControllerState.IDLE
         self._latestCommandId = 0
-        self._latestMachineInfo = (MachineState.READY, Position(0, 0, 0, 0))
+        self._latestCommandNumber = 0
+        self._latestMachineState = MachineState.READY
+        self._latestMachinePosition = Position(0, 0, 0, 0)
         self._latestMachinePressure: float = 0.0
         self._latestMachinePressures: list[float] = [0.0 for _ in range(MAX_TOOLHEAD)]
         self._latestMachineValveStates: list[bool] = [False for _ in range(MAX_TOOLHEAD)]
@@ -42,8 +43,6 @@ class Controller:
         self._timeSinceLastResponse: float = -1
         self._missedResponses = 0
         self._connected = False
-        self._lastHeartbeatTime: float = 0
-        self._HEARTBEAT_INTERVAL_MS = 200
         self._stopRequested = False
         self._commandParsingEnabled = True
         self.mutex = threading.Lock()
@@ -72,12 +71,6 @@ class Controller:
     def requestTransition(self, transition: TransitionRequest):
         self._stateMachine.requestTransition(transition)
 
-    def getState(self) -> tuple[ControllerState, MachineState, Position]:
-        with self.mutex:
-            machineState, position = self._latestMachineInfo
-            controllerState = self._controllerState
-        return controllerState, machineState, position
-
     def connectionToMachine(self, comPort: str, baudrate: int):
         self._timeSinceLastResponse = time.time() * 1000
         self._com = Communication(comPort, baudrate, self._commParser)
@@ -86,7 +79,6 @@ class Controller:
         self._closeEvent = threading.Event()
         self._comThread = threading.Thread(target=self._controlLoop)
         self._comThread.start()
-        self._commandDispatcher.sendCommand(PauseCommand())
 
     def disconnectionFromMachine(self):
         if self._com is not None:
@@ -137,12 +129,17 @@ class Controller:
 
     def getMachineState(self) -> MachineState:
         with self.mutex:
-            state = self._latestMachineInfo[0]
+            state = self._latestMachineState
         return state
-
+    
+    def getMachineCommandNumber(self) -> int:
+        with self.mutex:
+            commandNumber = self._latestCommandNumber
+        return commandNumber
+    
     def getGripperPosition(self) -> Position:
         with self.mutex:
-            position = self._latestMachineInfo[1]
+            position = self._latestMachinePosition
         return position
     
     def getMachinePressure(self) -> float:
@@ -167,11 +164,18 @@ class Controller:
 
     def getLatestCommandId(self) -> int:
         with self.mutex:
-            command_id = self._latestCommandId
-        return command_id
+            commandId = self._latestCommandId
+        return commandId
 
     def getControllerState(self) -> ControllerState:
-        return self._controllerState
+        with self.mutex:
+            controllerState = self._controllerState
+        return controllerState
+    
+    def getLastCommand(self) -> CommandPacket:
+        with self.mutex:
+            lastCommand = self._lastCommand
+        return lastCommand
 
     def setPnpCommands(self, commands: list[CommandPacket]):
         if self.blocked:
@@ -203,7 +207,7 @@ class Controller:
 
     def _controlLoop(self):
         while not self._closeEvent.is_set():
-            commandToSend = self._stateMachine.nextCommand()
-            self._commandDispatcher.sendCommand(commandToSend)
-            self._telemetryDecoder.updateMachineInfo()
-            self._closeEvent.wait(timeout=0.05)
+            if self._telemetryDecoder.updateMachineInfo():
+                commandToSend = self._stateMachine.nextCommand()
+                self._commandDispatcher.sendCommand(commandToSend)
+            self._closeEvent.wait(timeout=0.01)

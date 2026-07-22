@@ -31,6 +31,7 @@ typedef struct __attribute__((packed)) dataModel
 {
     MachineState state;
     CommandId currentCommandId;
+    uint32_t currentCommandNumber;
     positionStep_t position;
     float pressure[MAX_TOOLHEAD];
     bool valveState[MAX_TOOLHEAD];

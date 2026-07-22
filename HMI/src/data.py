@@ -12,7 +12,7 @@ SETTINGS_PATH = str(DATA_DIR / 'settings.json')
 
 def get_status_packet_format() -> str:
     """Build the packed ESP32 status payload format from the configured toolhead count."""
-    return '<BBllll' + f'{MAX_TOOLHEAD}f' + f'{MAX_TOOLHEAD}?' + '?'
+    return '<BBLllll' + f'{MAX_TOOLHEAD}f' + f'{MAX_TOOLHEAD}?' + '?'
 
 
 class Type(Enum):

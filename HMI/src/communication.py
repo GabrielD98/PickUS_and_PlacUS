@@ -6,6 +6,7 @@ from comm_parser import CommParser
 
 
 MAGIC_NUMBER = 0xFACE
+MAX_PAYLOAD_SIZE = 256
 
 
 class Communication:
@@ -27,6 +28,9 @@ class Communication:
 		self.baudrate = baudrate
 		self.ser = None
 		self._parser = parser if parser is not None else CommParser(False)
+		self._window = bytearray(2)
+		self._windowReady = False
+		self._aligned     = False
 
 	def _checksum(self, data: bytes) -> int:
 		return sum(data) & 0xFFFF
@@ -35,41 +39,57 @@ class Communication:
 		if self.ser is None:
 			return None
 
-		buffer = bytearray()
-		while len(buffer) < size:
-			chunk = self.ser.read(size - len(buffer))
-			if not chunk:
-				return None
-			buffer.extend(chunk)
-		return bytes(buffer)
+		if(self.ser.in_waiting >= size):
+			buffer = bytearray()
+			while len(buffer) < size:
+				chunk = self.ser.read(size - len(buffer))
+				if not chunk:
+					return None
+				buffer.extend(chunk)
+			return bytes(buffer)
+		else:
+			return None
+
 
 	def _readHeader(self) -> tuple[int, int, int] | None:
 		if self.ser is None:
 			return None
 
-		magicBytes = struct.pack('<H', MAGIC_NUMBER)
-		window = bytearray()
-		discarded = 0
+		result = None
 
-		while True:
-			chunk = self.ser.read(1)
-			if not chunk:
-				return None
+		# Prime only if window isn't already loaded from a previous attempt
+		if not self._windowReady and not self._aligned:
+			initial = self._readExact(2)
+			if initial is not None:
+				self._window[0] = initial[0]
+				self._window[1] = initial[1]
+				self._windowReady = True
 
-			window.append(chunk[0])
-			if len(window) > 2:
-				window.pop(0)
-				discarded += 1
+		if self._windowReady and not self._aligned:
+			magicBytes = struct.pack('<H', MAGIC_NUMBER)
 
-			if len(window) == 2 and bytes(window) == magicBytes:
-				break
+			while not self._aligned:
+				if bytes(self._window) == magicBytes:
+					self._aligned = True
+				else:
+					next_byte = self._readExact(1)
+					if next_byte is not None:
+						self._window[0] = self._window[1]
+						self._window[1] = next_byte[0]
+					else:
+						break  # window preserved, retry next call
 
-		remaining = self._readExact(4)
-		if remaining is None:
-			return None
+		if self._aligned:
+			remaining = self._readExact(4)
+			if remaining is not None:
+				checksum, payload_size = struct.unpack('<HH', remaining)
+				if payload_size < MAX_PAYLOAD_SIZE:
+					result = (MAGIC_NUMBER, checksum, payload_size)
+				# Reset fully for next header
+				self._windowReady = False
+				self._aligned     = False
 
-		checksum, payload_size = struct.unpack('<HH', remaining)
-		return MAGIC_NUMBER, checksum, payload_size
+		return result
 
 	def open(self):
 		"""Open the serial port."""
