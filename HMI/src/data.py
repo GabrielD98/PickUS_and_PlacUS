@@ -4,7 +4,7 @@ import numbers
 from pathlib import Path
 
 MAX_SPEED = 100 #mm/s
-MAX_TOOLHEAD = 1
+MAX_TOOLHEAD = 2
 DATA_DIR = Path(__file__).resolve().parents[1] / 'data'
 CALIB_PATH = str(DATA_DIR / 'calib.json')
 SETTINGS_PATH = str(DATA_DIR / 'settings.json')

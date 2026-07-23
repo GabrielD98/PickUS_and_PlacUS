@@ -27,9 +27,11 @@ constexpr uint32_t SERIAL_STARTUP_DELAY_MS = 500;
 constexpr uint32_t COMMUNICATION_TASK_STACK = 10000;
 constexpr uint32_t CONTROL_TASK_STACK = 10000;
 constexpr uint32_t PRESSURE_TASK_STACK = 4096;
+constexpr uint32_t LED_TASK_STACK = 2048;
 constexpr TickType_t COMMUNICATION_IDLE_DELAY = pdMS_TO_TICKS(1);
 constexpr TickType_t COMMUNICATION_DELAY = pdMS_TO_TICKS(10);
-constexpr TickType_t PRESSURE_LOOP_DELAY = pdMS_TO_TICKS(50);
+constexpr TickType_t PRESSURE_TASK_DELAY = pdMS_TO_TICKS(50);
+constexpr TickType_t LED_TASK_DELAY = pdMS_TO_TICKS(500);
 
 static AccelStepper motorX(AccelStepper::DRIVER, PIN_DX_STEP, PIN_DX_DIR);
 static AccelStepper motorY(AccelStepper::DRIVER, PIN_DY_STEP, PIN_DY_DIR);
@@ -42,8 +44,10 @@ static LimitSwitch limitSwitchY(PIN_LIMSWITCH_Y);
 static LimitSwitch limitSwitchZ(PIN_LIMSWITCH_Z);
 
 static Mosfet pump(PIN_PUMP);
-static Mosfet valve0(PIN_VALVE);
-static PressureSensor pressureSensor0(PIN_PSENSOR_CLK, PIN_PSENSOR_DATA);
+static Mosfet valve0(PIN_VALVE1);
+static Mosfet valve1(PIN_VALVE2);
+static PressureSensor pressureSensor0(PIN_PSENSOR1_CLK, PIN_PSENSOR1_DATA);
+static PressureSensor pressureSensor1(PIN_PSENSOR2_CLK, PIN_PSENSOR2_DATA);
 
 static CommandHandler commandHandler;
 
@@ -52,9 +56,9 @@ static DataHandlerHardware dataHandlerHw = {
 	&motorY,
 	&motorZ,
 	&motorYaw,
-	{&valve0},
+	{&valve0,&valve1},
 	&pump,
-	{&pressureSensor0}
+	{&pressureSensor0,&pressureSensor1}
 };
 
 static HomingHardware homingHardware = {
@@ -76,19 +80,19 @@ static MovingHardware movingHardware = {
 };
 
 static PickingHardware pickingHardware = {
-	{&valve0},
+	{&valve0,&valve1},
 	&pump,
-	{&pressureSensor0}
+	{&pressureSensor0,&pressureSensor1}
 };
 
 static PlacingHardware placingHardware = {
-	{&valve0},
+	{&valve0,&valve1},
 	&pump,
-	{&pressureSensor0}
+	{&pressureSensor0,&pressureSensor1}
 };
 
 static ValveHardware valveHardware = {
-	{&valve0}
+	{&valve0,&valve1},
 };
 
 static PumpHardware pumpHardware = {
@@ -101,9 +105,10 @@ static CommunicationHandler communicationHandler(&Serial);
 static void resetAllCommandsCallback();
 static void initializeHardware();
 static void registerCommands();
-static void communicationLoop(void* pvParameters);
-static void controlLoop(void* pvParameters);
-static void pressureUpdateLoop(void* pvParameters);
+static void communicationTask(void* pvParameters);
+static void controlTask(void* pvParameters);
+static void pressureUpdateTask(void* pvParameters);
+static void LEDTask(void* pvParameters);
 
 struct PressureTaskContext
 {
@@ -111,7 +116,7 @@ struct PressureTaskContext
 };
 
 static PressureTaskContext pressureTaskContext = {
-	{&pressureSensor0}
+	{&pressureSensor0,&pressureSensor1}
 };
 
 static void resetAllCommandsCallback()
@@ -122,6 +127,9 @@ static void resetAllCommandsCallback()
 
 static void initializeHardware()
 {
+	pinMode(PIN_LED1, OUTPUT);
+	digitalWrite(PIN_LED1, HIGH);
+
 	motorX.setEnablePin(PIN_DX_EN);
 	motorY.setEnablePin(PIN_DY_EN);
 	motorZ.setEnablePin(PIN_DZ_EN);
@@ -143,6 +151,7 @@ static void initializeHardware()
 	motorSystem.addStepper(motorYaw);
 
 	pressureSensor0.init();
+	pressureSensor1.init();
 }
 
 static void registerCommands()
@@ -172,7 +181,7 @@ static void registerCommands()
 	}
 }
 
-static void communicationLoop(void* pvParameters)
+static void communicationTask(void* pvParameters)
 {
 	(void)pvParameters;
 	uint8_t payload[MAX_PAYLOAD_SIZE] = {};
@@ -198,7 +207,7 @@ static void communicationLoop(void* pvParameters)
 	}
 }
 
-static void controlLoop(void* pvParameters)
+static void controlTask(void* pvParameters)
 {
 	Controller* localController = static_cast<Controller*>(pvParameters);
 
@@ -211,7 +220,7 @@ static void controlLoop(void* pvParameters)
 	}
 }
 
-static void pressureUpdateLoop(void* pvParameters)
+static void pressureUpdateTask(void* pvParameters)
 {
 	PressureTaskContext* context = static_cast<PressureTaskContext*>(pvParameters);
 
@@ -228,9 +237,23 @@ static void pressureUpdateLoop(void* pvParameters)
 			}
 		}
 
-		vTaskDelay(PRESSURE_LOOP_DELAY);
+		vTaskDelay(PRESSURE_TASK_DELAY);
 	}
 }
+
+static void LEDTask(void* pvParameters)
+{
+	bool isLEDOn = true;
+
+	while(true)
+	{
+		digitalWrite(PIN_LED1,isLEDOn);
+		isLEDOn = !isLEDOn;
+		vTaskDelay(LED_TASK_DELAY);
+
+	}
+}
+
 }
 
 void setup()
@@ -245,9 +268,11 @@ void setup()
 	initializeHardware();
 	registerCommands();
 
-		xTaskCreatePinnedToCore(communicationLoop, "communicationTask", COMMUNICATION_TASK_STACK, &controller, 1, nullptr, 0);
-		xTaskCreatePinnedToCore(pressureUpdateLoop, "pressureTask", PRESSURE_TASK_STACK, &pressureTaskContext, 2, nullptr, 0);
-		xTaskCreatePinnedToCore(controlLoop, "controlTask", CONTROL_TASK_STACK, &controller, 1, nullptr, 1);
+		xTaskCreatePinnedToCore(communicationTask, "communicationTask", COMMUNICATION_TASK_STACK, &controller, 1, nullptr, 0);
+		xTaskCreatePinnedToCore(pressureUpdateTask, "pressureTask", PRESSURE_TASK_STACK, &pressureTaskContext, 2, nullptr, 0);
+		xTaskCreatePinnedToCore(controlTask, "controlTask", CONTROL_TASK_STACK, &controller, 1, nullptr, 1);
+		xTaskCreatePinnedToCore(LEDTask, "LEDTask",LED_TASK_STACK, nullptr, 1, nullptr, 0);
+
 }
 
 void loop()
