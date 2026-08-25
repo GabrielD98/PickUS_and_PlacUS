@@ -53,5 +53,6 @@ class CommandDispatcher:
                 packet = self._controller._commandInterface.buildPacket(command, is_new_command)
 
                 if packet is not None:
+                    self._controller._commParser.logOutgoing(packet)
                     self._controller._com.sendData(packet)
                     self._controller._lastCommand = command

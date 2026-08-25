@@ -73,7 +73,7 @@ class Controller:
 
     def connectionToMachine(self, comPort: str, baudrate: int):
         self._timeSinceLastResponse = time.time() * 1000
-        self._com = Communication(comPort, baudrate, self._commParser)
+        self._com = Communication(comPort, baudrate)
         self._com.open()
         self._commParser.setEnabled(self._commandParsingEnabled)
         self._closeEvent = threading.Event()
