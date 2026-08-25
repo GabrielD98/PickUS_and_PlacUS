@@ -2,8 +2,6 @@ import struct
 
 import serial
 
-from comm_parser import CommParser
-
 
 MAGIC_NUMBER = 0xFACE
 MAX_PAYLOAD_SIZE = 256
@@ -23,11 +21,10 @@ class Communication:
 
 	"""
 
-	def __init__(self, port: str, baudrate: int, parser: CommParser | None = None):
+	def __init__(self, port: str, baudrate: int):
 		self.port = port
 		self.baudrate = baudrate
 		self.ser = None
-		self._parser = parser if parser is not None else CommParser(False)
 		self._window = bytearray(2)
 		self._windowReady = False
 		self._aligned     = False
@@ -118,7 +115,6 @@ class Communication:
 		if self.isPortOpen():
 			try:
 				payload = bytes(data)
-				self._parser.logOutgoing(payload)
 				header = struct.pack('<HHH', MAGIC_NUMBER, self._checksum(payload), len(payload))
 				self.ser.write(header)
 				self.ser.write(payload)
@@ -156,7 +152,6 @@ class Communication:
 					return None
 
 				data = payload
-				self._parser.logIncoming(data)
 			except (serial.SerialException, AttributeError):
 				data = None
 		else:

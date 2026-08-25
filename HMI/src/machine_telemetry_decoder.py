@@ -28,6 +28,8 @@ class MachineTelemetryDecoder:
         if bytesBuffer is None or len(bytesBuffer) < size:
                 return False
 
+        self._controller._commParser.logIncoming(bytesBuffer)
+
         try:
             lastMachineState = self._controller.getMachineState()
             unpacked = struct.unpack(format, bytesBuffer[:size])
