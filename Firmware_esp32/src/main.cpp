@@ -127,8 +127,8 @@ static void initializeHardware()
 	motorZ.setEnablePin(PIN_DZ_EN);
 	motorYaw.setEnablePin(PIN_DYAW_EN);
 
-	motorX.setPinsInverted(false, false, true);
-	motorY.setPinsInverted(false, false, true);
+	motorX.setPinsInverted(true, false, true);
+	motorY.setPinsInverted(true, false, true);
 	motorZ.setPinsInverted(false, false, true);
 	motorYaw.setPinsInverted(false, false, true);
 
